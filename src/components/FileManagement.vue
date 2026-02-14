@@ -11,7 +11,7 @@
           </div>
 
           <button type="button" class="btn btn-outline-dark font-weight-bold" @click="$refs.fileInput.click()">
-            <CIcon name="cil-paperclip" class="mr-1"/> เลือกไฟล์เพื่ออัปโหลด
+            <CIcon name="cil-paperclip" class="me-1"/> เลือกไฟล์เพื่ออัปโหลด
           </button>
           <input type="file" ref="fileInput" multiple style="display: none" @change="$emit('upload', $event)" />
         </div>
@@ -43,7 +43,7 @@
 
                 <td class="align-middle">
                   <a href="#" @click.prevent="$emit('open', item)" class="text-primary font-weight-bold" style="cursor:pointer;">
-                    <CIcon name="cil-file" class="mr-1"/> {{ item.name }}
+                    <CIcon name="cil-file" class="me-1"/> {{ item.name }}
                   </a>
                 </td>
 
@@ -55,7 +55,7 @@
                 </td>
 
                 <td class="text-center align-middle">
-                  <button type="button" class="btn btn-sm btn-outline-info mr-2" @click="$emit('replace', index)">
+                  <button type="button" class="btn btn-sm btn-outline-info me-2" @click="$emit('replace', index)">
                     <CIcon name="cil-settings"/>
                   </button>
                   <button type="button" class="btn btn-sm btn-outline-danger" @click="$emit('remove', index)">

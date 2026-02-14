@@ -14,8 +14,8 @@
         </h5>
 
         <div class="border rounded shadow-sm overflow-hidden">
-          <quill-editor :value="form[field.model]" @input="onEditorInput(field.model, $event)"
-            :options="editorOption" />
+          <QuillEditor :content="form[field.model]" @update:content="value => updateField(field.model, value)"
+            contentType="html" :options="editorOption" />
         </div>
 
       </div>
@@ -36,25 +36,20 @@ export default {
     QuillEditor
   },
   props: {
-    // รับข้อมูลจาก ResearchForm.vue
     form: { type: Object, required: true },
     textFields: { type: Array, required: true },
     editorOption: { type: Object, required: true }
   },
   methods: {
-    /**
-     * จัดการการแก้ไขเนื้อหาใน Editor
-     * สร้างสำเนาข้อมูลใหม่และส่งกลับไปอัปเดตที่คอมโพเนนต์แม่ผ่าน .sync
-     */
-    onEditorInput(modelName, value) {
-      const updatedForm = {
+    updateField(key, value) {
+      this.$emit('update:form', {
         ...this.form,
-        [modelName]: value
-      };
-      this.$emit('update:form', updatedForm);
+        [key]: value
+      })
     }
   }
 }
+
 </script>
 
 <style>

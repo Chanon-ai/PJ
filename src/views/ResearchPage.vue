@@ -13,7 +13,7 @@
       <CCard class="shadow-sm w-100 mb-4 border-0">
         <CCardHeader class="bg-primary text-white py-3">
           <h5 class="m-0 font-weight-bold">
-            <CIcon name="cil-calendar" class="mr-2" /> 12) แผนการดำเนินงาน
+            <CIcon name="cil-calendar" class="me-2" /> 12) แผนการดำเนินงาน
           </h5>
         </CCardHeader>
         <CCardBody class="p-4 bg-white">
@@ -21,23 +21,23 @@
         </CCardBody>
       </CCard>
 
-      <BudgetOutcomesSection   v-model:form="form" :outcomes="outcomes" :editor-option="editorOption" />
-CFormInput  
-      <EthicsSection   v-model:form="form" :editor-option="editorOption" @file-upload="handleFileUpload" />
+      <BudgetOutcomesSection v-model:form="form" :outcomes="outcomes" :editor-option="editorOption" />
+      CFormInput
+      <EthicsSection v-model:form="form" :editor-option="editorOption" @file-upload="handleFileUpload" />
       <SignatureSection :form="form" />
 
       <FileManagement :files="files" @upload="handleFileUpload2" @remove="removeFile" @open="openFile"
         @replace="triggerReplace" />
 
       <footer class="bg-white p-4 border-top d-flex justify-content-end shadow-lg sticky-footer">
-        <CButton color="danger" variant="outline" class="px-5 font-weight-bold mr-3" @click="resetForm">
-          <CIcon name="cil-trash" class="mr-2" /> ล้างข้อมูล
+        <CButton color="danger" variant="outline" class="px-5 font-weight-bold me-3" @click="resetForm">
+          <CIcon name="cil-trash" class="me-2" /> ล้างข้อมูล
         </CButton>
-        <CButton color="primary" class="px-5 font-weight-bold shadow mr-3" @click="submit">
-          <CIcon name="cil-save" class="mr-2" /> บันทึกแบบเสนอโครงการ
+        <CButton color="primary" class="px-5 font-weight-bold shadow me-3" @click="submit">
+          <CIcon name="cil-save" class="me-2" /> บันทึกแบบเสนอโครงการ
         </CButton>
         <CButton color="info" class="px-4 font-weight-bold text-white" @click="exportPDF">
-          <CIcon name="cil-print" class="mr-2" /> Export PDF
+          <CIcon name="cil-print" class="me-2" /> Export PDF
         </CButton>
       </footer>
 
@@ -59,7 +59,7 @@ import ResearchSection12 from "@/components/Section12.vue";
 import SignatureSection from "@/components/SignatureSection.vue";
 
 // Import Libs
-import html2pdf from "html2pdf.js";
+// import html2pdf from "html2pdf.js";
 
 export default {
   name: "ResearchForm",
@@ -111,16 +111,38 @@ export default {
       files: [],
       replaceIndex: null,
       form: {
-        titleTH: "", titleEN: "", budgetType: "", budgets: [],
-        cooperation: "ไม่มี", cooperationDetail: "", researchType: "",
-        selectedOutcomes: [], standards: [],
+        titleTH: "",
+        titleEN: "",
+        budgetType: "",
+        budgets: [],
+        cooperation: "ไม่มี",
+        cooperationDetail: "",
+        researchType: "",
+        selectedOutcomes: [],
+        standards: [],
+
         humanDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
         animalDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
+
         researchers: {
           mainResearcher: { name: "", affiliation: "", phone: "", email: "", code: "" },
-          coResearchers: [], advisors: []
+          coResearchers: [],
+          advisors: []
         },
-        remark: "", progressReport: "", integration: "", transferLevel: "ไม่มีการนำไปถ่ายทอดสู่สังคม"
+
+        // 🔥 เพิ่มส่วนนี้
+        keywords: "",
+        importance: "",
+        objective: "",
+        literature: "",
+        reference: "",
+        methodology: "",
+        scope: "",
+
+        remark: "",
+        progressReport: "",
+        integration: "",
+        transferLevel: "ไม่มีการนำไปถ่ายทอดสู่สังคม"
       }
     };
   },
@@ -154,9 +176,41 @@ export default {
     },
     submit() { console.log("Final Form Data:", this.form); alert("บันทึกข้อมูลสำเร็จ"); },
     resetForm() { if (confirm("ล้างข้อมูลทั้งหมด?")) location.reload(); },
-    exportPDF() { html2pdf().from(document.body).save("Research_Proposal_RS1.pdf"); }
+    exportPDF() {
+      const cleanData = {}
+
+      Object.keys(this.form).forEach(key => {
+        const value = this.form[key]
+
+        if (typeof value === "object" && value !== null) {
+
+          // ถ้าเป็น Delta ของ Quill
+          if (value.ops) {
+            cleanData[key] = value.ops.map(op => op.insert).join('')
+          }
+
+          // ถ้าเป็น object อื่น (กันพลาด)
+          else if (Array.isArray(value)) {
+            cleanData[key] = value
+          }
+
+          else {
+            cleanData[key] = JSON.parse(JSON.stringify(value))
+          }
+
+        } else {
+          cleanData[key] = value
+        }
+      })
+
+      localStorage.setItem("reportData", JSON.stringify(cleanData))
+      this.$router.push({ name: 'Report' })
+    }
+
   }
+
 };
+
 </script>
 
 <style scoped>

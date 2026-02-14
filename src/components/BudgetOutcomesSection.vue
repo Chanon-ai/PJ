@@ -2,15 +2,14 @@
   <CCard class="shadow-sm w-100 mb-4 border-0">
     <CCardHeader class="bg-primary text-white py-3">
       <h5 class="m-0 font-weight-bold">
-        <CIcon name="cil-money" class="mr-2" /> 13-17) งบประมาณและผลลัพธ์
+        <CIcon name="cil-money" class="me-2" /> 13-17) งบประมาณและผลลัพธ์
       </h5>
     </CCardHeader>
     <CCardBody class="p-4 bg-white">
       <div class="mb-5">
         <h5 class="font-weight-bold text-dark">13) ผลงานตามระยะเวลาการรายงาน</h5>
-        <quill-editor :value="form.progressReport" @input="updateField('progressReport', $event)"
-          :options="editorOption" class="mb-4" />
-
+        <QuillEditor :content="form.progressByPeriod" @update:content="value => updateField('progressByPeriod', value)"
+          contentType="html" :options="editorOption" class="mb-4" />
         <h5 class="font-weight-bold mb-4 text-dark border-bottom pb-2">14) ผลลัพธ์ที่คาดว่าจะได้รับ
           (สัมพันธ์กับประเภททุน)</h5>
         <div v-if="form.budgetType" class="p-4 border rounded bg-light shadow-sm mb-4 border-left-primary">
@@ -60,8 +59,9 @@
 
       <div class="mb-5">
         <h5 class="font-weight-bold text-dark">15) การบูรณาการงานวิจัย</h5>
-        <quill-editor :value="form.integration" @input="updateField('integration', $event)" :options="editorOption"
-          class="mb-4" />
+        <QuillEditor :content="form.integration" @update:content="value => updateField('integration', value)"
+          contentType="html" :options="editorOption" class="mb-4" />
+
 
         <h5 class="font-weight-bold text-dark mb-3">16) ระดับการถ่ายทอดสู่สังคม *</h5>
         <div class="bg-light p-4 rounded border mb-5 shadow-sm w-100 border-left-primary">

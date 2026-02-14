@@ -6,16 +6,16 @@
       <CCard class="shadow-sm border-0 mb-3 w-100">
         <CCardHeader class="bg-primary text-white py-2 d-flex justify-content-between align-items-center flex-wrap">
           <h6 class="m-0 font-weight-bold">
-            <CIcon name="cil-money" class="mr-2" /> {{ cat.title }}
+            <CIcon name="cil-money" class="me-2" /> {{ cat.title }}
           </h6>
           <div class="d-flex align-items-center mt-2 mt-md-0" style="gap: 10px;">
             <CButton color="light" size="sm" variant="outline" class="text-white border-white"
               @click="addManualRow(ci)">
-              <CIcon name="cil-plus" class="mr-1" /> เพิ่มรายการเอง
+              <CIcon name="cil-plus" class="me-1" /> เพิ่มรายการเอง
             </CButton>
             <CButton color="light" size="sm" variant="outline" class="text-white border-white"
               @click="triggerFileUpload(ci)">
-              <CIcon name="cil-paperclip" class="mr-1" /> แนบเอกสาร
+              <CIcon name="cil-paperclip" class="me-1" /> แนบเอกสาร
             </CButton>
           </div>
         </CCardHeader>
@@ -56,7 +56,7 @@
                       <CButton color="info" variant="outline" size="sm"
                         class="py-0 px-2 shadow-sm d-flex align-items-center" style="font-size: 10px; height: 20px;"
                         @click="viewFile(r.fileUrl)">
-                        <CIcon name="cil-folder" size="sm" class="mr-1" /> ดูไฟล์
+                        <CIcon name="cil-folder" size="sm" class="me-1" /> ดูไฟล์
                       </CButton>
                       <small class="text-muted d-block w-100 mt-1"
                         style="font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{
@@ -117,10 +117,10 @@
           </div>
           <div class="d-flex" style="gap: 12px;">
             <CButton color="danger" variant="outline" class="px-4 py-2 font-weight-bold" @click="resetForm">
-              <CIcon name="cil-trash" class="mr-1" /> ล้างฟอร์มทั้งหมด
+              <CIcon name="cil-trash" class="me-1" /> ล้างฟอร์มทั้งหมด
             </CButton>
             <CButton color="primary" class="px-5 py-2 font-weight-bold shadow" @click="saveDraft">
-              <CIcon name="cil-save" class="mr-1" /> บันทึกแบบร่าง
+              <CIcon name="cil-save" class="me-1" /> บันทึกแบบร่าง
             </CButton>
           </div>
         </div>
