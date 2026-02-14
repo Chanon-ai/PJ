@@ -10,14 +10,14 @@
         <CCol md="12" class="mb-4">
           <h5 class="font-weight-bold text-dark mb-3">1) ชื่อโครงการ *</h5>
           <div class="p-3 border rounded bg-light shadow-sm">
-            <CInput 
+            <CFormInput  
               label="ชื่อโครงการ (ภาษาไทย)" 
               :value="form.titleTH" 
               @input="updateField('titleTH', $event)"
               placeholder="กรุณาระบุชื่อโครงการภาษาไทย"
               class="mb-3" 
             />
-            <CInput 
+            <CFormInput  
               label="ชื่อโครงการ (ภาษาอังกฤษ)" 
               :value="form.titleEN" 
               @input="updateField('titleEN', $event)"
@@ -48,14 +48,14 @@
 
         <CCol lg="6" md="12" class="mb-4">
           <h5 class="font-weight-bold text-dark mb-3">3) ความร่วมมือ *</h5>
-          <CSelect 
+          <CFormSelect  
             :options="['ไม่มี', 'มี']" 
             :value="form.cooperation" 
             @update:value="updateField('cooperation', $event)"
             class="shadow-sm" 
           />
           <div v-if="form.cooperation === 'มี'" class="mt-3">
-            <CInput 
+            <CFormInput  
               label="รายละเอียดความร่วมมือ" 
               :value="form.cooperationDetail"
               @input="updateField('cooperationDetail', $event)"
@@ -66,7 +66,7 @@
 
         <CCol lg="6" md="12" class="mb-4">
           <h5 class="font-weight-bold text-dark mb-3">4) ประเภทงานวิจัย *</h5>
-          <CSelect 
+          <CFormSelect  
             :options="researchTypeOptions" 
             :value="form.researchType" 
             @update:value="updateField('researchType', $event)"

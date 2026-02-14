@@ -14,12 +14,8 @@
         </h5>
 
         <div class="border rounded shadow-sm overflow-hidden">
-          <quill-editor 
-            :value="form[field.model]" 
-            @input="onEditorInput(field.model, $event)"
-            :options="editorOption" 
-             
-          />
+          <quill-editor :value="form[field.model]" @input="onEditorInput(field.model, $event)"
+            :options="editorOption" />
         </div>
 
       </div>
@@ -31,12 +27,13 @@
 // นำเข้า Editor
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
-import { quillEditor } from 'vue-quill-editor'
+import { QuillEditor } from '@vueup/vue-quill'
+
 
 export default {
   name: 'ResearchDetailSection',
   components: {
-    quillEditor
+    QuillEditor
   },
   props: {
     // รับข้อมูลจาก ResearchForm.vue
@@ -50,9 +47,9 @@ export default {
      * สร้างสำเนาข้อมูลใหม่และส่งกลับไปอัปเดตที่คอมโพเนนต์แม่ผ่าน .sync
      */
     onEditorInput(modelName, value) {
-      const updatedForm = { 
-        ...this.form, 
-        [modelName]: value 
+      const updatedForm = {
+        ...this.form,
+        [modelName]: value
       };
       this.$emit('update:form', updatedForm);
     }
@@ -71,7 +68,7 @@ export default {
 }
 
 /* ลบขอบ Editor เพื่อให้เนียนไปกับกล่อง Shadow ที่ครอบอยู่ */
-::v-deep .ql-toolbar.ql-snow, 
+::v-deep .ql-toolbar.ql-snow,
 ::v-deep .ql-container.ql-snow {
   border: none !important;
 }

@@ -22,7 +22,7 @@
 
         <CCardBody class="p-3 bg-light">
           <div v-if="cat.options.length > 0" class="mb-3" style="max-width: 500px;">
-            <CSelect :options="['', ...cat.options]" :value="cat.selected" @input="val => cat.selected = val"
+            <CFormSelect  :options="['', ...cat.options]" :value="cat.selected" @input="val => cat.selected = val"
               placeholder="-- เลือกรายการย่อยเพื่อเพิ่มในตาราง --" custom class="shadow-sm border-primary" />
           </div>
 
@@ -46,7 +46,7 @@
                 <tr v-for="(r, ri) in cat.rows" :key="ri">
                   <td class="px-3 py-2">
                     <div v-if="!r.isManual && !r.fileUrl" class="font-weight-bold text-dark">{{ r.name }}</div>
-                    <CInput v-else v-model="r.name" size="sm" class="mb-0" placeholder="ระบุชื่อรายการ..." />
+                    <CFormInput  v-else v-model="r.name" size="sm" class="mb-0" placeholder="ระบุชื่อรายการ..." />
 
                     <div v-if="r.fileUrl" class="mt-2 d-flex align-items-center flex-wrap" style="gap: 6px;">
                       <span :class="['badge px-2 py-1 text-uppercase shadow-sm', getFileBadgeClass(r.fileName)]"
@@ -68,12 +68,12 @@
                     <div v-if="r.multipliers" class="d-flex align-items-center justify-content-center"
                       style="gap: 5px;">
                       <div v-for="(m, mi) in r.multipliers" :key="mi" class="text-center">
-                        <CInput type="number" v-model.number="m.val" size="sm" class="mb-0 text-center shadow-none"
+                        <CFormInput  type="number" v-model.number="m.val" size="sm" class="mb-0 text-center shadow-none"
                           style="width: 60px;" @input="calculateRowTotal(r)" />
                         <small class="text-muted d-block" style="font-size: 9px">{{ m.label }}</small>
                       </div>
                     </div>
-                    <CInput v-else v-model="r.detail" size="sm" class="mb-0 shadow-none border-info"
+                    <CFormInput  v-else v-model="r.detail" size="sm" class="mb-0 shadow-none border-info"
                       placeholder="เช่น 500*3+100" @input="calculateManual(r)" />
                   </td>
 
@@ -85,7 +85,7 @@
                   </td>
 
                   <td v-for="p in ['p1', 'p2', 'p3']" :key="p" class="py-2">
-                    <CInput type="number" v-model.number="r[p]" size="sm"
+                    <CFormInput  type="number" v-model.number="r[p]" size="sm"
                       :class="['mb-0 text-right shadow-none', r.errors[p] ? 'is-invalid-bg text-danger border-danger' : '']"
                       @input="validateInstallments(r, p)" />
                     <small v-if="r.errors[p]" class="text-danger d-block mt-1 font-weight-bold text-center"

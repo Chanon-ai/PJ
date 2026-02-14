@@ -59,7 +59,7 @@ export default {
       alert("บันทึกลายเซ็นแล้ว");
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener('resize', this.resizeCanvas);
   }
 }
