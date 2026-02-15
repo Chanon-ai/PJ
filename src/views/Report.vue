@@ -245,10 +245,38 @@
       </div>
 
       <!-- 12 -->
-      <div class="section">
+      <div class="section" v-if="form.activities && form.activities.length">
         <div class="sub-title">12. แผนการดำเนินงาน</div>
-        <div class="field-line">ตามเอกสารแนบ</div>
+        <div class="group-title ms-3">ระยะเวลาที่ทำการวิจัย {{ maxMonths }} เดือน</div>
+        <table class="gantt-print-table">
+          <thead>
+            <th class="col-activity">กิจกรรม</th>
+            <th v-for="m in maxMonths" :key="m" :style="{ width: monthWidth + 'px' }">
+              {{ m }}
+            </th>
+            <th class="col-owner">ผู้รับผิดชอบ</th>
+
+          </thead>
+
+          <tbody>
+            <tr v-for="(act, index) in form.activities" :key="index">
+              <td class="col-activity">
+                {{ act.name }}
+              </td>
+              <td v-for="(month, i) in act.months" :key="i" :style="{ width: monthWidth + 'px' }">
+                <span v-if="month">●</span>
+              </td>
+
+              <td class="col-owner">
+                {{ act.owner }}
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
+
       </div>
+
 
       <!-- 13 -->
       <div class="section">
@@ -373,9 +401,41 @@
 
       <!-- 17 -->
       <div class="section">
-        <div class="sub-title">17. งบประมาณ</div>
-        <div class="field-line">รายละเอียดงบประมาณตามเอกสารแนบ</div>
+        <div class="sub-title">
+          17. งบประมาณ
+        </div>
+        <div v-if="budgetData" class="budget-table-section">
+          <table class="budget-print-table">
+            <thead>
+              <tr>
+                <th>หมวด</th>
+                <th>รายการ</th>
+                <th>รวม (บาท)</th>
+                <th>งวด 1</th>
+                <th>งวด 2</th>
+                <th>งวด 3</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template v-for="(cat, ci) in budgetData.categories" :key="ci">
+                <tr v-for="(row, ri) in cat.rows" :key="ri">
+                  <td>{{ cat.title }}</td>
+                  <td>{{ row.name }}</td>
+                  <td>{{ Number(row.total).toLocaleString() }}</td>
+                  <td>{{ row.p1 }}</td>
+                  <td>{{ row.p2 }}</td>
+                  <td>{{ row.p3 }}</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+
+          <div class="budget-grand-total">
+            รวมทั้งสิ้น {{ budgetData.grandTotal.toLocaleString() }} บาท
+          </div>
+        </div>
       </div>
+
 
       <!-- 18 -->
       <div class="section">
@@ -533,6 +593,7 @@ export default {
         researchStandard: [],
         standards: [],
         mainSignature: "",
+        activities: [],
         humanDetail: {
           hasCert: false,
           isPending: false,
@@ -562,6 +623,7 @@ export default {
           applyDate: "",
           file: null
         },
+        budgetData: null,
         keywords: "",
         importance: "",
         objective: "",
@@ -586,7 +648,8 @@ export default {
         { title: "11. ขอบเขตการวิจัย", model: "scope" }
       ]
     };
-  },
+  }
+  ,
   mounted() {
     const data = localStorage.getItem("reportData")
 
@@ -635,6 +698,11 @@ export default {
       }
 
     }
+    const budget = localStorage.getItem("budgetData");
+    if (budget) {
+      this.budgetData = JSON.parse(budget);
+    }
+
   },
   methods: {
     check(condition) {
@@ -686,8 +754,20 @@ export default {
   computed: {
     currentThaiDate() {
       return new Date().toLocaleDateString("th-TH");
+    },
+
+    maxMonths() {
+      if (!this.form.activities || !this.form.activities.length) return 0
+      return this.form.activities[0].months.length
+    },
+    monthWidth() {
+      if (!this.maxMonths) return 20
+      const totalAvailable = 400
+      return Math.floor(totalAvailable / this.maxMonths)
     }
+
   }
+
 
 };
 </script>
@@ -917,7 +997,8 @@ export default {
 }
 
 .signature-box {
-  width: 45%;   /* จาก 30% เป็น 45% */
+  width: 45%;
+  /* จาก 30% เป็น 45% */
   position: relative;
   height: 150px;
   text-align: center;
@@ -941,5 +1022,58 @@ export default {
   padding-bottom: 2px;
   margin-bottom: 2px;
   line-height: 1.2;
+}
+
+.gantt-print-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+
+
+.gantt-print-table th,
+.gantt-print-table td {
+  border: 1px solid #000;
+  padding: 3px;
+  text-align: center;
+}
+
+.col-activity {
+  width: 100px;
+  line-height: 0.8;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  text-align: left;
+}
+
+.col-owner {
+  width: 100px;
+  line-height: 0.8;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  text-align: left;
+}
+
+.budget-print-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+.budget-print-table th,
+.budget-print-table td {
+  border: 1px solid #000;
+  padding: 5px;
+  text-align: center;
+}
+
+.budget-grand-total {
+  text-align: right;
+  font-weight: bold;
+  margin-top: 10px;
 }
 </style>

@@ -25,7 +25,7 @@
           </h5>
         </CCardHeader>
         <CCardBody class="p-4 bg-white">
-          <ResearchSection12 />
+          <ResearchSection12 v-model="form.activities" />
         </CCardBody>
       </CCard>
 
@@ -66,6 +66,7 @@ import EthicsSection from "@/components/EthicsSection.vue";
 import FileManagement from "@/components/FileManagement.vue";
 import ResearchSection12 from "@/components/Section12.vue";
 import SignatureSection from "@/components/SignatureSection.vue";
+import Swal from 'sweetalert2'
 
 
 export default {
@@ -192,6 +193,7 @@ export default {
         researchStandard: [],
         socialTransfer: "",
         mainSignature: "",
+        activities: [],
         humanDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
         animalDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
         plantDetail: { applyDate: '' },
@@ -201,7 +203,7 @@ export default {
           coResearchers: [],
           advisors: []
         },
-
+        budgetData: null,
         keywords: "",
         importance: "",
         objective: "",
@@ -217,6 +219,7 @@ export default {
     };
   },
   watch: {
+
     'form.budgetType': function () { this.form.selectedOutcomes = []; }
   },
   methods: {
@@ -253,8 +256,41 @@ export default {
       event.target.value = null;
     }
     ,
-    submit() { console.log("Final Form Data:", this.form); alert("บันทึกข้อมูลสำเร็จ"); },
-    resetForm() { if (confirm("ล้างข้อมูลทั้งหมด?")) location.reload(); },
+    submit() {
+      console.log("Final Form Data:", this.form);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'บันทึกสำเร็จ',
+        text: 'บันทึกข้อมูลสำเร็จ',
+        confirmButtonText: 'ตกลง',
+        buttonsStyling: false,
+        customClass: {
+          confirmButton: 'btn btn-primary'
+        }
+      });
+    }
+    ,
+    resetForm() {
+      Swal.fire({
+        icon: 'warning',
+        title: 'ยืนยันการล้างข้อมูล',
+        text: 'คุณต้องการล้างข้อมูลทั้งหมดหรือไม่?',
+        showCancelButton: true,
+        confirmButtonText: 'ใช่, ล้างเลย',
+        cancelButtonText: 'ยกเลิก',
+        buttonsStyling: false,
+        customClass: {
+          confirmButton: 'btn btn-danger me-2',
+          cancelButton: 'btn btn-secondary'
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          location.reload();
+        }
+      });
+    }
+    ,
     exportPDF() {
       this.$nextTick(() => {
         localStorage.setItem("reportData", JSON.stringify(this.form))

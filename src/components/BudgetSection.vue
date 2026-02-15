@@ -2,7 +2,7 @@
   <div class="budget-form-container w-100">
     <input type="file" ref="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" style="display: none"
       @change="onFilePicked" />
-     <div v-for="(cat, ci) in categories" :key="cat.title" class="mb-5">
+    <div v-for="(cat, ci) in categories" :key="cat.title" class="mb-5">
       <CCard class="shadow-sm border-0 mb-3 w-100">
         <CCardHeader class="bg-primary text-white py-2 d-flex justify-content-between align-items-center flex-wrap">
           <h6 class="m-0 font-weight-bold">
@@ -91,7 +91,8 @@
                       </div>
                     </div>
                     <CFormInput v-else v-model="r.detail" size="sm" class="mb-0 shadow-none border-info"
-                      placeholder="เช่น 500*3+100" @change="calculateManual(r)" />
+                      placeholder="เช่น 500*3+100" />
+
                   </td>
 
                   <td class="py-2 align-middle">
@@ -147,9 +148,12 @@
 </template>
 
 <script>
+import Swal from "sweetalert2";
+
 export default {
   name: "BudgetSection",
   data() {
+
     return {
       activeCategoryIndex: null,
       categories: [
@@ -174,7 +178,22 @@ export default {
     grandTotal() {
       return this.categories.reduce((sum, c) => sum + c.rows.reduce((s, r) => s + Number(r.total || 0), 0), 0);
     }
+  }, watch: {
+    categories: {
+      deep: true,
+      handler(newVal) {
+        newVal.forEach(cat => {
+          cat.rows.forEach(row => {
+            if (!row.multipliers && row.detail) {
+              this.calculateManual(row);
+            }
+          });
+        });
+      }
+    }
   },
+
+
   methods: {
     makeCat(title, options = []) { return { title, options, selected: "", rows: [] }; },
     addRow(ci) {
@@ -264,14 +283,58 @@ export default {
       this.categories[ci].rows.splice(ri, 1);
     },
     resetForm() {
-      this.categories.forEach(c => {
-        c.rows.forEach(r => { if (r.fileUrl) URL.revokeObjectURL(r.fileUrl); });
-        c.rows = [];
-      }
-      );
-      this.activeCategoryIndex = null;
-    },
-    saveDraft() { alert("บันทึกเรียบร้อย"); }
+      Swal.fire({
+        title: "ยืนยันการรีเซ็ต?",
+        text: "ข้อมูลทั้งหมดในตารางจะถูกลบ และไม่สามารถกู้คืนได้",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "ใช่, รีเซ็ตเลย",
+        cancelButtonText: "ยกเลิก"
+      }).then((result) => {
+        if (result.isConfirmed) {
+
+          this.categories.forEach(c => {
+            c.rows.forEach(r => {
+              if (r.fileUrl) URL.revokeObjectURL(r.fileUrl);
+            });
+            c.rows = [];
+          });
+
+          this.activeCategoryIndex = null;
+
+          Swal.fire({
+            icon: "success",
+            title: "รีเซ็ตเรียบร้อย",
+            timer: 1500,
+            showConfirmButton: false
+          });
+        }
+      });
+    }
+    ,
+    saveDraft() {
+      const budgetData = {
+        categories: this.categories,
+        grandTotal: this.grandTotal
+      };
+
+      localStorage.setItem("budgetData", JSON.stringify(budgetData));
+
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "success",
+        title: "บันทึกเรียบร้อย",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      });
+
+
+    }
+
   }
 };
 </script>
@@ -346,8 +409,8 @@ export default {
 }
 
 .table thead th {
-  background-color: #5f647a; 
-  color: #f5f5f5;        
+  background-color: #5f647a;
+  color: #f5f5f5;
   font-weight: 500;
 }
 </style>

@@ -66,26 +66,86 @@
 <script>
 export default {
   name: "ResearchSection12",
+
+  props: {
+    modelValue: {
+      type: Array,
+      default: () => []
+    }
+  },
+
+  emits: ['update:modelValue'],
+
   data() {
     return {
       duration: 12,
-      activities: [
-        { name: "", owner: "", months: Array(12).fill(false) }
-      ]
+      activities: []
     };
   },
+
+  mounted() {
+    this.initializeData();
+  },
+
+  watch: {
+    modelValue: {
+      deep: true,
+      immediate: true,
+      handler(newVal) {
+        if (newVal && newVal.length) {
+          const monthsLength = newVal[0]?.months?.length
+          if (monthsLength) {
+            this.duration = monthsLength
+          }
+
+          this.activities = JSON.parse(JSON.stringify(newVal))
+        }
+      }
+    }
+    ,
+
+    activities: {
+      deep: true,
+      handler(newVal) {
+        if (JSON.stringify(newVal) !== JSON.stringify(this.modelValue)) {
+          this.$emit('update:modelValue', newVal)
+        }
+      }
+    }
+  }
+  ,
+
   methods: {
+    initializeData() {
+      if (!this.modelValue.length) {
+        const defaultData = [
+          { name: "", owner: "", months: Array(this.duration).fill(false) }
+        ];
+
+        this.activities = defaultData;
+        this.$emit('update:modelValue', defaultData);
+      }
+    }
+    ,
+
     changeDuration(newDuration) {
       this.duration = newDuration;
+
       this.activities.forEach(act => {
-        const currentMonths = act.months;
+        const currentMonths = act.months || [];
+
         if (currentMonths.length < newDuration) {
-          act.months = [...currentMonths, ...Array(newDuration - currentMonths.length).fill(false)];
+          act.months = [
+            ...currentMonths,
+            ...Array(newDuration - currentMonths.length).fill(false)
+          ];
         } else {
           act.months = currentMonths.slice(0, newDuration);
         }
       });
+      this.$emit('update:modelValue', this.activities);
     },
+
     addActivity() {
       this.activities.push({
         name: "",
@@ -93,14 +153,16 @@ export default {
         months: Array(this.duration).fill(false)
       });
     },
+
     removeActivity(index) {
       this.activities.splice(index, 1);
     },
+
     toggleMonth(actIndex, mIndex) {
       this.activities[actIndex].months[mIndex] =
-      !this.activities[actIndex].months[mIndex];
-
+        !this.activities[actIndex].months[mIndex];
     },
+
     autoResize(event) {
       const element = event.target;
       element.style.height = "auto";
@@ -108,6 +170,7 @@ export default {
     }
   }
 };
+
 </script>
 
 <style scoped>

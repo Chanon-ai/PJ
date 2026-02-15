@@ -16,6 +16,7 @@
 
 <script>
 import SignaturePad from 'signature_pad';
+import Swal from 'sweetalert2'
 
 export default {
   name: 'SignaturePad',
@@ -89,16 +90,33 @@ export default {
     },
 
     save() {
-      if (this.pad.isEmpty()) {
-        alert("กรุณาลงลายเซ็นก่อนยืนยัน");
+      if (!this.pad || this.pad.isEmpty()) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'ยังไม่ได้ลงลายเซ็น',
+          text: 'กรุณาลงลายเซ็นก่อนยืนยัน',
+          confirmButtonText: 'ตกลง',
+          buttonsStyling: false,
+          customClass: {
+            confirmButton: 'btn btn-primary'
+          }
+        });
         return;
       }
 
-      const dataUrl = this.pad.toDataURL();
+      const dataUrl = this.pad.toDataURL('image/png');
       this.$emit('update:modelValue', dataUrl);
 
-      alert("บันทึกลายเซ็นแล้ว");
+      Swal.fire({
+        icon: 'success',
+        title: 'บันทึกสำเร็จ',
+        text: 'บันทึกลายเซ็นแล้ว',
+        confirmButtonText: 'เรียบร้อย',
+        timer: 1500,
+        showConfirmButton: false
+      });
     }
+
   },
 
   beforeUnmount() {
