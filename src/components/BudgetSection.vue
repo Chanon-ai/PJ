@@ -91,8 +91,7 @@
                       </div>
                     </div>
                     <CFormInput v-else v-model="r.detail" size="sm" class="mb-0 shadow-none border-info"
-                      placeholder="เช่น 500*3+100" />
-
+                      placeholder="เช่น 500*3+100" @input="calculateManual($event, r)" />
                   </td>
 
                   <td class="py-2 align-middle">
@@ -176,24 +175,11 @@ export default {
   },
   computed: {
     grandTotal() {
-      return this.categories.reduce((sum, c) => sum + c.rows.reduce((s, r) => s + Number(r.total || 0), 0), 0);
-    }
-  }, watch: {
-    categories: {
-      deep: true,
-      handler(newVal) {
-        newVal.forEach(cat => {
-          cat.rows.forEach(row => {
-            if (!row.multipliers && row.detail) {
-              this.calculateManual(row);
-            }
-          });
-        });
-      }
+      return this.categories.reduce((sum, c) =>
+        sum + c.rows.reduce((s, r) => s + Number(r.total || 0), 0), 0
+      );
     }
   },
-
-
   methods: {
     makeCat(title, options = []) { return { title, options, selected: "", rows: [] }; },
     addRow(ci) {
@@ -244,28 +230,48 @@ export default {
       return 'badge-secondary';
     },
 
-    calculateManual(row) {
-      if (!row.detail) { row.total = 0; return; }
+    calculateManual(event, row) {
+      const value = event.target.value;
+
+      if (!value) {
+        row.total = 0;
+        return;
+      }
+
       try {
-        const sanitized = row.detail.replace(/[^-+*/().0-9]/g, '');
-        if (sanitized) {
-          const result = new Function(`return ${sanitized}`)();
+        if (/^[0-9+\-*/().\s]+$/.test(value)) {
+          const result = Function('"use strict"; return (' + value + ')')();
           row.total = isFinite(result) ? result : 0;
-          row.p1 = 0; row.p2 = 0; row.p3 = 0;
         }
-      } catch (e) { /* Ignore error while typing */ }
+      } catch (e) {
+        // ignore while typing
+      }
     },
     calculateRowTotal(row) {
       if (row.multipliers) {
-        row.total = row.multipliers.reduce((acc, m) => acc * (Number(m.val) || 0), 1);
-        row.p1 = 0; row.p2 = 0; row.p3 = 0;
+        row.total = row.multipliers.reduce(
+          (acc, m) => acc * (Number(m.val) || 0),
+          1
+        );
       }
-    },
+    }
+    ,
     validateInstallments(row, field) {
-      const sum = Number(row.p1 || 0) + Number(row.p2 || 0) + Number(row.p3 || 0);
-      if (sum > row.total) { row.errors[field] = `เกินงบ!`; row[field] = 0; }
-      else { row.errors.p1 = ""; row.errors.p2 = ""; row.errors.p3 = ""; }
-    },
+      const p1 = Number(row.p1 || 0);
+      const p2 = Number(row.p2 || 0);
+      const p3 = Number(row.p3 || 0);
+
+      const sum = p1 + p2 + p3;
+
+      if (sum > row.total) {
+        row.errors[field] = "ยอดรวมเกินงบประมาณ";
+      } else {
+        row.errors.p1 = "";
+        row.errors.p2 = "";
+        row.errors.p3 = "";
+      }
+    }
+    ,
     triggerFileUpload(ci) { this.activeCategoryIndex = ci; this.$refs.fileInput.click(); },
     onFilePicked(event) {
       const file = event.target.files[0];
