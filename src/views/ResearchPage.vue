@@ -239,11 +239,20 @@ export default {
     triggerReplace(index) { this.replaceIndex = index; this.$refs.replaceInput.click(); },
     replaceFile(event) {
       const file = event.target.files[0];
+
       if (file && this.replaceIndex !== null) {
-        this.$set(this.files, this.replaceIndex, { ...this.files[this.replaceIndex], name: file.name, raw: file });
+        this.files[this.replaceIndex] = {
+          ...this.files[this.replaceIndex],
+          name: file.name,
+          raw: file,
+          datetime: new Date().toLocaleString("th-TH")
+        };
       }
+
       this.replaceIndex = null;
-    },
+      event.target.value = null;
+    }
+    ,
     submit() { console.log("Final Form Data:", this.form); alert("บันทึกข้อมูลสำเร็จ"); },
     resetForm() { if (confirm("ล้างข้อมูลทั้งหมด?")) location.reload(); },
     exportPDF() {
