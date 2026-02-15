@@ -83,10 +83,37 @@ export default {
         }
       },
       budgetTypes: [
-        { label: "ทุนนักวิจัยรุ่นใหม่", value: "new" },
-        { label: "ทุนพัฒนานักวิจัย", value: "dev" },
-        { label: "ทุนวิจัยที่สอดคล้องกับยุทธศาสตร์", value: "strategic" },
-        { label: "ทุนต่อยอดสู่ภาคอุตสาหกรรม", value: "industrial" }
+        {
+          label: "ทุนนักวิจัยรุ่นใหม่",
+          value: "new",
+          children: [
+            "โครงการวิจัยที่เสนอมีความสอดคล้องกับคุณวุฒิ หรือสาขาวิชา หรือภาระงาน"
+          ]
+        },
+        {
+          label: "ทุนพัฒนานักวิจัย",
+          value: "dev",
+          children: [
+            "การพัฒนาเศรษฐกิจไทย",
+            "การยกระดับสังคมและสิ่งแวดล้อม",
+            "การพัฒนาวิทยาศาสตร์ เทคโนโลยี",
+            "การพัฒนากำลังคนและสถาบัน"
+          ]
+        },
+        {
+          label: "ทุนวิจัยที่สอดคล้องกับยุทธศาสตร์",
+          value: "strategic",
+          children: [
+            "สอดคล้องกับยุทธศาสตร์ชาติ"
+          ]
+        },
+        {
+          label: "ทุนต่อยอดสู่ภาคอุตสาหกรรม",
+          value: "industrial",
+          children: [
+            "การวิจัยและสร้างนวัตกรรมเพื่อเพิ่มขีดความสามารถการแข่งขัน"
+          ]
+        }
       ],
       researchTypeOptions: [
         { value: 'Science', label: 'ด้านวิทยาศาสตร์และเทคโนโลยี' },
@@ -115,6 +142,7 @@ export default {
         titleEN: "",
         budgetType: "",
         budgets: [],
+        budgetSubTypes: [],
         cooperation: "ไม่มี",
         cooperationDetail: "",
         researchType: "",
