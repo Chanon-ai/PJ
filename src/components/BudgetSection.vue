@@ -1,8 +1,8 @@
 <template>
   <div class="budget-form-container w-100">
-    <input type="file" ref="fileInput" style="display: none" @change="onFilePicked" />
-
-    <div v-for="(cat, ci) in categories" :key="ci" class="mb-5">
+    <input type="file" ref="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" style="display: none"
+      @change="onFilePicked" />
+     <div v-for="(cat, ci) in categories" :key="cat.title" class="mb-5">
       <CCard class="shadow-sm border-0 mb-3 w-100">
         <CCardHeader class="bg-primary text-white py-2 d-flex justify-content-between align-items-center flex-wrap">
           <h6 class="m-0 font-weight-bold">
@@ -22,16 +22,16 @@
 
         <CCardBody class="p-3 bg-light">
           <div v-if="cat.options.length > 0" class="mb-3" style="max-width: 500px;">
-            <CFormSelect  :options="['', ...cat.options]" :value="cat.selected" @input="val => cat.selected = val"
+            <CFormSelect :options="['', ...cat.options]" v-model="cat.selected" @change="addRow(ci)"
               placeholder="-- เลือกรายการย่อยเพื่อเพิ่มในตาราง --" custom class="shadow-sm border-primary" />
           </div>
 
           <div class="table-responsive bg-white rounded shadow-sm border overflow-hidden w-100">
             <table class="table table-sm table-bordered table-striped mb-0 align-middle">
-              <thead class="bg-dark text-white text-center small font-weight-bold">
+              <thead class="bg-dark text-white text-center font-weight-bold">
                 <tr>
                   <th style="width: 25%">รายการ</th>
-                  <th style="width: 25%">รายละเอียด/เครื่องคิดเลข (เกณฑ์ มฟล. 2569)</th>
+                  <th style="width: 25%">รายละเอียดตัวคูณ (เกณฑ์ มฟล. 2569)</th>
                   <th style="width: 12%">งบรวม (บาท)</th>
                   <th style="width: 10%">งวด 1</th>
                   <th style="width: 10%">งวด 2</th>
@@ -41,60 +41,77 @@
               </thead>
               <tbody>
                 <tr v-if="cat.rows.length === 0">
-                  <td colspan="7" class="text-center py-4 text-muted small">ยังไม่มีรายการในหมวดนี้</td>
+                  <td colspan="7" class="text-center py-4 text-muted">ยังไม่มีรายการในหมวดนี้</td>
                 </tr>
-                <tr v-for="(r, ri) in cat.rows" :key="ri">
-                  <td class="px-3 py-2">
-                    <div v-if="!r.isManual && !r.fileUrl" class="font-weight-bold text-dark">{{ r.name }}</div>
-                    <CFormInput  v-else v-model="r.name" size="sm" class="mb-0" placeholder="ระบุชื่อรายการ..." />
+                <tr v-for="(r, ri) in cat.rows" :key="r.id">
 
-                    <div v-if="r.fileUrl" class="mt-2 d-flex align-items-center flex-wrap" style="gap: 6px;">
-                      <span :class="['badge px-2 py-1 text-uppercase shadow-sm', getFileBadgeClass(r.fileName)]"
-                        style="font-size: 9px; min-width: 35px; border-radius: 4px;">
-                        {{ getFileExtension(r.fileName) }}
+                  <td class="px-3 py-2">
+                    <div class="d-flex align-items-center flex-wrap" style="gap: 5px;">
+                      <span v-if="r.fileCategory"
+                        :class="['badge text-white px-2 py-1', getCategoryColor(r.fileCategory)]"
+                        style="font-size: 9px; border-radius: 4px;">
+                        {{ r.fileCategory }}
                       </span>
-                      <CButton color="info" variant="outline" size="sm"
-                        class="py-0 px-2 shadow-sm d-flex align-items-center" style="font-size: 10px; height: 20px;"
-                        @click="viewFile(r.fileUrl)">
-                        <CIcon name="cil-folder" size="sm" class="me-1" /> ดูไฟล์
-                      </CButton>
-                      <small class="text-muted d-block w-100 mt-1"
-                        style="font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{
-                          r.fileName }}</small>
+
+                      <div v-if="!r.isManual && !r.fileUrl" class="font-weight-bold text-dark">{{ r.name }}</div>
+                      <CFormInput v-else v-model="r.name" size="sm" class="mb-0 flex-grow-1"
+                        placeholder="ระบุชื่อรายการ..." />
+                    </div>
+
+                    <div v-if="r.fileUrl" class="mt-2 p-2 border rounded bg-white shadow-sm">
+                      <div class="d-flex align-items-end" style="gap: 10px;">
+                        <div class="flex-grow-1">
+                          <label class="small font-weight-bold mb-1 d-block text-muted">เลือกหมวดหมู่เอกสาร:</label>
+                          <CFormSelect v-model="r.fileCategory" :options="['-- เลือกหมวดหมู่ --', ...fileCategories]"
+                            size="sm" custom class="mb-0 border-primary" style="font-size: 11px;" />
+                        </div>
+
+                        <div class="pb-0">
+                          <CButton color="info" variant="outline" size="sm" class="py-1 px-3 d-flex align-items-center"
+                            style="height: 31px; font-weight: 600;" @click="viewFile(r.fileUrl)">
+                            <CIcon name="cil-folder" size="sm" class="me-1" /> เปิดดู
+                          </CButton>
+                        </div>
+                      </div>
+
+                      <div class="small text-muted mt-2 text-truncate border-top pt-1"
+                        style="max-width: 100%; font-size: 10px;">
+                        <CIcon name="cil-paperclip" size="sm" class="me-1" /> {{ r.fileName }}
+                      </div>
                     </div>
                   </td>
 
-                  <td class="py-2">
+                  <td class="py-2 align-middle">
                     <div v-if="r.multipliers" class="d-flex align-items-center justify-content-center"
                       style="gap: 5px;">
                       <div v-for="(m, mi) in r.multipliers" :key="mi" class="text-center">
-                        <CFormInput  type="number" v-model.number="m.val" size="sm" class="mb-0 text-center shadow-none"
+                        <CFormInput type="number" v-model.number="m.val" size="sm" class="mb-0 text-center shadow-none"
                           style="width: 60px;" @input="calculateRowTotal(r)" />
                         <small class="text-muted d-block" style="font-size: 9px">{{ m.label }}</small>
                       </div>
                     </div>
-                    <CFormInput  v-else v-model="r.detail" size="sm" class="mb-0 shadow-none border-info"
+                    <CFormInput v-else v-model="r.detail" size="sm" class="mb-0 shadow-none border-info"
                       placeholder="เช่น 500*3+100" @input="calculateManual(r)" />
                   </td>
 
-                  <td class="py-2">
-                    <div
-                      class="text-right font-weight-bold text-primary py-1 px-2 border rounded bg-light small shadow-none">
+                  <td class="py-2 align-middle">
+                    <div class="text-right font-weight-bold text-primary py-1 px-2 border rounded bg-light shadow-none">
                       {{ Number(r.total || 0).toLocaleString() }}
                     </div>
                   </td>
 
-                  <td v-for="p in ['p1', 'p2', 'p3']" :key="p" class="py-2">
-                    <CFormInput  type="number" v-model.number="r[p]" size="sm"
+                  <td v-for="p in ['p1', 'p2', 'p3']" :key="p" class="py-2 align-middle">
+                    <CFormInput type="number" v-model.number="r[p]" size="sm"
                       :class="['mb-0 text-right shadow-none', r.errors[p] ? 'is-invalid-bg text-danger border-danger' : '']"
                       @input="validateInstallments(r, p)" />
                     <small v-if="r.errors[p]" class="text-danger d-block mt-1 font-weight-bold text-center"
                       style="font-size: 8px;">{{ r.errors[p] }}</small>
                   </td>
 
-                  <td class="text-center py-2">
-                    <CButton color="danger" variant="ghost" size="sm" @click="removeRow(ci, ri)">
-                      <CIcon name="cil-trash" />
+                  <td class="text-center py-2 align-middle">
+                    <CButton color="danger" variant="outline" class="px-2 py-2 font-weight-bold" size="sm"
+                      @click="removeRow(ci, ri)">
+                      <CIcon name="cil-trash" class="me-1" />ลบรายการ
                     </CButton>
                   </td>
                 </tr>
@@ -142,7 +159,15 @@ export default {
         this.makeCat("หมวดค่าวัสดุ", ["ค่าวัสดุสำนักงาน", "ค่าวัสดุคอมพิวเตอร์", "น้ำมันเชื้อเพลิงพาหนะเช่า"]),
         this.makeCat("หมวดค่าสาธารณูปโภค", []),
         this.makeCat("หมวดครุภัณฑ์", [])
-      ]
+      ],
+      // เพิ่มในส่วน data() ของ BudgetSection.vue
+      fileCategories: [
+        { label: "TOR (Term of References)", value: "TOR" },
+        { label: "ใบเสนอราคา / Quotation", value: "Quotation" },
+        { label: "Specification", value: "Specification" },
+        { label: "CV", value: "CV" },
+        { label: "อัตราค่าบริการต่าง ๆ / Service Rates", value: "Service Rates" }
+      ],
     };
   },
   computed: {
@@ -172,12 +197,24 @@ export default {
       else if (catTitle === "หมวดค่าวัสดุ" || name.includes("จ้างเหมา")) multipliers = [{ label: "หน่วย", val: 0 }, { label: "บาท", val: 0 }];
 
       return {
+        id: Date.now() + Math.random(),
         name, detail: "", p1: 0, p2: 0, p3: 0, total: 0,
+        fileCategory: "",
         isManual, fileName, fileUrl, multipliers,
         errors: { p1: "", p2: "", p3: "" }
       };
     },
-
+    // เพิ่มใน methods
+    getCategoryColor(cat) {
+      switch (cat) {
+        case 'TOR': return 'bg-purple'; // สีม่วง
+        case 'Quotation': return 'bg-success'; // สีเขียว
+        case 'Specification': return 'bg-info'; // สีฟ้า
+        case 'CV': return 'bg-warning text-dark'; // สีเหลือง
+        case 'Service Rates': return 'bg-primary'; // สีน้ำเงิน
+        default: return 'bg-secondary';
+      }
+    },
     getFileExtension(filename) { return filename ? filename.split('.').pop() : ""; },
     getFileBadgeClass(filename) {
       const ext = this.getFileExtension(filename).toLowerCase();
@@ -230,14 +267,16 @@ export default {
       this.categories.forEach(c => {
         c.rows.forEach(r => { if (r.fileUrl) URL.revokeObjectURL(r.fileUrl); });
         c.rows = [];
-      });
+      }
+      );
+      this.activeCategoryIndex = null;
     },
     saveDraft() { alert("บันทึกเรียบร้อย"); }
   }
 };
 </script>
 
-<style>
+<style scoped>
 /* ธีมขยายเต็มพื้นที่และเส้นคั่นสวยงาม */
 .budget-form-container {
   max-width: 100%;
@@ -298,15 +337,11 @@ export default {
   padding: 0.5rem;
 }
 
-/* คืนค่า icon ของ Quill */
-.ql-snow .ql-toolbar button::before {
-  font-family: "ql-icons" !important;
-  font-style: normal !important;
-  font-weight: normal !important;
-}
-.ql-toolbar button svg {
-  width: 18px;
-  height: 18px;
+.bg-purple {
+  background-color: #6f42c1 !important;
 }
 
+.bg-warning {
+  background-color: #f9b115 !important;
+}
 </style>

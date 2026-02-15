@@ -1,7 +1,15 @@
 <template>
-  <div class="container-fluid px-0 bg-light min-vh-100">
+  <div class="container-fluid px-0 page-bg min-vh-100">
     <div class="w-100 p-4">
-
+      <div class="d-flex align-items-center mb-4">
+        <h3 class="font-weight-bold text-primary mb-0">
+          <CIcon name="cil-paperclip" class="me-2 text-primary" size="lg" />
+          แนบเอกสารข้อเสนอโครงการวิจัย
+        </h3>
+      </div>
+      <div class="d-flex align-items-center mb-4">
+        <h1 class="font-weight-bold text-gray mb-0">แบบเสนอโครงการวิจัย (RS1)</h1>
+      </div>
       <GeneralInfoSection v-model:form="form" :budget-types="budgetTypes"
         :research-type-options="researchTypeOptions" />
 
@@ -22,7 +30,7 @@
       </CCard>
 
       <BudgetOutcomesSection v-model:form="form" :outcomes="outcomes" :editor-option="editorOption" />
-      CFormInput
+
       <EthicsSection v-model:form="form" :editor-option="editorOption" @file-upload="handleFileUpload" />
       <SignatureSection :form="form" />
 
@@ -30,10 +38,10 @@
         @replace="triggerReplace" />
 
       <footer class="bg-white p-4 border-top d-flex justify-content-end shadow-lg sticky-footer">
-        <CButton color="danger" variant="outline" class="px-5 font-weight-bold me-3" @click="resetForm">
-          <CIcon name="cil-trash" class="me-2" /> ล้างข้อมูล
+        <CButton color="danger" variant="outline" class="px-5 font-weight-bold mr-3" @click="resetForm">
+          <CIcon name="cil-brush" class="me-2" /> ล้างข้อมูล
         </CButton>
-        <CButton color="primary" class="px-5 font-weight-bold shadow me-3" @click="submit">
+        <CButton color="primary" class="px-5 font-weight-bold shadow mr-3" @click="submit">
           <CIcon name="cil-save" class="me-2" /> บันทึกแบบเสนอโครงการ
         </CButton>
         <CButton color="info" class="px-4 font-weight-bold text-white" @click="exportPDF">
@@ -59,7 +67,7 @@ import ResearchSection12 from "@/components/Section12.vue";
 import SignatureSection from "@/components/SignatureSection.vue";
 
 // Import Libs
-// import html2pdf from "html2pdf.js";
+import html2pdf from "html2pdf.js";
 
 export default {
   name: "ResearchForm",
@@ -72,7 +80,8 @@ export default {
     FileManagement,
     ResearchSection12,
     SignatureSection
-
+    // หมายเหตุ: quillEditor ถูกย้ายไปลงทะเบียนในคอมโพเนนต์ลูกที่ใช้งานจริงแล้ว 
+    // จึงไม่ต้องลงทะเบียนซ้ำที่นี่เพื่อเลี่ยง Error unused component
   },
   data() {
     return {
@@ -94,26 +103,24 @@ export default {
           label: "ทุนพัฒนานักวิจัย",
           value: "dev",
           children: [
-            "การพัฒนาเศรษฐกิจไทย",
-            "การยกระดับสังคมและสิ่งแวดล้อม",
-            "การพัฒนาวิทยาศาสตร์ เทคโนโลยี",
-            "การพัฒนากำลังคนและสถาบัน"
+            "การพัฒนาเศรษฐกิจไทยด้วยเศรษฐกิจสร้างคุณค่าและเศรษฐกิจสร้างสรรค์ ให้มีความสามารถในการแข่งขันและพึ่งพาตนเองได้อย่างยั่งยืน พร้อมสู่อนาคต โดยใช้วิทยาศาสตร์ การวิจัย และนวัตกรรม",
+            "การยกระดับสังคมและสิ่งแวดล้อม ให้มีการพัฒนาอย่างยั่งยืน สามารถแก้ไข ปัญหาท้าทายและปรับตัวให้ทันต่อ พลวัตการเปลี่ยนแปลงของโลก โดยใช้วิทยาศาสตร์ การวิจัย และนวัตกรรม",
+            "การพัฒนาวิทยาศาสตร์ เทคโนโลยี การวิจัยและนวัตกรรม ระดับขั้นแนวหน้าที่ก้าวหน้าล้ำยุค เพื่อสร้างโอกาสใหม่และความพร้อม ของประเทศในอนาคต",
+            "การพัฒนากำลังคนและสถาบัน ด้านวิทยาศาสตร์ วิจัยและนวัตกรรม ให้เป็นฐานการขับเคลื่อนการพัฒนาเศรษฐกิจและสังคมของประเทศแบบก้าวกระโดดและอย่างยั่งยืน โดยใช้วิทยาศาสตร์ การวิจัยและนวัตกรรม"
           ]
         },
-        {
-          label: "ทุนวิจัยที่สอดคล้องกับยุทธศาสตร์",
-          value: "strategic",
-          children: [
-            "สอดคล้องกับยุทธศาสตร์ชาติ"
-          ]
-        },
+
         {
           label: "ทุนต่อยอดสู่ภาคอุตสาหกรรม",
           value: "industrial",
           children: [
             "การวิจัยและสร้างนวัตกรรมเพื่อเพิ่มขีดความสามารถการแข่งขัน"
           ]
-        }
+        }, {
+          label: "ทุนวิจัยที่สอดคล้องกับยุทธศาสตร์",
+          value: "strategic",
+
+        },
       ],
       researchTypeOptions: [
         { value: 'Science', label: 'ด้านวิทยาศาสตร์และเทคโนโลยี' },
@@ -138,39 +145,16 @@ export default {
       files: [],
       replaceIndex: null,
       form: {
-        titleTH: "",
-        titleEN: "",
-        budgetType: "",
-        budgets: [],
-        budgetSubTypes: [],
-        cooperation: "ไม่มี",
-        cooperationDetail: "",
-        researchType: "",
-        selectedOutcomes: [],
-        standards: [],
-
+        titleTH: "", titleEN: "", budgetType: "", budgets: [],
+        cooperation: "ไม่มี", cooperationDetail: "", researchType: "",
+        selectedOutcomes: [], standards: [],
         humanDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
         animalDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
-
         researchers: {
           mainResearcher: { name: "", affiliation: "", phone: "", email: "", code: "" },
-          coResearchers: [],
-          advisors: []
+          coResearchers: [], advisors: []
         },
-
-        // 🔥 เพิ่มส่วนนี้
-        keywords: "",
-        importance: "",
-        objective: "",
-        literature: "",
-        reference: "",
-        methodology: "",
-        scope: "",
-
-        remark: "",
-        progressReport: "",
-        integration: "",
-        transferLevel: "ไม่มีการนำไปถ่ายทอดสู่สังคม"
+        remark: "", progressReport: "", integration: "", transferLevel: "ไม่มีการนำไปถ่ายทอดสู่สังคม"
       }
     };
   },
@@ -204,44 +188,18 @@ export default {
     },
     submit() { console.log("Final Form Data:", this.form); alert("บันทึกข้อมูลสำเร็จ"); },
     resetForm() { if (confirm("ล้างข้อมูลทั้งหมด?")) location.reload(); },
-    exportPDF() {
-      const cleanData = {}
-
-      Object.keys(this.form).forEach(key => {
-        const value = this.form[key]
-
-        if (typeof value === "object" && value !== null) {
-
-          // ถ้าเป็น Delta ของ Quill
-          if (value.ops) {
-            cleanData[key] = value.ops.map(op => op.insert).join('')
-          }
-
-          // ถ้าเป็น object อื่น (กันพลาด)
-          else if (Array.isArray(value)) {
-            cleanData[key] = value
-          }
-
-          else {
-            cleanData[key] = JSON.parse(JSON.stringify(value))
-          }
-
-        } else {
-          cleanData[key] = value
-        }
-      })
-
-      localStorage.setItem("reportData", JSON.stringify(cleanData))
-      this.$router.push({ name: 'Report' })
-    }
-
+    exportPDF() { html2pdf().from(document.body).save("Research_Proposal_RS1.pdf"); }
   }
-
 };
-
 </script>
 
-<style scoped>
+<style>
+.page-bg {
+  background: linear-gradient(to bottom,
+      #D6F4ED,
+      #473472);
+}
+
 .sticky-footer {
   position: sticky;
   bottom: 0;

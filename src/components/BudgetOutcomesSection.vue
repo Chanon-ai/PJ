@@ -65,7 +65,7 @@
 
         <h5 class="font-weight-bold text-dark mb-3">16) ระดับการถ่ายทอดสู่สังคม *</h5>
         <div class="bg-light p-4 rounded border mb-5 shadow-sm w-100 border-left-primary">
-          <div class="ml-3">
+          <div class="ms-3">
             <div v-for="(opt, i) in transferOptions" :key="'trans-' + i" class="custom-control custom-radio mb-3">
               <input type="radio" :id="'trans-' + i" :value="opt" :checked="form.transferLevel === opt"
                 @change="updateField('transferLevel', opt)" class="custom-control-input">
@@ -86,9 +86,8 @@
 </template>
 
 <script>
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
 import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import BudgetSection from "@/components/BudgetSection.vue";
 
 export default {

@@ -2,7 +2,7 @@
   <CCard class="shadow-sm w-100 mb-4 border-0">
     <CCardHeader class="bg-primary text-white py-3">
       <h5 class="m-0 font-weight-bold">
-        <CIcon name="cil-people" class="mr-2" /> ส่วน ก) : สาระสำคัญของข้อเสนอโครงการวิจัย — คณะผู้วิจัย
+        <CIcon name="cil-people" class="me-2" /> ส่วน ก) : สาระสำคัญของข้อเสนอโครงการวิจัย — คณะผู้วิจัย
       </h5>
     </CCardHeader>
     <CCardBody class="p-4">
@@ -10,28 +10,52 @@
 
       <div class="border rounded p-4 mb-4 bg-light shadow-sm w-100">
         <h6 class="font-weight-bold text-primary mb-3 border-bottom pb-2">
-          <CIcon name="cil-user" class="mr-2" /> 1.1 หัวหน้าโครงการวิจัย
+          <CIcon name="cil-user" class="me-2" /> 1.1 หัวหน้าโครงการวิจัย
         </h6>
         <CRow>
           <CCol lg="4" md="6">
-            <CFormInput label="ชื่อ-นามสกุล *" :value="form.researchers.mainResearcher.name"
-              @input="updateMain('name', $event.target.value)" />
+            <CFormInput :model-value="form.researchers.mainResearcher.name"
+              @update:modelValue="val => updateMain('name', val)">
+
+              <template #label>
+                ชื่อ-สกุล <span class="required">*</span>
+              </template>
+            </CFormInput>
           </CCol>
           <CCol lg="4" md="6">
-            <CFormInput label="สังกัดหน่วยงาน *" :value="form.researchers.mainResearcher.affiliation"
-              @input="updateMain('affiliation', $event.target.value)" />
+            <CFormInput :model-value="form.researchers.mainResearcher.affiliation"
+              @update:modelValue="val => updateMain('affiliation', val)">
+              <template #label>
+                สังกัดหน่วยงาน <span class="required">*</span>
+              </template>
+            </CFormInput>
           </CCol>
           <CCol lg="4" md="6">
-            <CFormInput label="เบอร์โทรศัพท์ *" :value="form.researchers.mainResearcher.phone"
-              @input="updateMain('phone', $event.target.value)" />
+            <CFormInput :model-value="form.researchers.mainResearcher.phone"
+              @update:modelValue="val => updateMain('phone', val)">
+
+              <template #label>
+                เบอร์โทรศัพท์ <span class="required">*</span>
+              </template>
+            </CFormInput>
           </CCol>
           <CCol lg="6" md="6">
-            <CFormInput label="E-mail address *" :value="form.researchers.mainResearcher.email" type="email"
-              @input="updateMain('email', $event.target.value)" />
+            <CFormInput :model-value="form.researchers.mainResearcher.email"
+              @update:modelValue="val => updateMain('email', val)">
+
+              <template #label>
+                E-mail <span class="required">*</span>
+              </template>
+            </CFormInput>
           </CCol>
           <CCol lg="6" md="12">
-            <CFormInput label="สัดส่วนการวิจัย (%) *" :value="form.researchers.mainResearcher.code" type="number"
-              @input="updateMain('code', $event.target.value)" />
+            <CFormInput :model-value="form.researchers.mainResearcher.code" type="number"
+              @update:modelValue="val => updateMain('code', val)">
+
+              <template #label>
+                สัดส่วนการวิจัย (%) <span class="required">*</span>
+              </template>
+            </CFormInput>
           </CCol>
         </CRow>
       </div>
@@ -39,7 +63,7 @@
       <div class="border rounded p-4 mb-4 bg-white shadow-sm border-success w-100">
         <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
           <h6 class="font-weight-bold text-success mb-0">
-            <CIcon name="cil-people" class="mr-2" /> 1.2 ผู้ร่วมโครงการวิจัย (ถ้ามี)
+            <CIcon name="cil-people" class="me-2" /> 1.2 ผู้ร่วมโครงการวิจัย (ถ้ามี)
           </h6>
           <CButton color="success" size="sm" variant="outline" @click="addCoResearcher">
             <CIcon name="cil-plus" /> เพิ่มผู้ร่วม
@@ -48,29 +72,47 @@
         <div v-for="(r, idx) in form.researchers.coResearchers" :key="'co-' + idx"
           class="border rounded p-3 mb-3 bg-light position-relative w-100">
           <div class="d-flex justify-content-between mb-3">
-            <span class="badge badge-success px-3">คนที่ {{ idx + 1 }}</span>
+            <span class="badge badge-success d-flex align-items-center justify-content-center px-3">คนที่ {{ idx + 1
+            }}</span>
             <CButton color="danger" size="sm" variant="ghost" @click="removeCoResearcher(idx)">
               <CIcon name="cil-trash" />
             </CButton>
           </div>
           <CRow>
             <CCol lg="4" md="6">
-              <CFormInput label="ชื่อ-นามสกุล *" :value="r.name" @input="updateCo(idx, 'name', $event.target.value)" />
+              <CFormInput :model-value="r.name" @update:modelValue="val => updateCo(idx, 'name', val)">
+                <template #label>
+                  ชื่อ-สกุล <span class="required">*</span>
+                </template>
+              </CFormInput>
             </CCol>
             <CCol lg="4" md="6">
-              <CFormInput label="สังกัดหน่วยงาน *" :value="r.affiliation"
-                @input="updateCo(idx, 'affiliation', $event.target.value)" />
+              <CFormInput :model-value="r.affiliation" @update:modelValue="val => updateCo(idx, 'affiliation', val)">
+                <template #label>
+                  สังกัดหน่วยงาน <span class="required">*</span>
+                </template>
+              </CFormInput>
             </CCol>
             <CCol lg="4" md="6">
-              <CFormInput label="เบอร์โทรศัพท์ *" :value="r.phone"
-                @input="updateCo(idx, 'phone', $event.target.value)" />
+              <CFormInput :model-value="r.phone" @update:modelValue="val => updateCo(idx, 'phone', val)">
+                <template #label>
+                  เบอร์โทรศัพท์ <span class="required">*</span>
+                </template>
+              </CFormInput>
             </CCol>
             <CCol lg="6" md="6">
-              <CFormInput label="E-mail *" :value="r.email" @input="updateCo(idx, 'email', $event.target.value)" />
+              <CFormInput :model-value="r.email" @update:modelValue="val => updateCo(idx, 'email', val)">
+                <template #label>
+                  E-mail <span class="required">*</span>
+                </template>
+              </CFormInput>
             </CCol>
             <CCol lg="6" md="12">
-              <CFormInput label="สัดส่วนการวิจัย (%) *" :value="r.code" type="number"
-                @input="updateCo(idx, 'code', $event.target.value)" />
+              <CFormInput :model-value="r.code" type="number" @update:modelValue="val => updateCo(idx, 'code', val)">
+                <template #label>
+                  สัดส่วนการวิจัย (%) <span class="required">*</span>
+                </template>
+              </CFormInput>
             </CCol>
           </CRow>
         </div>
@@ -95,17 +137,34 @@
         </div>
         <CRow>
           <CCol lg="4" md="6">
-            <CFormInput label="ชื่อ-นามสกุล *" :value="adv.name" @input="updateAdv(idx, 'name', $event)" />
+            <CFormInput :model-value="adv.name" @update:modelValue="val => updateAdv(idx, 'name', val)">
+
+              <template #label>
+                ชื่อ-สกุล <span class="required">*</span>
+              </template>
+            </CFormInput>
           </CCol>
           <CCol lg="4" md="6">
-            <CFormInput label="สังกัดหน่วยงาน *" :value="adv.affiliation"
-              @input="updateAdv(idx, 'affiliation', $event)" />
+            <CFormInput :model-value="adv.affiliation" @update:modelValue="val => updateAdv(idx, 'affiliation', val)">
+              <template #label>
+                สังกัดหน่วยงาน <span class="required">*</span>
+              </template>
+            </CFormInput>
           </CCol>
           <CCol lg="4" md="6">
-            <CFormInput label="เบอร์โทรศัพท์ *" :value="adv.phone" @input="updateAdv(idx, 'phone', $event)" />
+            <CFormInput :model-value="adv.phone" @update:modelValue="val => updateAdv(idx, 'phone', val)">
+              <template #label>
+                เบอร์โทรศัพท์ <span class="required">*</span>
+              </template>
+            </CFormInput>
           </CCol>
           <CCol lg="12">
-            <CFormInput label="E-mail address *" :value="adv.email" @input="updateAdv(idx, 'email', $event)" />
+            <CFormInput :model-value="adv.email" @update:modelValue="val => updateAdv(idx, 'email', val)">
+
+              <template #label>
+                E-mail <span class="required">*</span>
+              </template>
+            </CFormInput>
           </CCol>
         </CRow>
       </div>
@@ -119,6 +178,14 @@ export default {
   props: {
     form: { type: Object, required: true }
   },
+  emits: [
+    'update:form',
+    'add-co',
+    'remove-co',
+    'add-adv',
+    'remove-adv'
+  ],
+
   methods: {
     // อัปเดตข้อมูลหัวหน้าโครงการ
     updateMain(key, value) {
@@ -146,3 +213,8 @@ export default {
   }
 }
 </script>
+<style>
+.required {
+  color: red;
+}
+</style>

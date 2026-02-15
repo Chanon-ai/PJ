@@ -2,13 +2,8 @@
   <div class="section-12-container w-100">
     <div class="mb-4">
       <div class="btn-group shadow-sm">
-        <CButton 
-          v-for="d in [6, 12, 24]" :key="d"
-          :color="duration === d ? 'primary' : 'secondary'" 
-          variant="outline"
-          @click="changeDuration(d)"
-          class="px-4 py-2 font-weight-bold"
-        >
+        <CButton v-for="d in [6, 12, 24]" :key="d" :color="duration === d ? 'primary' : 'secondary'" variant="outline"
+          @click="changeDuration(d)" class="px-4 py-2 font-weight-bold">
           {{ d === 12 ? '1 ปี (12 เดือน)' : d === 24 ? '2 ปี (24 เดือน)' : d + ' เดือน' }}
         </CButton>
       </div>
@@ -16,15 +11,12 @@
 
     <div class="gantt-container shadow-sm rounded border w-100 overflow-auto">
       <div class="gantt-table">
-        
+
         <div class="gantt-row header-row sticky-top">
           <div class="cell fixed-left sticky-col bg-primary text-white font-weight-bold text-center">กิจกรรม</div>
           <div class="gantt-months-area d-flex">
-            <div 
-              v-for="m in duration" 
-              :key="'h-' + m" 
-              class="month-cell header bg-primary text-white font-weight-bold text-center small border-right border-white-50"
-            >
+            <div v-for="m in duration" :key="'h-' + m"
+              class="month-cell header bg-primary text-white font-weight-bold text-center border-right border-white-50">
               ด.{{ m }}
             </div>
           </div>
@@ -32,47 +24,29 @@
         </div>
 
         <div v-for="(act, index) in activities" :key="'row-' + index" class="gantt-row content-row">
-          
+
           <div class="cell fixed-left sticky-col bg-white align-items-stretch">
             <div class="input-wrapper w-100 h-100">
-              <textarea 
-                v-model="act.name" 
-                placeholder="ระบุกิจกรรม..." 
-                class="auto-grow-input"
-                @input="autoResize"
-              ></textarea>
+              <textarea v-model="act.name" placeholder="ระบุกิจกรรม..." class="auto-grow-input"
+                @input="autoResize"></textarea>
             </div>
           </div>
 
           <div class="gantt-months-area d-flex bg-white">
-            <div 
-              v-for="(checked, mIndex) in act.months" 
-              :key="'cell-' + index + '-' + mIndex"
+            <div v-for="(checked, mIndex) in act.months" :key="'cell-' + index + '-' + mIndex"
               class="month-cell d-flex align-items-center justify-content-center border-right"
-              :class="{ 'bg-selected': checked }"
-              @click="toggleMonth(index, mIndex)"
-            >
+              :class="{ 'bg-selected': checked }" @click="toggleMonth(index, mIndex)">
               <div v-if="checked" class="check-indicator bg-primary"></div>
             </div>
           </div>
 
           <div class="cell fixed-right sticky-col bg-white d-flex align-items-stretch">
             <div class="d-flex w-100 align-items-center">
-              <textarea 
-                v-model="act.owner" 
-                placeholder="ผู้รับผิดชอบ" 
-                class="auto-grow-input flex-grow-1"
-                @input="autoResize"
-              ></textarea>
-              <CButton 
-                v-if="activities.length > 1"
-                color="danger" 
-                variant="ghost" 
-                size="sm" 
-                class="ml-1 p-1"
-                @click="removeActivity(index)"
-              >
-                <CIcon name="cil-trash" size="sm"/>
+              <textarea v-model="act.owner" placeholder="ผู้รับผิดชอบ" class="auto-grow-input flex-grow-1"
+                @input="autoResize"></textarea>
+              <CButton v-if="activities.length > 1" color="danger" variant="ghost" size="sm" class="ms-1 p-1"
+                @click="removeActivity(index)">
+                <CIcon name="cil-trash" size="sm" />
               </CButton>
             </div>
           </div>
@@ -83,7 +57,7 @@
 
     <div class="mt-3 d-flex justify-content-start">
       <CButton color="info" size="sm" variant="outline" @click="addActivity" class="px-3 font-weight-bold">
-        <CIcon name="cil-plus" class="mr-1"/> เพิ่มกิจกรรมใหม่
+        <CIcon name="cil-plus" class="me-1" /> เพิ่มกิจกรรมใหม่
       </CButton>
     </div>
   </div>
@@ -123,7 +97,9 @@ export default {
       this.activities.splice(index, 1);
     },
     toggleMonth(actIndex, mIndex) {
-      this.$set(this.activities[actIndex].months, mIndex, !this.activities[actIndex].months[mIndex]);
+      this.activities[actIndex].months[mIndex] =
+      !this.activities[actIndex].months[mIndex];
+
     },
     autoResize(event) {
       const element = event.target;
@@ -134,7 +110,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .gantt-container {
   width: 100%;
   max-height: 600px;
@@ -145,14 +121,15 @@ export default {
 .gantt-table {
   display: flex;
   flex-direction: column;
-  min-width: 1200px; /* บังคับความกว้างเพื่อให้เลื่อนแนวนอนได้ถ้าเดือนเยอะ */
+  min-width: 1200px;
+  /* บังคับความกว้างเพื่อให้เลื่อนแนวนอนได้ถ้าเดือนเยอะ */
 }
 
 /* แถว: หัวใจสำคัญคือ align-items: stretch */
 .gantt-row {
   display: flex;
   border-bottom: 1px solid #ced4da;
-  align-items: stretch; 
+  align-items: stretch;
   min-height: 50px;
 }
 
