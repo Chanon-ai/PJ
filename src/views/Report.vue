@@ -452,6 +452,61 @@
         <div class="sub-title">19. หมายเหตุ</div>
         <div class="field-line" v-html="form.remark"></div>
       </div>
+      <!-- หน้าลงนาม -->
+      <div class="signature-page">
+
+        <!-- แถวบน -->
+        <div class="signature-row">
+
+          <!-- ที่ปรึกษา -->
+          <div class="signature-box" v-if="form.researchers.advisors.length">
+            <div class="sign-label">ลงชื่อ</div>
+
+
+            <img v-if="form.researchers.advisors[0].signature" :src="form.researchers.advisors[0].signature"
+              class="sign-img" />
+
+            <div class="dot-line-sign">
+              ({{ form.researchers.advisors[0].name }})
+            </div>
+
+            <div>ที่ปรึกษาโครงการวิจัย</div>
+            <div>วันที่ {{ currentThaiDate }}</div>
+          </div>
+
+          <!-- หัวหน้า -->
+          <div class="signature-box">
+            <div class="sign-label">ลงชื่อ</div>
+
+            <img v-if="form.mainSignature" :src="form.mainSignature" class="sign-img" />
+
+            <div class="dot-line-sign">
+              ({{ form.researchers.mainResearcher.name }})
+            </div>
+
+            <div>หัวหน้าโครงการวิจัย</div>
+            <div>วันที่ {{ currentThaiDate }}</div>
+          </div>
+
+        </div>
+
+        <!-- แถวล่าง -->
+        <div class="signature-row" v-for="(co, index) in form.researchers.coResearchers" :key="index">
+          <div class="signature-box">
+            <div class="sign-label">ลงชื่อ</div>
+
+            <img v-if="co.signature" :src="co.signature" class="sign-img" />
+
+            <div class="dot-line-sign">
+              ({{ co.name }})
+            </div>
+
+            <div>ผู้ร่วมโครงการวิจัย</div>
+            <div>วันที่ {{ currentThaiDate }}</div>
+          </div>
+        </div>
+      </div>
+
 
     </div>
   </div>
@@ -477,6 +532,7 @@ export default {
         researchType: "",
         researchStandard: [],
         standards: [],
+        mainSignature: "",
         humanDetail: {
           hasCert: false,
           isPending: false,
@@ -570,20 +626,40 @@ export default {
       this.form = {
         ...this.form,
         ...parsed,
+        mainSignature: parsed.mainSignature || "",
+        researchers: {
+          ...this.form.researchers,
+          ...parsed.researchers
+        },
         researchStandard: mapped
       }
+
     }
   },
   methods: {
     check(condition) {
       return condition ? '☑' : '☐'
     },
-    generatePDF() {
+    async generatePDF() {
       const element = document.getElementById("report-area");
       const button = document.querySelector(".export-btn");
 
       button.style.display = "none";
       element.classList.add("export-mode");
+
+      // ⭐ รอ DOM render ให้เสร็จก่อน
+      await this.$nextTick();
+
+      // ⭐ รอให้รูปโหลดเสร็จ
+      const images = element.querySelectorAll("img");
+      await Promise.all(
+        Array.from(images).map(img => {
+          if (img.complete) return Promise.resolve();
+          return new Promise(resolve => {
+            img.onload = img.onerror = resolve;
+          });
+        })
+      );
 
       const opt = {
         margin: [5, 10, 5, 25],
@@ -597,19 +673,22 @@ export default {
         }
       };
 
-      html2pdf()
-        .set(opt)
-        .from(element)
-        .save()
-        .then(() => {
-          button.style.display = "block";
-          element.classList.remove("export-mode");
-        });
+      await html2pdf().set(opt).from(element).save();
+
+      button.style.display = "block";
+      element.classList.remove("export-mode");
     }
 
 
 
+
+  },
+  computed: {
+    currentThaiDate() {
+      return new Date().toLocaleDateString("th-TH");
+    }
   }
+
 };
 </script>
 
@@ -824,5 +903,43 @@ export default {
 .option,
 .sub-option {
   page-break-inside: avoid;
+}
+
+.signature-page {
+  margin-top: 10px;
+  page-break-inside: avoid;
+}
+
+.signature-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 50px;
+}
+
+.signature-box {
+  width: 45%;   /* จาก 30% เป็น 45% */
+  position: relative;
+  height: 150px;
+  text-align: center;
+}
+
+
+.sign-label {
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.sign-img {
+  max-height: 65px;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+
+.dot-line-sign {
+  border-bottom: 1px dotted #000;
+  padding-bottom: 2px;
+  margin-bottom: 2px;
+  line-height: 1.2;
 }
 </style>

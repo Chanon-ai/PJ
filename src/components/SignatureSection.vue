@@ -12,14 +12,11 @@
           <CCol lg="4" md="6" class="text-center mb-4">
             <div class="p-3 bg-white rounded border shadow-sm h-100 d-flex flex-column">
               <h6 class="font-weight-bold text-primary mb-3">หัวหน้าโครงการวิจัย</h6>
-              
+
               <div class="flex-grow-1 mb-3">
-                <SignaturePad 
-                  :value="form.mainSignature" 
-                  @input="updateSignature('mainSignature', $event)" 
-                />
+                <SignaturePad :modelValue="form.mainSignature" @update:modelValue="updateMainSignature" />
               </div>
-              
+
               <div class="mt-auto">
                 <div class="font-weight-bold text-dark">
                   ({{ form.researchers.mainResearcher.name || '................................................' }})
@@ -29,17 +26,15 @@
             </div>
           </CCol>
 
-          <CCol lg="4" md="6" class="text-center mb-4" v-for="(co, idx) in form.researchers.coResearchers" :key="'sig-co-'+idx">
+          <CCol lg="4" md="6" class="text-center mb-4" v-for="(co, idx) in form.researchers.coResearchers"
+            :key="'sig-co-' + idx">
             <div class="p-3 bg-white rounded border shadow-sm h-100 d-flex flex-column">
               <h6 class="font-weight-bold text-success mb-3">ผู้ร่วมโครงการคนที่ {{ idx + 1 }}</h6>
-              
+
               <div class="flex-grow-1 mb-3">
-                <SignaturePad 
-                  :value="co.signature" 
-                  @input="updateCoSignature(idx, $event)" 
-                />
+                <SignaturePad :modelValue="co.signature" @update:modelValue="val => updateCoSignature(idx, val)" />
               </div>
-              
+
               <div class="mt-auto">
                 <div class="font-weight-bold text-dark">
                   ({{ co.name || '................................................' }})
@@ -49,17 +44,15 @@
             </div>
           </CCol>
 
-          <CCol lg="4" md="6" class="text-center mb-4" v-for="(adv, idx) in form.researchers.advisors" :key="'sig-adv-'+idx">
+          <CCol lg="4" md="6" class="text-center mb-4" v-for="(adv, idx) in form.researchers.advisors"
+            :key="'sig-adv-' + idx">
             <div class="p-3 bg-white rounded border shadow-sm h-100 d-flex flex-column">
               <h6 class="font-weight-bold text-info mb-3">ที่ปรึกษาโครงการวิจัย</h6>
-              
+
               <div class="flex-grow-1 mb-3">
-                <SignaturePad 
-                  :value="adv.signature" 
-                  @input="updateAdvSignature(idx, $event)" 
-                />
+                <SignaturePad :modelValue="adv.signature" @update:modelValue="val => updateAdvSignature(idx, val)" />
               </div>
-              
+
               <div class="mt-auto">
                 <div class="font-weight-bold text-dark">
                   ({{ adv.name || '................................................' }})
@@ -89,52 +82,48 @@ export default {
   props: {
     form: { type: Object, required: true }
   },
+  emits: ['update:form'],
   computed: {
     currentDate() {
-      // แสดงวันที่ปัจจุบันในรูปแบบไทย
       return new Date().toLocaleDateString('th-TH');
     }
-  },
-  methods: {
-    // ฟังก์ชันส่งค่ากลับไปอัปเดตที่แม่ (ResearchForm.vue)
-    emitUpdate(newForm) {
+  }, methods: {
+    updateMainSignature(val) {
+      const newForm = JSON.parse(JSON.stringify(this.form));
+      newForm.mainSignature = val;
       this.$emit('update:form', newForm);
     },
 
-    // อัปเดตลายเซ็นหัวหน้าโครงการ
-    updateSignature(key, dataUrl) {
+    updateCoSignature(index, val) {
       const newForm = JSON.parse(JSON.stringify(this.form));
-      newForm[key] = dataUrl;
-      this.emitUpdate(newForm);
+      newForm.researchers.coResearchers[index].signature = val;
+      this.$emit('update:form', newForm);
     },
 
-    // อัปเดตลายเซ็นผู้ร่วมวิจัยรายบุคคล
-    updateCoSignature(index, dataUrl) {
+    updateAdvSignature(index, val) {
       const newForm = JSON.parse(JSON.stringify(this.form));
-      newForm.researchers.coResearchers[index].signature = dataUrl;
-      this.emitUpdate(newForm);
-    },
-
-    // อัปเดตลายเซ็นที่ปรึกษาโครงการ
-    updateAdvSignature(index, dataUrl) {
-      const newForm = JSON.parse(JSON.stringify(this.form));
-      newForm.researchers.advisors[index].signature = dataUrl;
-      this.emitUpdate(newForm);
+      newForm.researchers.advisors[index].signature = val;
+      this.$emit('update:form', newForm);
     }
   }
+
 }
+
 </script>
 
 <style>
 .border-left-primary {
   border-left: 6px solid #321fdb !important;
 }
+
 .border-dashed {
   border-top: 1px dashed #ced4da !important;
 }
+
 .italic {
   font-style: italic;
 }
+
 /* ปรับให้ Card ภายในแถวมีความสูงเท่ากัน */
 .h-100 {
   height: 100% !important;

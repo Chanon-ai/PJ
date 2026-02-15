@@ -32,7 +32,8 @@
       <BudgetOutcomesSection v-model:form="form" :outcomes="outcomes" :editor-option="editorOption" />
 
       <EthicsSection v-model:form="form" :editor-option="editorOption" @file-upload="handleFileUpload" />
-      <SignatureSection :form="form" />
+      <SignatureSection v-model:form="form" />
+
 
       <FileManagement :files="files" @upload="handleFileUpload2" @remove="removeFile" @open="openFile"
         @replace="triggerReplace" />
@@ -190,7 +191,7 @@ export default {
         standards: [],
         researchStandard: [],
         socialTransfer: "",
-
+        mainSignature: "",
         humanDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
         animalDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
         plantDetail: { applyDate: '' },
@@ -219,9 +220,9 @@ export default {
     'form.budgetType': function () { this.form.selectedOutcomes = []; }
   },
   methods: {
-    addCoResearcher() { this.form.researchers.coResearchers.push({ name: "", affiliation: "", phone: "", email: "", code: "" }); },
+    addCoResearcher() { this.form.researchers.coResearchers.push({ name: "", affiliation: "", phone: "", email: "", code: "", signature: "" }); },
     removeCoResearcher(index) { this.form.researchers.coResearchers.splice(index, 1); },
-    addAdvisor() { this.form.researchers.advisors.push({ name: "", affiliation: "", phone: "", email: "" }); },
+    addAdvisor() { this.form.researchers.advisors.push({ name: "", affiliation: "", phone: "", email: "", signature: "" }); },
     removeAdvisor(index) { this.form.researchers.advisors.splice(index, 1); },
     handleFileUpload(event, type) {
       const file = event.target.files[0];
@@ -246,9 +247,12 @@ export default {
     submit() { console.log("Final Form Data:", this.form); alert("บันทึกข้อมูลสำเร็จ"); },
     resetForm() { if (confirm("ล้างข้อมูลทั้งหมด?")) location.reload(); },
     exportPDF() {
-      localStorage.setItem("reportData", JSON.stringify(this.form))
-      this.$router.push("/report")
+      this.$nextTick(() => {
+        localStorage.setItem("reportData", JSON.stringify(this.form))
+        this.$router.push("/report")
+      })
     }
+
 
 
 

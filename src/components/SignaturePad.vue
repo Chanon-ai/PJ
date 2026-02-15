@@ -39,7 +39,17 @@ export default {
     this.initPad();
     window.addEventListener('resize', this.resizeCanvas);
   },
+  watch: {
+    modelValue(newVal) {
+      if (!this.pad) return;
 
+      if (newVal) {
+        this.pad.fromDataURL(newVal);
+      } else {
+        this.pad.clear();
+      }
+    }
+  },
   methods: {
     initPad() {
       const canvas = this.$refs.signatureCanvas;
@@ -51,7 +61,6 @@ export default {
 
       this.resizeCanvas();
 
-      // ถ้ามีค่าลายเซ็นเก่า โหลดกลับเข้า canvas
       if (this.modelValue) {
         this.pad.fromDataURL(this.modelValue);
       }
@@ -59,13 +68,20 @@ export default {
 
     resizeCanvas() {
       const canvas = this.$refs.signatureCanvas;
-      const ratio = Math.max(window.devicePixelRatio || 1, 1);
 
+      const data = this.pad?.toData();
+
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
       canvas.width = canvas.offsetWidth * ratio;
       canvas.height = canvas.offsetHeight * ratio;
 
       canvas.getContext("2d").scale(ratio, ratio);
-    },
+
+      if (data && data.length) {
+        this.pad.fromData(data);
+      }
+    }
+    ,
 
     clear() {
       this.pad.clear();
