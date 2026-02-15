@@ -66,8 +66,6 @@ import FileManagement from "@/components/FileManagement.vue";
 import ResearchSection12 from "@/components/Section12.vue";
 import SignatureSection from "@/components/SignatureSection.vue";
 
-// Import Libs
-import html2pdf from "html2pdf.js";
 
 export default {
   name: "ResearchForm",
@@ -188,7 +186,16 @@ export default {
     },
     submit() { console.log("Final Form Data:", this.form); alert("บันทึกข้อมูลสำเร็จ"); },
     resetForm() { if (confirm("ล้างข้อมูลทั้งหมด?")) location.reload(); },
-    exportPDF() { html2pdf().from(document.body).save("Research_Proposal_RS1.pdf"); }
+    exportPDF() {
+      this.$router.push({
+        path: "/report",
+        state: {
+          reportData: this.form
+        }
+      });
+    }
+
+
   }
 };
 </script>

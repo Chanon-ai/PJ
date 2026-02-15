@@ -14,16 +14,15 @@
 
     <!-- ประเภททุน -->
     <div class="checkbox-line">
-      <span :class="check(form.budgetType === 'ทุนวิจัยทั่วไป')">☐</span> ทุนนักวิจัยใหม่
+      <span> {{ check(form.budgetType === 'ทุนวิจัยทั่วไป') }}</span> ทุนนักวิจัยใหม่
       &nbsp;&nbsp;&nbsp;
-      <span :class="check(form.budgetType === 'ทุนพัฒนานักวิจัย')">☐</span> ทุนพัฒนานักวิจัย
+      <span>{{ check(form.budgetType === 'ทุนพัฒนานักวิจัย') }}</span> ทุนพัฒนานักวิจัย
       &nbsp;&nbsp;&nbsp;
-      <span :class="check(form.budgetType === 'ทุนที่สอดคล้องกับยุทธศาสตร์การวิจัย')">☐</span>
+      <span>{{ check(form.budgetType === 'ทุนที่สอดคล้องกับยุทธศาสตร์การวิจัย') }}</span>
       ทุนที่สอดคล้องกับยุทธศาสตร์การวิจัย
       &nbsp;&nbsp;&nbsp;
       <br>
-      <span
-        :class="check(form.budgetType === 'ทุนต่อยอดสู่ภาคอุตสาหกรรมและนวัฒกรรม ภายใต้กรอบวิจัยยุทธศาสตร์ชาติ')">☐</span>
+      <span>{{ check(form.budgetType === 'ทุนต่อยอดสู่ภาคอุตสาหกรรมและนวัฒกรรม ภายใต้กรอบวิจัยยุทธศาสตร์ชาติ') }}</span>
       ทุนต่อยอดสู่ภาคอุตสาหกรรมและนวัฒกรรม ภายใต้กรอบวิจัยยุทธศาสตร์ชาติ
     </div>
 
@@ -34,7 +33,9 @@
         <div><strong>(ภาษาไทย)</strong>
           <div class="line">{{ form.titleTH }}</div>
         </div>
-        <div><strong>(ภาษาอังกฤษ)</strong> <div class="line">{{ form.titleEN }}</div></div>
+        <div><strong>(ภาษาอังกฤษ)</strong>
+          <div class="line">{{ form.titleEN }}</div>
+        </div>
       </div>
     </div>
 
@@ -49,7 +50,7 @@
       </div>
 
       <div class="option">
-        <span :class="check(form.selectedStrategy === '2_1')">☐</span>
+        <span>{{ check(form.selectedStrategy === '2_1') }}</span>
         1. โครงการวิจัยที่เสนอสอดคล้องกับคุณวุฒิ หรือสาขาวิชา หรือภาระงาน
       </div>
 
@@ -59,28 +60,28 @@
       </div>
 
       <div class="option">
-        <span :class="check(form.selectedStrategy === '2_2_1')">☐</span>
+        <span>{{ check(form.selectedStrategy === '2_2_1') }}</span>
         1. การพัฒนาเศรษฐกิจไทยด้วยเศรษฐกิจสร้างคุณค่าและเศรษฐกิจสร้างสรรค์
         ให้มีความสามารถในการแข่งขันและพึ่งพาตนเองได้อย่างยั่งยืน พร้อมสู่อนาคต
         โดยใช้วิทยาศาสตร์ การวิจัยและนวัตกรรม
       </div>
 
       <div class="option">
-        <span :class="check(form.selectedStrategy === '2_2_2')">☐</span>
+        <span>{{ check(form.selectedStrategy === '2_2_2') }}</span>
         2. การยกระดับสังคมและสิ่งแวดล้อม ให้มีการพัฒนาอย่างยั่งยืน
         สามารถแก้ไขปัญหาท้าทายและปรับตัวได้ทันต่อพลวัตการเปลี่ยนแปลงของโลก
         โดยใช้วิทยาศาสตร์ การวิจัยและนวัตกรรม
       </div>
 
       <div class="option">
-        <span :class="check(form.selectedStrategy === '2_2_3')">☐</span>
+        <span>{{ check(form.selectedStrategy === '2_2_3') }}</span>
         3. การพัฒนาวิทยาศาสตร์ เทคโนโลยี การวิจัยและนวัตกรรม
         ระดับขั้นแนวหน้าที่ก้าวหน้าล้ำยุค เพื่อสร้างโอกาสใหม่และความพร้อม
         ของประเทศในอนาคต
       </div>
 
       <div class="option">
-        <span :class="check(form.selectedStrategy === '2_2_4')">☐</span>
+        <span>{{ check(form.selectedStrategy === '2_2_4') }}</span>
         4. การพัฒนากำลังคนและสถาบัน ด้านวิทยาศาสตร์ วิจัยและนวัตกรรม
         ให้เป็นฐานการขับเคลื่อนการพัฒนาเศรษฐกิจและสังคมของประเทศแบบก้าวกระโดด
         และอย่างยั่งยืน โดยใช้วิทยาศาสตร์ การวิจัยและนวัตกรรม
@@ -92,11 +93,11 @@
       </div>
 
       <div class="option">
-        <span :class="check(form.selectedStrategy === '2_3_1')">☐</span>
+        <span>{{ check(form.selectedStrategy === '2_3_1') }}</span>
         1. การวิจัยและสร้างนวัตกรรมเพื่อเพิ่มขีดความสามารถการแข่งขัน
       </div>
-
     </div>
+
 
     <!-- ส่วน ก -->
     <div class="section">
@@ -177,34 +178,32 @@
     </div>
     <div class="section">
       <div class="sub-title">2. ที่ปรึกษาโครงการวิจัย</div>
-      <div class="field-line">
-        ชื่อ-สกุล
-        <span class="dot-line">
-          {{ form.researchers.mainResearcher.name }}
-        </span>
-      </div>
 
-      <div class="field-line">
-        สังกัดหน่วยงาน
-        <span class="dot-line">
-          {{ form.researchers.mainResearcher.affiliation }}
-        </span>
-      </div>
+      <div v-for="(advisor, index) in form.researchers.advisors" :key="index">
 
-      <div class="field-line">
-        เบอร์โทรศัพท์ที่ติดต่อได้
-        <span class="dot-line">
-          {{ form.researchers.mainResearcher.phone }}
-        </span>
-      </div>
+        <div class="field-line">
+          ชื่อ-สกุล
+          <span class="dot-line">{{ advisor.name }}</span>
+        </div>
 
-      <div class="field-line">
-        E-mail address
-        <span class="dot-line">
-          {{ form.researchers.mainResearcher.email }}
-        </span>
+        <div class="field-line">
+          สังกัดหน่วยงาน
+          <span class="dot-line">{{ advisor.affiliation }}</span>
+        </div>
+
+        <div class="field-line">
+          เบอร์โทรศัพท์ที่ติดต่อได้
+          <span class="dot-line">{{ advisor.phone }}</span>
+        </div>
+
+        <div class="field-line">
+          E-mail address
+          <span class="dot-line">{{ advisor.email }}</span>
+        </div>
+
       </div>
     </div>
+
 
     <!-- 3 -->
     <div class="section">
@@ -220,9 +219,10 @@
     <div class="section">
       <div class="sub-title">4. ประเภทของงานวิจัย</div>
       <div class="field-line">
-
+        {{ form.researchType }}
       </div>
     </div>
+
 
     <!-- 4-11 -->
     <div class="section" v-for="(field, index) in contentSections" :key="index">
@@ -249,25 +249,25 @@
       <!-- 14.1 -->
       <div class="group-title">14.1 ทุนนักวิจัยรุ่นใหม่</div>
       <div class="option">
-        <span :class="check(form.selectedOutcomes.includes('14_1_fullpaper'))">☐</span>
+        <span>{{ check(form.selectedOutcomes.includes('14_1_fullpaper')) }}</span>
         นำเสนอในการประชุมวิชาการระดับนานาชาติ โดยต้องเป็นบทความฉบับสมบูรณ์ (Full paper)
         ที่ได้รับการตีพิมพ์ในรายงานสืบเนื่องจากการประชุม (Proceedings) หรือ
       </div>
 
       <div class="option">
-        <span :class="check(form.selectedOutcomes.includes('14_1_tci'))">☐</span>
+        <span>{{ check(form.selectedOutcomes.includes('14_1_tci')) }}</span>
         ตีพิมพ์ในวารสารทางวิชาการที่มีรายชื่ออยู่ในฐานข้อมูล ตามประกาศ ก.พ.อ.
         เรื่องหลักเกณฑ์การพิจารณาวารสารทางวิชาการ สำหรับการเผยแพร่ผลงานทางวิชาการ พ.ศ.2562 หรือ
       </div>
 
       <div class="option">
-        <span :class="check(form.selectedOutcomes.includes('14_1_international'))">☐</span>
+        <span>{{ check(form.selectedOutcomes.includes('14_1_international')) }}</span>
         ตีพิมพ์วารสารทางวิชาการระดับชาติ ต้องเป็นวารสารทางวิชาการที่ปรากฏในฐานข้อมูล
         TCI กลุ่มที่ 1 หรือ กลุ่มที่ 2 หรือ
       </div>
 
       <div class="option">
-        <span :class="check(form.selectedOutcomes.includes('14_1_patent'))">☐</span>
+        <span>{{ check(form.selectedOutcomes.includes('14_1_patent')) }}</span>
         อนุสิทธิบัตร/สิทธิบัตร (มีเลขคำขอ)
       </div>
 
@@ -276,20 +276,20 @@
       <div class="group-title">14.2 ทุนพัฒนานักวิจัย</div>
 
       <div class="option">
-        <span :class="check(form.selectedOutcomes.includes('14_2_international'))">☐</span>
+        <span>{{ check(form.selectedOutcomes.includes('14_2_international')) }}</span>
         ตีพิมพ์ในวารสารทางวิชาการระดับนานาชาติที่มีรายชื่ออยู่ในฐานข้อมูล
         ตามประกาศ ก.พ.อ. เรื่องหลักเกณฑ์การพิจารณาวารสารทางวิชาการ
         สำหรับการเผยแพร่ผลงานทางวิชาการ พ.ศ.2562 หรือ
       </div>
 
       <div class="option">
-        <span :class="check(form.selectedOutcomes.includes('14_2_tci1'))">☐</span>
+        <span>{{ check(form.selectedOutcomes.includes('14_2_tci1')) }}</span>
         ตีพิมพ์วารสารทางวิชาการระดับชาติ ต้องเป็นวารสารทางวิชาการที่ปรากฏในฐานข้อมูล
         TCI กลุ่มที่ 1 เท่านั้น หรือ
       </div>
 
       <div class="option">
-        <span :class="check(form.selectedOutcomes.includes('14_2_patent'))">☐</span>
+        <span>{{ check(form.selectedOutcomes.includes('14_2_patent')) }}</span>
         อนุสิทธิบัตร/สิทธิบัตร (มีเลขคำขอ)
       </div>
 
@@ -298,20 +298,20 @@
       <div class="group-title">14.3 ทุนวิจัยที่สอดคล้องกับยุทธศาสตร์</div>
 
       <div class="option">
-        <span :class="check(form.selectedOutcomes.includes('14_3_international'))">☐</span>
+        <span>{{ check(form.selectedOutcomes.includes('14_3_international')) }}</span>
         ตีพิมพ์ในวารสารทางวิชาการระดับนานาชาติที่มีรายชื่ออยู่ในฐานข้อมูล
         ตามประกาศ ก.พ.อ. เรื่องหลักเกณฑ์การพิจารณาวารสารทางวิชาการ
         สำหรับการเผยแพร่ผลงานทางวิชาการ พ.ศ.2562 หรือ
       </div>
 
       <div class="option">
-        <span :class="check(form.selectedOutcomes.includes('14_3_tci1'))">☐</span>
+        <span>{{ check(form.selectedOutcomes.includes('14_3_tci1')) }}</span>
         ตีพิมพ์วารสารทางวิชาการระดับชาติ ต้องเป็นวารสารทางวิชาการที่ปรากฏในฐานข้อมูล
         TCI กลุ่มที่ 1 เท่านั้น หรือ
       </div>
 
       <div class="option">
-        <span :class="check(form.selectedOutcomes.includes('14_3_patent'))">☐</span>
+        <span>{{ check(form.selectedOutcomes.includes('14_3_patent')) }}</span>
         อนุสิทธิบัตร/สิทธิบัตร (มีเลขคำขอ)
       </div>
 
@@ -320,11 +320,11 @@
       <div class="group-title">14.4 ทุนต่อยอดสู่ภาคอุตสาหกรรม</div>
 
       <div class="option">
-        <span :class="check(form.selectedOutcomes.includes('14_4_ip'))">☐</span>
+        <span>{{ check(form.selectedOutcomes.includes('14_4_ip')) }}</span>
         การยื่นจดทะเบียนทรัพย์สินทางปัญญา (มีเลขคำขอ)
       </div>
-
     </div>
+
 
 
     <!-- 15 -->
@@ -340,17 +340,17 @@
       </div>
 
       <div class="option">
-        <span :class="check(form.socialTransfer === '16_1')">☐</span>
+        <span>{{ check(form.socialTransfer === '16_1') }}</span>
         สามารถนำไปถ่ายทอดเป็นต้นแบบและแนวทางได้ในระดับภูมิภาค ประเทศ หรือ นานาชาติ
       </div>
 
       <div class="option">
-        <span :class="check(form.socialTransfer === '16_2')">☐</span>
+        <span>{{ check(form.socialTransfer === '16_2') }}</span>
         สามารถนำไปถ่ายทอดเป็นต้นแบบและแนวทางได้เฉพาะกลุ่มอาชีพ ชุมชน หรือจังหวัด
       </div>
 
       <div class="option">
-        <span :class="check(form.socialTransfer === '16_3')">☐</span>
+        <span>{{ check(form.socialTransfer === '16_3') }}</span>
         ไม่มีการนำไปถ่ายทอดสู่สังคม
       </div>
 
@@ -371,63 +371,64 @@
 
       <!-- ไม่มีการวิจัยในมนุษย์ -->
       <div class="option">
-        <span :class="check(form.researchStandard.includes('18_none'))">☐</span>
+        <span>{{ check(form.researchStandard.includes('18_none')) }}</span>
         ไม่มีการทำวิจัยในมนุษย์ / ไม่มีการใช้สัตว์ทดลอง / การวิจัยที่เกี่ยวข้องกับงานด้านเทคโนโลยีชีวภาพสมัยใหม่
       </div>
 
       <!-- มีการทำวิจัยในมนุษย์ -->
       <div class="option">
-        <span :class="check(form.researchStandard.includes('18_human'))">☐</span>
+        <span>{{ check(form.researchStandard.includes('18_human')) }}</span>
         มีการทำวิจัยในมนุษย์
       </div>
 
       <div class="sub-option">
-        <span :class="check(form.researchStandard.includes('18_human_certified'))">☐</span>
+        <span>{{ check(form.researchStandard.includes('18_human_certified')) }}</span>
         มีหนังสือรับรองจริยธรรมการวิจัยในมนุษย์ (แนบสำเนา 1 ชุด)
       </div>
 
       <div class="sub-option">
-        <span :class="check(form.researchStandard.includes('18_human_pending'))">☐</span>
+        <span>{{ check(form.researchStandard.includes('18_human_pending')) }}</span>
         ไม่มีหนังสือรับรองจริยธรรมการวิจัยในมนุษย์ อยู่ระหว่างเสนอคณะกรรมการจริยธรรมการวิจัยในมนุษย์พิจารณา
-        วันที่ยื่นโครงการ........................ (แนบสำเนาเอกสารหลักฐานการยื่นขอฯ)
+        วันที่ยื่นโครงการ {{ form.humanDetail.applyDate }}
       </div>
 
       <!-- มีการใช้สัตว์ทดลอง -->
       <div class="option">
-        <span :class="check(form.researchStandard.includes('18_animal'))">☐</span>
+        <span>{{ check(form.researchStandard.includes('18_animal')) }}</span>
         มีการใช้สัตว์ทดลอง
       </div>
 
       <div class="sub-option">
-        <span :class="check(form.researchStandard.includes('18_animal_certified'))">☐</span>
+        <span>{{ check(form.researchStandard.includes('18_animal_certified')) }}</span>
         มีหนังสือรับรองจรรยาบรรณสัตว์เพื่องานทางวิทยาศาสตร์ (แนบสำเนา 1 ชุด)
       </div>
 
       <div class="sub-option">
-        <span :class="check(form.researchStandard.includes('18_animal_pending'))">☐</span>
+        <span>{{ check(form.researchStandard.includes('18_animal_pending')) }}</span>
         ไม่มีหนังสือรับรองจรรยาบรรณสัตว์เพื่องานทางวิทยาศาสตร์
         อยู่ระหว่างเสนอคณะกรรมการจรรยาบรรณสัตว์เพื่องานทางวิทยาศาสตร์
-        วันที่ยื่นโครงการ........................ (แนบสำเนาเอกสารหลักฐานการยื่นขอฯ)
+        วันที่ยื่นโครงการ {{ form.animalDetail.applyDate }}
       </div>
 
       <!-- พันธุ์พืช -->
       <div class="option">
-        <span :class="check(form.researchStandard.includes('18_plant'))">☐</span>
+        <span>{{ check(form.researchStandard.includes('18_plant')) }}</span>
         มีการเก็บ จัดหา หรือรวบรวมพันธุ์พืชพื้นเมืองทั่วไปและพันธุ์พืชป่าหรือส่วนหนึ่งส่วนใดของพันธุ์พืช เห็ด รา
         เพื่อการศึกษา ทดลอง หรือวิจัย ตามมาตรา 53 แห่งพระราชบัญญัติคุ้มครองพันธุ์พืช พ.ศ. 2542
       </div>
 
       <div class="sub-option">
-        <span :class="check(form.researchStandard.includes('18_plant_certified'))">☐</span>
+        <span>{{ check(form.researchStandard.includes('18_plant_certified')) }}</span>
         มีหนังสือแจ้งการเก็บ จัดหา หรือรวบรวมพันธุ์พืชฯ ตามมาตรา 53 แห่งพระราชบัญญัติคุ้มครองพันธุ์พืช พ.ศ. 2542
         (แนบสำเนา 1 ชุด)
       </div>
 
       <div class="sub-option">
-        <span :class="check(form.researchStandard.includes('18_plant_pending'))">☐</span>
+        <span>{{ check(form.researchStandard.includes('18_plant_pending')) }}</span>
         ไม่มีหนังสือแจ้งการเก็บ จัดหา หรือรวบรวมพันธุ์พืชฯ อยู่ระหว่างดำเนินการ
-        วันที่ยื่นโครงการ ....19/05/2568.... (แนบสำเนาเอกสารหลักฐานการยื่นขอฯ)
+        วันที่ยื่นโครงการ {{ form.plantDetail.applyDate }}
       </div>
+
 
     </div>
 
@@ -451,19 +452,14 @@ export default {
     return {
       form: {
 
-        researchStandard: [],
         selectedOutcomes: [],
-        selectedStrategy: '',
-        socialTransfer: '',
-
         titleTH: "",
         titleEN: "",
         budgetType: "",
-        budgets: [],
         cooperation: "",
         cooperationDetail: "",
         researchType: "",
-        standards: [],
+        researchStandard: [],
         humanDetail: {
           hasCert: false,
           isPending: false,
@@ -487,6 +483,12 @@ export default {
           coResearchers: [],
           advisors: []
         },
+        plantDetail: {
+          hasCert: false,
+          isPending: false,
+          applyDate: "",
+          file: null
+        },
         keywords: "",
         importance: "",
         objective: "",
@@ -496,11 +498,11 @@ export default {
         scope: "",
         progressReport: "",
         integration: "",
-        transferLevel: "",
-        remark: ""
+        socialTransfer: "",
+        remark: "",
+        selectedStrategy: ""
       },
 
-      // ✅ เพิ่มอันนี้กลับเข้าไป
       contentSections: [
         { title: "5. คำสำคัญ (Keywords)", model: "keywords" },
         { title: "6. ความสำคัญของปัญหาและแนวคิด", model: "importance" },
@@ -524,8 +526,9 @@ export default {
 
   methods: {
     check(condition) {
-      return condition ? 'checked' : ''
+      return condition ? '☑' : '☐'
     }
+
     ,
 
     generatePDF() {
@@ -535,7 +538,7 @@ export default {
         .set({
           margin: 0,
           filename: "Research_Proposal_RS1.pdf",
-          html2canvas: { scale: 2 },
+          html2canvas: { scale: 3, useCORS: true },
           jsPDF: {
             unit: "mm",
             format: "a4",
@@ -629,6 +632,7 @@ export default {
 .section {
   margin-top: 20px;
   padding-left: 20px;
+  page-break-inside: avoid;
 }
 
 .section-title {
@@ -663,5 +667,11 @@ export default {
 .field-line {
   margin-bottom: 8px;
   padding-left: 15px;
+}
+
+@media print {
+  .report-container {
+    padding: 20mm;
+  }
 }
 </style>

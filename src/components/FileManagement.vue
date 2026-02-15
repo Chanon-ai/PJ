@@ -176,4 +176,9 @@ export default {
 .btn-outline-danger {
   padding: 2px 8px;
 }
+
+.table thead th {
+  background-color: #2f3dcf; 
+  color: #f5f5f5;   
+}
 </style>

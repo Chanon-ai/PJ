@@ -344,4 +344,10 @@ export default {
 .bg-warning {
   background-color: #f9b115 !important;
 }
+
+.table thead th {
+  background-color: #5f647a; 
+  color: #f5f5f5;        
+  font-weight: 500;
+}
 </style>
