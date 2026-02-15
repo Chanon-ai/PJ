@@ -14,19 +14,24 @@
         </h6>
         <CRow>
           <CCol lg="4" md="6">
-            <CFormInput  label="ชื่อ-นามสกุล *" :value="form.researchers.mainResearcher.name" @input="updateMain('name', $event)" />
+            <CFormInput label="ชื่อ-นามสกุล *" :value="form.researchers.mainResearcher.name"
+              @input="updateMain('name', $event.target.value)" />
           </CCol>
           <CCol lg="4" md="6">
-            <CFormInput  label="สังกัดหน่วยงาน *" :value="form.researchers.mainResearcher.affiliation" @input="updateMain('affiliation', $event)" />
+            <CFormInput label="สังกัดหน่วยงาน *" :value="form.researchers.mainResearcher.affiliation"
+              @input="updateMain('affiliation', $event.target.value)" />
           </CCol>
           <CCol lg="4" md="6">
-            <CFormInput  label="เบอร์โทรศัพท์ *" :value="form.researchers.mainResearcher.phone" @input="updateMain('phone', $event)" />
+            <CFormInput label="เบอร์โทรศัพท์ *" :value="form.researchers.mainResearcher.phone"
+              @input="updateMain('phone', $event.target.value)" />
           </CCol>
           <CCol lg="6" md="6">
-            <CFormInput  label="E-mail address *" :value="form.researchers.mainResearcher.email" type="email" @input="updateMain('email', $event)" />
+            <CFormInput label="E-mail address *" :value="form.researchers.mainResearcher.email" type="email"
+              @input="updateMain('email', $event.target.value)" />
           </CCol>
           <CCol lg="6" md="12">
-            <CFormInput  label="สัดส่วนการวิจัย (%) *" :value="form.researchers.mainResearcher.code" type="number" @input="updateMain('code', $event)" />
+            <CFormInput label="สัดส่วนการวิจัย (%) *" :value="form.researchers.mainResearcher.code" type="number"
+              @input="updateMain('code', $event.target.value)" />
           </CCol>
         </CRow>
       </div>
@@ -50,19 +55,22 @@
           </div>
           <CRow>
             <CCol lg="4" md="6">
-              <CFormInput  label="ชื่อ-นามสกุล *" :value="r.name" @input="updateCo(idx, 'name', $event)" />
+              <CFormInput label="ชื่อ-นามสกุล *" :value="r.name" @input="updateCo(idx, 'name', $event.target.value)" />
             </CCol>
             <CCol lg="4" md="6">
-              <CFormInput  label="สังกัดหน่วยงาน *" :value="r.affiliation" @input="updateCo(idx, 'affiliation', $event)" />
+              <CFormInput label="สังกัดหน่วยงาน *" :value="r.affiliation"
+                @input="updateCo(idx, 'affiliation', $event.target.value)" />
             </CCol>
             <CCol lg="4" md="6">
-              <CFormInput  label="เบอร์โทรศัพท์ *" :value="r.phone" @input="updateCo(idx, 'phone', $event)" />
+              <CFormInput label="เบอร์โทรศัพท์ *" :value="r.phone"
+                @input="updateCo(idx, 'phone', $event.target.value)" />
             </CCol>
             <CCol lg="6" md="6">
-              <CFormInput  label="E-mail *" :value="r.email" @input="updateCo(idx, 'email', $event)" />
+              <CFormInput label="E-mail *" :value="r.email" @input="updateCo(idx, 'email', $event.target.value)" />
             </CCol>
             <CCol lg="6" md="12">
-              <CFormInput  label="สัดส่วนการวิจัย (%) *" :value="r.code" type="number" @input="updateCo(idx, 'code', $event)" />
+              <CFormInput label="สัดส่วนการวิจัย (%) *" :value="r.code" type="number"
+                @input="updateCo(idx, 'code', $event.target.value)" />
             </CCol>
           </CRow>
         </div>
@@ -87,16 +95,17 @@
         </div>
         <CRow>
           <CCol lg="4" md="6">
-            <CFormInput  label="ชื่อ-นามสกุล *" :value="adv.name" @input="updateAdv(idx, 'name', $event)" />
+            <CFormInput label="ชื่อ-นามสกุล *" :value="adv.name" @input="updateAdv(idx, 'name', $event)" />
           </CCol>
           <CCol lg="4" md="6">
-            <CFormInput  label="สังกัดหน่วยงาน *" :value="adv.affiliation" @input="updateAdv(idx, 'affiliation', $event)" />
+            <CFormInput label="สังกัดหน่วยงาน *" :value="adv.affiliation"
+              @input="updateAdv(idx, 'affiliation', $event)" />
           </CCol>
           <CCol lg="4" md="6">
-            <CFormInput  label="เบอร์โทรศัพท์ *" :value="adv.phone" @input="updateAdv(idx, 'phone', $event)" />
+            <CFormInput label="เบอร์โทรศัพท์ *" :value="adv.phone" @input="updateAdv(idx, 'phone', $event)" />
           </CCol>
           <CCol lg="12">
-            <CFormInput  label="E-mail address *" :value="adv.email" @input="updateAdv(idx, 'email', $event)" />
+            <CFormInput label="E-mail address *" :value="adv.email" @input="updateAdv(idx, 'email', $event)" />
           </CCol>
         </CRow>
       </div>
