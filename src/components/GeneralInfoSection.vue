@@ -30,7 +30,7 @@
               <!-- Radio หลัก -->
               <div class="custom-control radio-item2">
                 <input class="custom-control-input" type="radio" name="budgetType" :id="'type-' + type.value"
-                  :value="type.label" :checked="form.budgetType === type.label" @change="selectBudgetType(type)">
+                  :value="type.value" :checked="form.budgetType === type.value" @change="selectBudgetType(type)">
                 <label class="custom-control-label font-weight-bold" :for="'type-' + type.value"
                   style="cursor: pointer;">
                   {{ type.label }}
@@ -39,7 +39,7 @@
 
               <!-- ข้อย่อย -->
               <transition name="fade">
-                <div v-if="form.budgetType === type.label && type.children?.length"
+                <div v-if="form.budgetType === type.value"
                   class="subtype-box mt-3 p-3 rounded">
                   <div v-for="(child, index) in type.children || []" :key="index" class="subtype-item">
 
@@ -103,7 +103,7 @@ export default {
     selectBudgetType(type) {
       this.$emit('update:form', {
         ...this.form,
-        budgetType: type.label,
+        budgetType: type.value,
         budgetSubTypes: []
       })
     },

@@ -78,8 +78,6 @@ export default {
     FileManagement,
     ResearchSection12,
     SignatureSection
-    // หมายเหตุ: quillEditor ถูกย้ายไปลงทะเบียนในคอมโพเนนต์ลูกที่ใช้งานจริงแล้ว 
-    // จึงไม่ต้องลงทะเบียนซ้ำที่นี่เพื่อเลี่ยง Error unused component
   },
   data() {
     return {
@@ -143,17 +141,40 @@ export default {
       files: [],
       replaceIndex: null,
       form: {
-        titleTH: "", titleEN: "", budgetType: "", budgets: [],
-        cooperation: "ไม่มี", cooperationDetail: "", researchType: "",
-        selectedOutcomes: [], standards: [],
+        titleTH: "",
+        titleEN: "",
+        budgetType: "",
+        selectedStrategy: "",
+        cooperation: "ไม่มี",
+        cooperationDetail: "",
+        researchType: "",
+        budgetSubTypes: [],
+        selectedOutcomes: [],
+        researchStandard: [],
+        socialTransfer: "",
+
         humanDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
         animalDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
+        plantDetail: { applyDate: '' },
+
         researchers: {
           mainResearcher: { name: "", affiliation: "", phone: "", email: "", code: "" },
-          coResearchers: [], advisors: []
+          coResearchers: [],
+          advisors: []
         },
-        remark: "", progressReport: "", integration: "", transferLevel: "ไม่มีการนำไปถ่ายทอดสู่สังคม"
+
+        keywords: "",
+        importance: "",
+        objective: "",
+        literature: "",
+        reference: "",
+        methodology: "",
+        scope: "",
+        progressReport: "",
+        integration: "",
+        remark: ""
       }
+
     };
   },
   watch: {
@@ -187,13 +208,10 @@ export default {
     submit() { console.log("Final Form Data:", this.form); alert("บันทึกข้อมูลสำเร็จ"); },
     resetForm() { if (confirm("ล้างข้อมูลทั้งหมด?")) location.reload(); },
     exportPDF() {
-      this.$router.push({
-        path: "/report",
-        state: {
-          reportData: this.form
-        }
-      });
+      localStorage.setItem("reportData", JSON.stringify(this.form))
+      this.$router.push("/report")
     }
+
 
 
   }

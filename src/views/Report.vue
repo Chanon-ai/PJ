@@ -14,16 +14,13 @@
 
     <!-- ประเภททุน -->
     <div class="checkbox-line">
-      <span> {{ check(form.budgetType === 'ทุนวิจัยทั่วไป') }}</span> ทุนนักวิจัยใหม่
-      &nbsp;&nbsp;&nbsp;
-      <span>{{ check(form.budgetType === 'ทุนพัฒนานักวิจัย') }}</span> ทุนพัฒนานักวิจัย
-      &nbsp;&nbsp;&nbsp;
-      <span>{{ check(form.budgetType === 'ทุนที่สอดคล้องกับยุทธศาสตร์การวิจัย') }}</span>
+      <span>{{ check(form.budgetType === 'new') }}</span> ทุนนักวิจัยใหม่
+      <span>{{ check(form.budgetType === 'dev') }}</span> ทุนพัฒนานักวิจัย
+      <span>{{ check(form.budgetType === 'strategic') }}</span>
       ทุนที่สอดคล้องกับยุทธศาสตร์การวิจัย
-      &nbsp;&nbsp;&nbsp;
-      <br>
-      <span>{{ check(form.budgetType === 'ทุนต่อยอดสู่ภาคอุตสาหกรรมและนวัฒกรรม ภายใต้กรอบวิจัยยุทธศาสตร์ชาติ') }}</span>
-      ทุนต่อยอดสู่ภาคอุตสาหกรรมและนวัฒกรรม ภายใต้กรอบวิจัยยุทธศาสตร์ชาติ
+      <span>{{ check(form.budgetType === 'industrial') }}</span>
+      ทุนต่อยอดสู่ภาคอุตสาหกรรมและนวัตกรรม ภายใต้กรอบวิจัยยุทธศาสตร์ชาติ
+
     </div>
 
     <!-- 1 -->
@@ -371,7 +368,7 @@
 
       <!-- ไม่มีการวิจัยในมนุษย์ -->
       <div class="option">
-        <span>{{ check(form.researchStandard.includes('18_none')) }}</span>
+        <span>{{ check(form.researchStandard && form.researchStandard.includes('18_none')) }}</span>
         ไม่มีการทำวิจัยในมนุษย์ / ไม่มีการใช้สัตว์ทดลอง / การวิจัยที่เกี่ยวข้องกับงานด้านเทคโนโลยีชีวภาพสมัยใหม่
       </div>
 
@@ -456,6 +453,7 @@ export default {
         titleTH: "",
         titleEN: "",
         budgetType: "",
+        budgetSubTypes: [],
         cooperation: "",
         cooperationDetail: "",
         researchType: "",
@@ -515,39 +513,44 @@ export default {
     };
   },
   mounted() {
-    const data = localStorage.getItem("reportData");
+    const data = localStorage.getItem("reportData")
+
     if (data) {
-      const parsed = JSON.parse(data);
-      Object.assign(this.form, parsed);
+      const parsed = JSON.parse(data)
+
+      this.form = {
+        ...this.form,
+        ...parsed,
+        researchStandard: parsed.researchStandard || [],
+        selectedOutcomes: parsed.selectedOutcomes || []
+      }
+
+      console.log("Loaded Report:", this.form)
     }
-  }
-
-  ,
-
+  },
   methods: {
     check(condition) {
       return condition ? '☑' : '☐'
-    }
-
-    ,
-
+    },
     generatePDF() {
       const element = document.getElementById("report-area");
 
-      html2pdf()
-        .set({
-          margin: 0,
-          filename: "Research_Proposal_RS1.pdf",
-          html2canvas: { scale: 3, useCORS: true },
-          jsPDF: {
-            unit: "mm",
-            format: "a4",
-            orientation: "portrait"
-          }
-        })
-        .from(element)
-        .save();
+      const opt = {
+        margin: [10, 10, 10, 10],
+        filename: "Research_Proposal_RS1.pdf",
+        image: { type: "jpeg", quality: 1 },
+        html2canvas: { scale: 4, useCORS: true },
+        jsPDF: {
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait"
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+
+      html2pdf().set(opt).from(element).save();
     }
+
   }
 };
 </script>
@@ -673,5 +676,10 @@ export default {
   .report-container {
     padding: 20mm;
   }
+}
+
+.option,
+.sub-option {
+  page-break-inside: avoid;
 }
 </style>
