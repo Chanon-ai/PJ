@@ -28,36 +28,35 @@
 
             <div v-for="type in budgetTypes" :key="type.value" class="mb-3">
               <!-- Radio หลัก -->
-              <div class="custom-control radio-item2">
-                <input class="custom-control-input" type="radio" name="budgetType" :id="'type-' + type.value"
-                  :value="type.value" :checked="form.budgetType === type.value" @change="selectBudgetType(type)">
-                <label class="custom-control-label font-weight-bold" :for="'type-' + type.value"
-                  style="cursor: pointer;">
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="budgetType" :id="'type-' + type.value"
+                  :value="type.value" v-model="localBudgetType" />
+
+                <label class="form-check-label fw-bold" :for="'type-' + type.value">
                   {{ type.label }}
                 </label>
               </div>
 
+
               <!-- ข้อย่อย -->
               <transition name="fade">
-                <div v-if="form.budgetType === type.value"
+                <div v-if="form.budgetType === type.value && type.children && type.children.length"
                   class="subtype-box mt-3 p-3 rounded">
                   <div v-for="(child, index) in type.children || []" :key="index" class="subtype-item">
 
-                    <div class="radio-item">
-                      <input type="radio" :name="'subtype-' + type.value" :id="'child-' + type.value + '-' + index"
-                        :value="child" :checked="form.budgetSubTypes[0] === child" @change="selectSubType(child)" />
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" :name="'subtype-' + type.value"
+                        :id="'child-' + type.value + '-' + index" :value="child.value"
+                        v-model="localSelectedStrategy" />
 
                       <label class="subtype-label" :for="'child-' + type.value + '-' + index">
-                        {{ child }}
+                        {{ child.label }}
                       </label>
                     </div>
 
                   </div>
                 </div>
               </transition>
-
-
-
             </div>
           </div>
         </CCol>
@@ -65,18 +64,18 @@
 
         <CCol lg="6" md="12" class="mb-4">
           <h5 class="font-weight-bold text-dark mb-3">3) ความร่วมมือ <span class="required">*</span></h5>
-          <CFormSelect :options="['ไม่มี', 'มี']" :value="form.cooperation"
-            @update:value="updateField('cooperation', $event)" class="shadow-sm" />
+          <CFormSelect :options="['ไม่มี', 'มี']" :model-value="form.cooperation"
+            @update:modelValue="val => updateField('cooperation', val)" class="shadow-sm" />
           <div v-if="form.cooperation === 'มี'" class="mt-3">
-            <CFormInput label="รายละเอียดความร่วมมือ" :value="form.cooperationDetail"
-              @input="updateField('cooperationDetail', $event)" placeholder="ระบุหน่วยงานที่ร่วมมือ" />
+            <CFormInput :model-value="form.cooperationDetail"
+              @update:modelValue="val => updateField('cooperationDetail', val)" placeholder="ระบุหน่วยงานที่ร่วมมือ" />
+
           </div>
         </CCol>
 
         <CCol lg="6" md="12" class="mb-4">
           <h5 class="font-weight-bold text-dark mb-3">4) ประเภทงานวิจัย <span class="required">*</span></h5>
-          <CFormSelect :options="researchTypeOptions" :value="form.researchType"
-            @update:value="updateField('researchType', $event)" class="shadow-sm" />
+          <CFormSelect :options="researchTypeOptions" v-model="researchTypeModel" class="shadow-sm" />
         </CCol>
       </CRow>
     </CCardBody>
@@ -86,37 +85,65 @@
 <script>
 export default {
   name: 'GeneralInfoSection',
+
   props: {
     form: { type: Object, required: true },
     budgetTypes: { type: Array, required: true },
     researchTypeOptions: { type: Array, required: true }
   },
+
   emits: ['update:form'],
+
+  computed: {
+    localBudgetType: {
+      get() {
+        return this.form.budgetType
+      },
+      set(val) {
+        this.$emit('update:form', {
+          ...this.form,
+          budgetType: val,
+          selectedStrategy: ""
+        })
+      }
+    },
+
+    localSelectedStrategy: {
+      get() {
+        return this.form.selectedStrategy
+      },
+      set(val) {
+        this.$emit('update:form', {
+          ...this.form,
+          selectedStrategy: val
+        })
+      }
+    },
+
+    researchTypeModel: {
+      get() {
+        return this.form.researchType
+      },
+      set(val) {
+        this.$emit("update:form", {
+          ...this.form,
+          researchType: val
+        })
+      }
+    }
+  },
+
   methods: {
     updateField(key, value) {
       this.$emit('update:form', {
         ...this.form,
         [key]: value
       })
-    },
-
-    selectBudgetType(type) {
-      this.$emit('update:form', {
-        ...this.form,
-        budgetType: type.value,
-        budgetSubTypes: []
-      })
-    },
-
-    selectSubType(child) {
-      this.$emit('update:form', {
-        ...this.form,
-        budgetSubTypes: [child]
-      })
     }
   }
-
 }
+
+
 </script>
 
 <style>

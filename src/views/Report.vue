@@ -458,6 +458,7 @@ export default {
         cooperationDetail: "",
         researchType: "",
         researchStandard: [],
+        standards: [],
         humanDetail: {
           hasCert: false,
           isPending: false,
@@ -512,22 +513,49 @@ export default {
       ]
     };
   },
-  mounted() {
-    const data = localStorage.getItem("reportData")
+ mounted() {
+  const data = localStorage.getItem("reportData")
 
-    if (data) {
-      const parsed = JSON.parse(data)
+  if (data) {
+    const parsed = JSON.parse(data)
 
-      this.form = {
-        ...this.form,
-        ...parsed,
-        researchStandard: parsed.researchStandard || [],
-        selectedOutcomes: parsed.selectedOutcomes || []
+    let mapped = []
+
+    if (parsed.standards?.includes('none')) {
+      mapped.push('18_none')
+    }
+
+    if (parsed.standards?.includes('human')) {
+      mapped.push('18_human')
+
+      if (parsed.humanDetail?.hasCert) {
+        mapped.push('18_human_certified')
       }
 
-      console.log("Loaded Report:", this.form)
+      if (parsed.humanDetail?.isPending) {
+        mapped.push('18_human_pending')
+      }
     }
-  },
+
+    if (parsed.standards?.includes('animal')) {
+      mapped.push('18_animal')
+
+      if (parsed.animalDetail?.hasCert) {
+        mapped.push('18_animal_certified')
+      }
+
+      if (parsed.animalDetail?.isPending) {
+        mapped.push('18_animal_pending')
+      }
+    }
+
+    this.form = {
+      ...this.form,
+      ...parsed,
+      researchStandard: mapped
+    }
+  }
+},
   methods: {
     check(condition) {
       return condition ? '☑' : '☐'
