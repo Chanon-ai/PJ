@@ -12,7 +12,7 @@
           contentType="html" :options="editorOption" class="mb-4" />
         <h5 class="font-weight-bold mb-4 text-dark border-bottom pb-2">14) ผลลัพธ์ที่คาดว่าจะได้รับ
           (สัมพันธ์กับประเภททุน)</h5>
-        <div v-if="form.budgetType" class="p-4 border rounded bg-light shadow-sm mb-4 border-left-primary">
+        <div v-if="form.budgetType" class="subtype-box mt-3 p-3 rounded">
 
           <template v-if="form.budgetType === 'ทุนนักวิจัยรุ่นใหม่'">
             <h6 class="font-weight-bold text-primary mb-3">14.1 ทุนนักวิจัยรุ่นใหม่</h6>
@@ -64,19 +64,22 @@
 
 
         <h5 class="font-weight-bold text-dark mb-3">16) ระดับการถ่ายทอดสู่สังคม *</h5>
-        <div class="bg-light p-4 rounded border mb-5 shadow-sm w-100 border-left-primary">
+        <div class="subtype-box mt-3 p-3 rounded">
           <div class="ms-3">
-            <div v-for="(opt, i) in transferOptions" :key="'trans-' + i" class="custom-control custom-radio mb-3">
+            <div v-for="(opt, i) in transferOptions" :key="'trans-' + i" class="radio-item">
+
               <input type="radio" :id="'trans-' + i" :value="opt" :checked="form.transferLevel === opt"
-                @change="updateField('transferLevel', opt)" class="custom-control-input">
-              <label class="custom-control-label text-dark" :for="'trans-' + i" style="cursor: pointer;">
+                @change="updateField('transferLevel', opt)">
+
+              <label :for="'trans-' + i" class="text-dark" style="cursor:pointer;">
                 {{ opt }}
               </label>
             </div>
+
           </div>
         </div>
 
-        <h5 class="font-weight-bold mb-3 text-dark">17) กรอกรายละเอียดงบประมาณ (พ.ศ. 2569)</h5>
+        <h5 class="font-weight-bold mb-3 mt-4 text-dark">17) กรอกรายละเอียดงบประมาณ (พ.ศ. 2569)</h5>
         <div class="border rounded bg-white shadow-sm overflow-hidden mb-4">
           <BudgetSection :value="form.budgets" @input="updateField('budgets', $event)" />
         </div>
@@ -138,4 +141,56 @@ export default {
 .bg-light {
   background-color: #f8f9fa !important;
 }
+
+.radio-item {
+
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+.radio-item2 {
+
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+ 
+}
+.radio-item2 input[type="radio"] {
+  margin-top: 5px;
+}
+
+.radio-item input[type="radio"] {
+  margin-top: 5px;
+}
+
+.custom-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.custom-checkbox input[type="checkbox"] {
+  margin-top: 5px;
+}
+
+.custom-checkbox2 {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.custom-checkbox2 input[type="checkbox"] {
+  margin-top: 8px;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: #321fdb;   /* สี */
+  transform: scale(1.3);   /* ขยายขนาด */
+  margin-right: 6px;
+}
+
 </style>

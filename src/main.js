@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 
 import '@coreui/coreui/dist/css/coreui.min.css'
+import './assets/theme.css'
 import 'quill/dist/quill.snow.css'
 
 import CoreuiVue from '@coreui/vue'

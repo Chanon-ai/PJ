@@ -38,10 +38,10 @@
         @replace="triggerReplace" />
 
       <footer class="bg-white p-4 border-top d-flex justify-content-end shadow-lg sticky-footer">
-        <CButton color="danger" variant="outline" class="px-5 font-weight-bold mr-3" @click="resetForm">
+        <CButton color="danger" variant="outline" class="px-5 font-weight-bold me-3" @click="resetForm">
           <CIcon name="cil-brush" class="me-2" /> ล้างข้อมูล
         </CButton>
-        <CButton color="primary" class="px-5 font-weight-bold shadow mr-3" @click="submit">
+        <CButton color="primary" class="px-5 font-weight-bold shadow me-3" @click="submit">
           <CIcon name="cil-save" class="me-2" /> บันทึกแบบเสนอโครงการ
         </CButton>
         <CButton color="info" class="px-4 font-weight-bold text-white" @click="exportPDF">

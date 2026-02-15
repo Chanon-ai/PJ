@@ -8,11 +8,11 @@
     </CCardHeader>
 
     <CCardBody class="p-4 bg-white">
-      <div class="bg-light p-4 rounded border shadow-sm w-100 border-left-primary">
+      <div class="bg-light p-4 rounded border shadow-sm w-100 border-left-primary ">
         <div class="ms-3">
 
           <!-- NONE -->
-          <div class="custom-control custom-checkbox mb-4">
+          <div class="custom-control custom-checkbox2">
             <input
               type="checkbox"
               class="custom-control-input"
@@ -30,10 +30,10 @@
             </label>
           </div>
 
-          <hr class="my-4 border-dashed">
+          <hr class="border-dashed">
 
           <!-- HUMAN -->
-          <div class="custom-control custom-checkbox mb-2">
+          <div class="custom-control custom-checkbox2 mb-2">
             <input
               type="checkbox"
               class="custom-control-input"
@@ -45,7 +45,7 @@
             <label
               class="custom-control-label font-weight-bold text-primary"
               for="std_human"
-              style="font-size: 17px; cursor: pointer;"
+              style="font-size: 17px; cursor: pointer;font-weight: bold;"
             >
               มีการทำวิจัยในมนุษย์
             </label>
@@ -111,7 +111,7 @@
           </div>
 
           <!-- ANIMAL -->
-          <div class="custom-control custom-checkbox mb-2">
+          <div class="custom-control custom-checkbox2 mb-2">
             <input
               type="checkbox"
               class="custom-control-input"
@@ -123,7 +123,7 @@
             <label
               class="custom-control-label font-weight-bold text-primary"
               for="std_animal"
-              style="font-size:17px; cursor:pointer;"
+              style="font-size:17px; cursor:pointer;font-weight: bold;"
             >
               มีการใช้สัตว์ทดลอง
             </label>

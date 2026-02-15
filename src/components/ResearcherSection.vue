@@ -72,7 +72,7 @@
         <div v-for="(r, idx) in form.researchers.coResearchers" :key="'co-' + idx"
           class="border rounded p-3 mb-3 bg-light position-relative w-100">
           <div class="d-flex justify-content-between mb-3">
-            <span class="badge badge-success d-flex align-items-center justify-content-center px-3">คนที่ {{ idx + 1
+            <span class="badge bg-success d-flex align-items-center justify-content-center px-3">คนที่ {{ idx + 1
             }}</span>
             <CButton color="danger" size="sm" variant="ghost" @click="removeCoResearcher(idx)">
               <CIcon name="cil-trash" />

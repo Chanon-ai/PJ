@@ -28,7 +28,7 @@
 
           <div class="table-responsive bg-white rounded shadow-sm border overflow-hidden w-100">
             <table class="table table-sm table-bordered table-striped mb-0 align-middle">
-              <thead class="bg-dark text-white text-center font-weight-bold">
+              <thead class=" text-white text-center font-weight-bold">
                 <tr>
                   <th style="width: 25%">รายการ</th>
                   <th style="width: 25%">รายละเอียดตัวคูณ (เกณฑ์ มฟล. 2569)</th>
@@ -91,7 +91,7 @@
                       </div>
                     </div>
                     <CFormInput v-else v-model="r.detail" size="sm" class="mb-0 shadow-none border-info"
-                      placeholder="เช่น 500*3+100" @input="calculateManual(r)" />
+                      placeholder="เช่น 500*3+100" @change="calculateManual(r)" />
                   </td>
 
                   <td class="py-2 align-middle">

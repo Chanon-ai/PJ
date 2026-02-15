@@ -34,7 +34,7 @@
 
         <div class="table-responsive">
           <table class="table table-bordered align-middle mb-0">
-            <thead class="bg-primary">
+            <thead class="thead-custom" >
               <tr>
                 <th style="width:25%">ประเภทเอกสาร</th>
                 <th style="width:25%">ชื่อไฟล์</th>

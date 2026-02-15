@@ -1,0 +1,31 @@
+:root {
+  --bs-primary: #2f3dcf;  
+  --cui-primary: #2f3dcf;
+  --cui-primary-rgb: 47, 61, 200;
+}
+html {
+  font-size: 15px;
+}
+
+body {
+  font-weight: 400;
+}
+
+h5 {
+  font-weight: 600;
+}
+
+h1 {
+  font-weight: 700;
+}
+
+h3 {
+  font-weight: 700;
+}
+.table thead th {
+  background-color: #5f647a;   /* dark แต่อ่อน */
+  color: #f5f5f5;              /* ขาวนวล */
+  font-weight: 500;
+}
+
+

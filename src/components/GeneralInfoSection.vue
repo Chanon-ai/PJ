@@ -28,7 +28,7 @@
 
             <div v-for="type in budgetTypes" :key="type.value" class="mb-3">
               <!-- Radio หลัก -->
-              <div class="custom-control custom-radio">
+              <div class="custom-control radio-item2">
                 <input class="custom-control-input" type="radio" name="budgetType" :id="'type-' + type.value"
                   :value="type.label" :checked="form.budgetType === type.label" @change="selectBudgetType(type)">
                 <label class="custom-control-label font-weight-bold" :for="'type-' + type.value"
@@ -39,21 +39,23 @@
 
               <!-- ข้อย่อย -->
               <transition name="fade">
-                <div v-if="form.budgetType === type.label" class="subtype-box mt-3 p-3 rounded">
-                  <div v-for="(child, index) in type.children || []" :key="index"
-                    class="subtype-item d-flex align-items-start mb-3">
-                    <div class="custom-control custom-checkbox flex-grow-1">
-                      <input class="custom-control-input" type="radio" :name="'subtype-' + type.value"
-                        :id="'child-' + type.value + '-' + index" :value="child"
-                        :checked="form.budgetSubTypes[0] === child" @change="selectSubType(child)" />
+                <div v-if="form.budgetType === type.label && type.children?.length"
+                  class="subtype-box mt-3 p-3 rounded">
+                  <div v-for="(child, index) in type.children || []" :key="index" class="subtype-item">
 
-                      <label class="custom-control-label subtype-label" :for="'child-' + type.value + '-' + index">
+                    <div class="radio-item">
+                      <input type="radio" :name="'subtype-' + type.value" :id="'child-' + type.value + '-' + index"
+                        :value="child" :checked="form.budgetSubTypes[0] === child" @change="selectSubType(child)" />
+
+                      <label class="subtype-label" :for="'child-' + type.value + '-' + index">
                         {{ child }}
                       </label>
                     </div>
+
                   </div>
                 </div>
               </transition>
+
 
 
             </div>
@@ -119,7 +121,7 @@ export default {
 
 <style>
 .subtype-box {
-  background: #f8fbff;
+  background: #f0f0f0;
   border-left: 6px solid #321fdb;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
