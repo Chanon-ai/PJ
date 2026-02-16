@@ -250,14 +250,23 @@
         <div class="group-title ms-3">ระยะเวลาที่ทำการวิจัย {{ maxMonths }} เดือน</div>
         <table class="gantt-print-table">
           <thead>
-            <th class="col-activity">กิจกรรม</th>
-            <th v-for="m in maxMonths" :key="m" :style="{ width: monthWidth + 'px' }">
-              {{ m }}
-            </th>
-            <th class="col-owner">ผู้รับผิดชอบ</th>
-
+            <tr>
+              <!-- ซ้าย -->
+              <th class="col-activity" rowspan="2">กิจกรรมวิจัย</th>
+              <!-- กลาง -->
+              <th :colspan="maxMonths">
+                เดือนที่ ({{ totalYearsText }})
+              </th>
+              <!-- ขวา -->
+              <th class="col-owner" rowspan="2">ผู้รับผิดชอบ</th>
+            </tr>
+            <tr>
+              <!-- เดือน 1 - maxMonths -->
+              <th v-for="m in maxMonths" :key="m" :style="{ width: monthWidth + 'px' }">
+                {{ m }}
+              </th>
+            </tr>
           </thead>
-
           <tbody>
             <tr v-for="(act, index) in form.activities" :key="index">
               <td class="col-activity">
@@ -266,15 +275,12 @@
               <td v-for="(month, i) in act.months" :key="i" :style="{ width: monthWidth + 'px' }">
                 <span v-if="month">●</span>
               </td>
-
               <td class="col-owner">
                 {{ act.owner }}
               </td>
-
             </tr>
           </tbody>
         </table>
-
       </div>
 
 
@@ -764,7 +770,16 @@ export default {
       if (!this.maxMonths) return 20
       const totalAvailable = 400
       return Math.floor(totalAvailable / this.maxMonths)
+    },
+    totalYearsText() {
+      if (!this.maxMonths) return ''
+      if (this.maxMonths === 6) return 'ครึ่งปี'
+      if (this.maxMonths === 12) return '1 ปี'
+      if (this.maxMonths === 24) return '2 ปี'
+
+      return (this.maxMonths / 24).toFixed(1) + ' ปี'
     }
+
 
   }
 
