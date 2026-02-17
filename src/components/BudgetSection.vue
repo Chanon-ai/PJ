@@ -151,6 +151,18 @@ import Swal from "sweetalert2";
 
 export default {
   name: "BudgetSection",
+  props: {
+    modelValue: {
+      type: Object,
+      default: () => ({
+        categories: [],
+        grandTotal: 0
+      })
+    }
+  }
+  ,
+  emits: ['update:modelValue'],
+
   data() {
 
     return {
@@ -163,7 +175,6 @@ export default {
         this.makeCat("หมวดค่าสาธารณูปโภค", []),
         this.makeCat("หมวดครุภัณฑ์", [])
       ],
-      // เพิ่มในส่วน data() ของ BudgetSection.vue
       fileCategories: [
         { label: "TOR (Term of References)", value: "TOR" },
         { label: "ใบเสนอราคา / Quotation", value: "Quotation" },
@@ -180,6 +191,51 @@ export default {
       );
     }
   },
+  watch: {
+    modelValue: {
+      deep: true,
+      immediate: true,
+      handler(val) {
+        if (!val || !val.categories) return;
+
+        const incoming = JSON.stringify(val.categories);
+        const current = JSON.stringify(this.categories);
+
+        if (incoming !== current) {
+          this.categories = JSON.parse(incoming);
+        }
+      }
+    }
+    ,
+
+    categories: {
+      deep: true,
+      handler() {
+        this.$emit('update:modelValue', {
+          categories: this.categories,
+          grandTotal: this.grandTotal
+        });
+      }
+    }
+  }
+  ,
+  mounted() {
+    const saved = localStorage.getItem("budgetData");
+
+    if (
+      saved &&
+      (!this.modelValue || !this.modelValue.categories?.length)
+    ) {
+      const parsed = JSON.parse(saved);
+      this.categories = parsed.categories || this.categories;
+
+      this.$emit('update:modelValue', {
+        categories: this.categories,
+        grandTotal: this.grandTotal
+      });
+    }
+  }
+  ,
   methods: {
     makeCat(title, options = []) { return { title, options, selected: "", rows: [] }; },
     addRow(ci) {
@@ -238,15 +294,16 @@ export default {
         return;
       }
 
+      if (!/^[0-9+\-*/().\s]+$/.test(value)) return;
+
       try {
-        if (/^[0-9+\-*/().\s]+$/.test(value)) {
-          const result = Function('"use strict"; return (' + value + ')')();
-          row.total = isFinite(result) ? result : 0;
-        }
-      } catch (e) {
-        // ignore while typing
+        const result = Function('"use strict";return (' + value + ')')();
+        row.total = isFinite(result) ? result : 0;
+      } catch {
+        row.total = 0;
       }
-    },
+    }
+    ,
     calculateRowTotal(row) {
       if (row.multipliers) {
         row.total = row.multipliers.reduce(
@@ -310,6 +367,10 @@ export default {
 
           this.activeCategoryIndex = null;
 
+          this.$emit('update:modelValue', {
+            categories: this.categories,
+            grandTotal: this.grandTotal
+          });
           Swal.fire({
             icon: "success",
             title: "รีเซ็ตเรียบร้อย",
