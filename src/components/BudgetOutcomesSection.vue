@@ -8,7 +8,7 @@
     <CCardBody class="p-4 bg-white">
       <div class="mb-5">
         <h5 class="font-weight-bold text-dark">13) ผลงานตามระยะเวลาการรายงาน</h5>
-        <QuillEditor :content="form.progressByPeriod" @update:content="value => updateField('progressByPeriod', value)"
+        <QuillEditor :content="form.progressReport" @update:content="value => updateField('progressReport', value)"
           contentType="html" :options="editorOption" class="mb-4" />
         <h5 class="font-weight-bold mb-4 text-dark border-bottom pb-2">14) ผลลัพธ์ที่คาดว่าจะได้รับ
           (สัมพันธ์กับประเภททุน)</h5>
@@ -19,7 +19,7 @@
             <div v-for="(opt, idx) in outcomes.newResearcher" :key="'new-' + idx"
               class="custom-control custom-checkbox mb-2">
               <input type="checkbox" class="custom-control-input" :id="'chk1-' + idx" :value="opt.value"
-                :checked="form.selectedOutcomes.includes(opt.value)" @change="toggleOutcome(opt.value)">
+                :checked="(form.selectedOutcomes || []).includes(opt.value)" @change="toggleOutcome(opt.value)">
               <label class="custom-control-label" :for="'chk1-' + idx" style="cursor: pointer;">{{ opt.label }}</label>
             </div>
           </template>
@@ -29,7 +29,7 @@
             <div v-for="(opt, idx) in outcomes.devResearcher" :key="'dev-' + idx"
               class="custom-control custom-checkbox mb-2">
               <input type="checkbox" class="custom-control-input" :id="'chk2-' + idx" :value="opt.value"
-                :checked="form.selectedOutcomes.includes(opt.value)" @change="toggleOutcome(opt.value)">
+                :checked="(form.selectedOutcomes || []).includes(opt.value)" @change="toggleOutcome(opt.value)">
               <label class="custom-control-label" :for="'chk2-' + idx" style="cursor: pointer;">{{ opt.label }}</label>
             </div>
           </template>
@@ -39,7 +39,7 @@
             <div v-for="(opt, idx) in outcomes.strategic" :key="'strat-' + idx"
               class="custom-control custom-checkbox mb-2">
               <input type="checkbox" class="custom-control-input" :id="'chk3-' + idx" :value="opt.value"
-                :checked="form.selectedOutcomes.includes(opt.value)" @change="toggleOutcome(opt.value)">
+                :checked="(form.selectedOutcomes || []).includes(opt.value)" @change="toggleOutcome(opt.value)">
               <label class="custom-control-label" :for="'chk3-' + idx" style="cursor: pointer;">{{ opt.label }}</label>
             </div>
           </template>
@@ -49,7 +49,7 @@
             <div v-for="(opt, idx) in outcomes.industrial" :key="'indus-' + idx"
               class="custom-control custom-checkbox mb-2">
               <input type="checkbox" class="custom-control-input" :id="'chk4-' + idx" :value="opt.value"
-                :checked="form.selectedOutcomes.includes(opt.value)" @change="toggleOutcome(opt.value)">
+                :checked="(form.selectedOutcomes || []).includes(opt.value)" @change="toggleOutcome(opt.value)">
               <label class="custom-control-label" :for="'chk4-' + idx" style="cursor: pointer;">{{ opt.label }}</label>
             </div>
           </template>
@@ -92,6 +92,7 @@ import BudgetSection from "@/components/BudgetSection.vue";
 
 export default {
   name: 'BudgetOutcomesSection',
+  emits: ['update:form'],
   components: {
     QuillEditor,
     BudgetSection
@@ -121,21 +122,25 @@ export default {
     };
   },
   methods: {
-    // อัปเดตข้อมูลทั่วไป
     updateField(key, value) {
       this.$emit('update:form', { ...this.form, [key]: value });
     },
-    // จัดการการเลือก Checkbox ผลลัพธ์หลายตัว
     toggleOutcome(val) {
-      let list = [...this.form.selectedOutcomes];
+      let list = Array.isArray(this.form.selectedOutcomes)
+        ? [...this.form.selectedOutcomes]
+        : [];
+
       const index = list.indexOf(val);
+
       if (index > -1) {
         list.splice(index, 1);
       } else {
         list.push(val);
       }
+
       this.updateField('selectedOutcomes', list);
     }
+
   }
 }
 </script>

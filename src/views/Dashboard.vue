@@ -1,8 +1,24 @@
 <template>
   <div class="page-wrapper">
+    <!-- Action Buttons -->
+    <div class="d-flex justify-content-end mb-3 gap-2">
+      <!-- Floating Buttons -->
+      <div class="floating-buttons">
+        <CButton color="primary" class="fab-btn" @click="onSearch">
+          <i class="bi bi-search"></i>
+        </CButton>
+
+        <CButton color="primary" class="fab-btn" @click="onAdd">
+          <i class="bi bi-plus-lg"></i>
+        </CButton>
+      </div>
+
+
+    </div>
     <CCard class="table-card">
-      <CCardBody class="p-0">
+      <CCardBody class="p-3">
         <CTable hover class="align-middle w-100">
+
           <!-- Header -->
           <CTableHead>
             <CTableRow>
@@ -24,8 +40,7 @@
           <!-- Body -->
           <CTableBody>
             <CTableRow v-for="(item, index) in researchProjects" :key="item.id || index" class="clickable-row"
-              @click="goToDetail()">
-
+              @click="goToDetail(item.id)">
               <!-- Project -->
               <CTableDataCell>
                 <div class="project-title">
@@ -65,51 +80,48 @@
         </CTable>
       </CCardBody>
     </CCard>
+
+
   </div>
 </template>
 
 <script>
 export default {
   name: "Dashboard",
+
   data() {
     return {
-      researchProjects: [
-        {
-          id: 1,
-          projectName: "การพัฒนาระบบ AI เพื่อวิเคราะห์ข้อมูลสุขภาพ",
-          projectLeader: "รศ.ดร.สมชาย ใจดี",
-          submitDate: "2026-01-10",
-          progress: 25,
-          activity: "10 sec ago",
-        },
-        {
-          id: 2,
-          projectName: "การศึกษาพฤติกรรมผู้บริโภคในยุคดิจิทัล",
-          projectLeader: "ผศ.ดร.สุภาวดี แสงทอง",
-          submitDate: "2026-01-05",
-          progress: 60,
-          activity: "5 minutes ago",
-        },
-        {
-          id: 3,
-          projectName: "นวัตกรรมพลังงานสะอาดจากวัสดุชีวภาพ",
-          projectLeader: "ดร.กิตติศักดิ์ พรหมมา",
-          submitDate: "2025-12-28",
-          progress: 90,
-          activity: "1 hour ago",
-        },
-        {
-          id: 4,
-          projectName: "แพลตฟอร์มการเรียนรู้ออนไลน์แบบ Adaptive",
-          projectLeader: "ผศ.ดร.วรรณา ศรีสุข",
-          submitDate: "2025-12-20",
-          progress: 80,
-          activity: "Last week",
-        },
-      ],
+      researchProjects: []
     };
   },
+
+  async mounted() {
+    await this.fetchResearch()
+  },
+
   methods: {
+
+    async fetchResearch() {
+      try {
+        const res = await fetch("http://localhost:5000/api/research")
+        const data = await res.json()
+        this.researchProjects = data.map(item => ({
+          id: item._id,
+          projectName: item.titleTH,
+          projectLeader: item.researchers?.mainResearcher?.name || "-",
+          submitDate: item.createdAt
+            ? new Date(item.createdAt).toLocaleDateString("th-TH")
+            : "-",
+          progress: 50,
+          activity: item.updatedAt
+            ? this.formatTimeAgo(item.updatedAt)
+            : "-"
+        }))
+      } catch (err) {
+        console.error(err)
+      }
+    },
+
     progressColor(value) {
       if (value <= 30) return "danger";
       if (value <= 60) return "warning";
@@ -117,13 +129,28 @@ export default {
       return "success";
     },
 
-    goToDetail() {
+    goToDetail(id) {
+      this.$router.push({ name: 'Research', params: { id } })
+    }
+    ,
+    onAdd() {
       this.$router.push({ name: 'Research' })
+    },
+    formatTimeAgo(date) {
+      const diff = Date.now() - new Date(date)
+      const minutes = Math.floor(diff / 60000)
+      const hours = Math.floor(diff / 3600000)
+      const days = Math.floor(diff / 86400000)
+
+      if (minutes < 1) return "เมื่อสักครู่"
+      if (minutes < 60) return `${minutes} นาทีที่แล้ว`
+      if (hours < 24) return `${hours} ชั่วโมงที่แล้ว`
+      return `${days} วันที่แล้ว`
     }
 
   }
-  ,
-};
+}
+
 </script>
 
 <style>
@@ -202,5 +229,43 @@ thead th {
 :deep(.progress-bar) {
   border-radius: 12px;
   transition: width 0.6s ease;
+}
+
+.action-btn {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.floating-buttons {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  display: flex;
+  gap: 12px;
+  z-index: 999;
+}
+
+.fab-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(13, 110, 253, 0.25);
+  transition: all 0.2s ease;
+  text-shadow:
+    0.5px 0 currentColor,
+    -0.5px 0 currentColor,
+    0 0.5px currentColor,
+    0 -0.5px currentColor;
+}
+
+.fab-btn:hover {
+  transform: translateY(-3px);
 }
 </style>
