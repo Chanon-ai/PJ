@@ -78,7 +78,8 @@
 
         <h5 class="font-weight-bold mb-3 mt-4 text-dark">17) กรอกรายละเอียดงบประมาณ (พ.ศ. 2569)</h5>
         <div class="border rounded bg-white shadow-sm overflow-hidden mb-4">
-          <BudgetSection :value="form.budgets" @input="updateField('budgets', $event)" />
+          <BudgetSection :modelValue="form.budgets" @update:modelValue="updateField('budgets', $event)" />
+
         </div>
       </div>
     </CCardBody>
@@ -92,7 +93,8 @@ import BudgetSection from "@/components/BudgetSection.vue";
 
 export default {
   name: 'BudgetOutcomesSection',
-  emits: ['update:form'],
+  emits: ['input']
+  ,
   components: {
     QuillEditor,
     BudgetSection
