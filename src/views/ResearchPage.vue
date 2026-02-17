@@ -33,11 +33,8 @@
 
       <EthicsSection v-model:form="form" :editor-option="editorOption" @file-upload="handleFileUpload" />
       <SignatureSection v-model:form="form" />
-
-
-      <FileManagement :files="files" @upload="handleFileUpload2" @remove="removeFile" @open="openFile"
+      <FileManagement v-model:files="files" @upload="handleFileUpload2" @remove="removeFile" @open="openFile"
         @replace="triggerReplace" />
-
       <footer class="bg-white p-4 border-top d-flex justify-content-end shadow-lg sticky-footer">
         <CButton color="danger" variant="outline" class="px-5 font-weight-bold me-3" @click="resetForm">
           <CIcon name="cil-brush" class="me-2" /> ล้างข้อมูล
@@ -70,6 +67,7 @@ import Swal from 'sweetalert2'
 
 
 export default {
+  props: ['id'],
   name: "ResearchForm",
   components: {
     GeneralInfoSection,
@@ -199,7 +197,7 @@ export default {
         plantDetail: { applyDate: '' },
 
         researchers: {
-          mainResearcher: { name: "", affiliation: "", phone: "", email: "", code: "" },
+          mainResearcher: { name: "", affiliation: "", phone: "", email: "", code: "", signature: "" },
           coResearchers: [],
           advisors: []
         },
@@ -219,9 +217,20 @@ export default {
     };
   },
   watch: {
-
-    'form.budgetType': function () { this.form.selectedOutcomes = []; }
+    'form.budgetType'(newVal, oldVal) {
+      if (oldVal && newVal !== oldVal) {
+        this.form.selectedOutcomes = []
+      }
+    }
+  }
+  ,
+  async mounted() {
+    const id = this.$route.params.id
+    if (id) {
+      await this.fetchResearchById(id)
+    }
   },
+
   methods: {
     addCoResearcher() { this.form.researchers.coResearchers.push({ name: "", affiliation: "", phone: "", email: "", code: "", signature: "" }); },
     removeCoResearcher(index) { this.form.researchers.coResearchers.splice(index, 1); },
@@ -256,20 +265,52 @@ export default {
       event.target.value = null;
     }
     ,
-    submit() {
-      console.log("Final Form Data:", this.form);
+    async submit() {
+      try {
+        const formData = new FormData()
+        formData.append("form", JSON.stringify(this.form))
 
-      Swal.fire({
-        icon: 'success',
-        title: 'บันทึกสำเร็จ',
-        text: 'บันทึกข้อมูลสำเร็จ',
-        confirmButtonText: 'ตกลง',
-        buttonsStyling: false,
-        customClass: {
-          confirmButton: 'btn btn-primary'
+        this.files.forEach((file) => {
+          formData.append("attachments", file.raw)
+        })
+
+        if (this.form.humanDetail.file) {
+          formData.append("humanFile", this.form.humanDetail.file)
         }
-      });
+
+        if (this.form.animalDetail.file) {
+          formData.append("animalFile", this.form.animalDetail.file)
+        }
+
+        const id = this.$route.params.id
+
+        const url = id
+          ? `http://localhost:5000/api/research/${id}`
+          : "http://localhost:5000/api/research"
+
+        const method = id ? "PUT" : "POST"
+
+        const response = await fetch(url, {
+          method,
+          body: formData
+        })
+
+        if (!response.ok) throw new Error("Save failed")
+
+        Swal.fire({
+          icon: "success",
+          title: id ? "อัปเดตสำเร็จ" : "บันทึกสำเร็จ"
+        })
+
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: error.message
+        })
+      }
     }
+
     ,
     resetForm() {
       Swal.fire({
@@ -296,11 +337,26 @@ export default {
         localStorage.setItem("reportData", JSON.stringify(this.form))
         this.$router.push("/report")
       })
+    },
+    async fetchResearchById(id) {
+      try {
+        const res = await fetch(`http://localhost:5000/api/research/${id}`)
+        const data = await res.json()
+
+        this.form = {
+          ...this.form,
+          ...data,
+          selectedOutcomes: data.selectedOutcomes || [],
+          activities: data.activities || [],
+          standards: data.standards || [],
+          researchStandard: data.researchStandard || []
+        }
+
+      } catch (err) {
+        console.error(err)
+      }
     }
-
-
-
-
+    ,
   }
 };
 </script>

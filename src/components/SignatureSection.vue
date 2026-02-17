@@ -14,9 +14,9 @@
               <h6 class="font-weight-bold text-primary mb-3">หัวหน้าโครงการวิจัย</h6>
 
               <div class="flex-grow-1 mb-3">
-                <SignaturePad :modelValue="form.mainSignature" @update:modelValue="updateMainSignature" />
+                <SignaturePad :modelValue="form.researchers.mainResearcher.signature"
+                  @update:modelValue="updateMainSignature" />
               </div>
-
               <div class="mt-auto">
                 <div class="font-weight-bold text-dark">
                   ({{ form.researchers.mainResearcher.name || '................................................' }})
@@ -90,9 +90,10 @@ export default {
   }, methods: {
     updateMainSignature(val) {
       const newForm = JSON.parse(JSON.stringify(this.form));
-      newForm.mainSignature = val;
+      newForm.researchers.mainResearcher.signature = val;
       this.$emit('update:form', newForm);
-    },
+    }
+    ,
 
     updateCoSignature(index, val) {
       const newForm = JSON.parse(JSON.stringify(this.form));

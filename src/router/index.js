@@ -10,10 +10,13 @@ const routes = [
     redirect: '/Dashboard'
   },
   {
-    path: '/research',
+    path: '/research/:id?',
     name: 'Research',
-    component: Research
-  },
+    component: Research,
+    props: true
+  }
+
+  ,
   {
     path: '/report',
     name: 'Report',
