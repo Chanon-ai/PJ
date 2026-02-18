@@ -1,5 +1,5 @@
 <template>
-  <CCard class="w-100 mb-4 border-0">
+  <CCard class="w-100 border-0">
     <CCardHeader class="bg-primary text-white py-3">
       <h5 class="m-0 font-weight-bold">
         <CIcon name="cil-file" class="me-2" /> 1-19) รายละเอียดโครงการ
@@ -26,7 +26,7 @@
 
           <div class="d-flex flex-column border rounded p-3 bg-white shadow-sm">
 
-            <div v-for="type in budgetTypes" :key="type.value" class="mb-3">
+            <div v-for="type in budgetTypes" :key="type.value" class="mb-2">
               <!-- Radio หลัก -->
               <div class="form-check mb-2">
                 <input class="form-check-input" type="radio" name="budgetType" :id="'type-' + type.value"
@@ -73,7 +73,7 @@
           </div>
         </CCol>
 
-        <CCol lg="12" md="12" class="mb-4">
+        <CCol lg="12" md="12" class="">
           <h5 class="font-weight-bold text-dark mb-3"><span class="text-primary me-2">|</span>4) ประเภทงานวิจัย <span class="required">*</span></h5>
           <CFormSelect :options="researchTypeOptions" v-model="researchTypeModel" class="shadow-sm" />
         </CCol>

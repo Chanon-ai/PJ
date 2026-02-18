@@ -2,11 +2,11 @@
   <CCard class="w-100 border-0">
     <CCardBody class="p-4 bg-white">
       <div class="mb-5">
-        <h5 class="font-weight-bold text-dark"><span class="text-primary me-2">|</span>13) ผลงานตามระยะเวลาการรายงาน</h5>
+        <h5 class="font-weight-bold text-dark"><span class="text-primary me-2">|</span>13) ผลงานตามระยะเวลาการรายงาน <span class="required">*</span></h5>
         <QuillEditor :content="form.progressReport" @update:content="value => updateField('progressReport', value)"
           contentType="html" :options="editorOption" class="mb-4" />
         <h5 class="font-weight-bold mb-4 text-dark border-bottom pb-2"><span class="text-primary me-2">|</span>14) ผลลัพธ์ที่คาดว่าจะได้รับ
-          (สัมพันธ์กับประเภททุน)</h5>
+          (สัมพันธ์กับประเภททุน) <span class="required">*</span></h5>
         <div v-if="form.budgetType" class="subtype-box mt-3 p-3 rounded">
 
           <template v-if="form.budgetType === 'new'">
@@ -53,12 +53,12 @@
       </div>
 
       <div>
-        <h5 class="font-weight-bold text-dark"><span class="text-primary me-2">|</span>15) การบูรณาการงานวิจัย</h5>
+        <h5 class="font-weight-bold text-dark"><span class="text-primary me-2">|</span>15) การบูรณาการงานวิจัย <span class="required">*</span></h5>
         <QuillEditor :content="form.integration" @update:content="value => updateField('integration', value)"
           contentType="html" :options="editorOption" class="mb-4" />
 
 
-        <h5 class="font-weight-bold text-dark mb-3"><span class="text-primary me-2">|</span>16) ระดับการถ่ายทอดสู่สังคม *</h5>
+        <h5 class="font-weight-bold text-dark mb-3"><span class="text-primary me-2">|</span>16) ระดับการถ่ายทอดสู่สังคม <span class="required">*</span></h5>
         <div class="subtype-box mt-3 p-3 rounded">
           <div class="ms-3">
             <div v-for="(opt, i) in transferOptions" :key="'trans-' + i" class="radio-item">
@@ -71,7 +71,7 @@
           </div>
         </div>
 
-        <h5 class="font-weight-bold mb-3 mt-4 text-dark"><span class="text-primary me-2">|</span>17) กรอกรายละเอียดงบประมาณ (พ.ศ. 2569)</h5>
+        <h5 class="font-weight-bold mb-3 mt-4 text-dark"><span class="text-primary me-2">|</span>17) กรอกรายละเอียดงบประมาณ (พ.ศ. 2569) <span class="required">*</span></h5>
         <div class="border rounded bg-white shadow-sm overflow-hidden mb-4">
           <BudgetSection :modelValue="form.budgets" @update:modelValue="updateField('budgets', $event)" />
 

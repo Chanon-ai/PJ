@@ -5,14 +5,14 @@
         :class="[' pb-4', i < textFields.length - 1]">
 
         <h5 class="font-weight-bold text-dark mb-3">
-          <span class="text-primary me-2">|</span> {{ field.label }}
+          <span class="text-primary me-2">|</span> {{ field.label }} <span class="required">*</span>
         </h5>
 
         <div class="border rounded shadow-sm overflow-hidden">
           <QuillEditor :content="form[field.model]" @update:content="value => updateField(field.model, value)"
             contentType="html" :options="editorOption" />
         </div>
-
+          
       </div>
     </CCardBody>
   </CCard>
