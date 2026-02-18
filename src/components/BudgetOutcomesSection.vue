@@ -1,16 +1,11 @@
 <template>
-  <CCard class="shadow-sm w-100 mb-4 border-0">
-    <CCardHeader class="bg-primary text-white py-3">
-      <h5 class="m-0 font-weight-bold">
-        <CIcon name="cil-money" class="me-2" /> 13-17) งบประมาณและผลลัพธ์
-      </h5>
-    </CCardHeader>
+  <CCard class="w-100 border-0">
     <CCardBody class="p-4 bg-white">
       <div class="mb-5">
-        <h5 class="font-weight-bold text-dark">13) ผลงานตามระยะเวลาการรายงาน</h5>
+        <h5 class="font-weight-bold text-dark"><span class="text-primary me-2">|</span>13) ผลงานตามระยะเวลาการรายงาน</h5>
         <QuillEditor :content="form.progressReport" @update:content="value => updateField('progressReport', value)"
           contentType="html" :options="editorOption" class="mb-4" />
-        <h5 class="font-weight-bold mb-4 text-dark border-bottom pb-2">14) ผลลัพธ์ที่คาดว่าจะได้รับ
+        <h5 class="font-weight-bold mb-4 text-dark border-bottom pb-2"><span class="text-primary me-2">|</span>14) ผลลัพธ์ที่คาดว่าจะได้รับ
           (สัมพันธ์กับประเภททุน)</h5>
         <div v-if="form.budgetType" class="subtype-box mt-3 p-3 rounded">
 
@@ -57,13 +52,13 @@
         <div v-else class="alert alert-warning">กรุณาเลือก "ประเภททุน" ในหัวข้อที่ 2 เพื่อเลือกผลลัพธ์</div>
       </div>
 
-      <div class="mb-5">
-        <h5 class="font-weight-bold text-dark">15) การบูรณาการงานวิจัย</h5>
+      <div>
+        <h5 class="font-weight-bold text-dark"><span class="text-primary me-2">|</span>15) การบูรณาการงานวิจัย</h5>
         <QuillEditor :content="form.integration" @update:content="value => updateField('integration', value)"
           contentType="html" :options="editorOption" class="mb-4" />
 
 
-        <h5 class="font-weight-bold text-dark mb-3">16) ระดับการถ่ายทอดสู่สังคม *</h5>
+        <h5 class="font-weight-bold text-dark mb-3"><span class="text-primary me-2">|</span>16) ระดับการถ่ายทอดสู่สังคม *</h5>
         <div class="subtype-box mt-3 p-3 rounded">
           <div class="ms-3">
             <div v-for="(opt, i) in transferOptions" :key="'trans-' + i" class="radio-item">
@@ -76,7 +71,7 @@
           </div>
         </div>
 
-        <h5 class="font-weight-bold mb-3 mt-4 text-dark">17) กรอกรายละเอียดงบประมาณ (พ.ศ. 2569)</h5>
+        <h5 class="font-weight-bold mb-3 mt-4 text-dark"><span class="text-primary me-2">|</span>17) กรอกรายละเอียดงบประมาณ (พ.ศ. 2569)</h5>
         <div class="border rounded bg-white shadow-sm overflow-hidden mb-4">
           <BudgetSection :modelValue="form.budgets" @update:modelValue="updateField('budgets', $event)" />
 

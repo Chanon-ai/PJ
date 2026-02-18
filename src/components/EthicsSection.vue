@@ -1,13 +1,9 @@
 <template>
-  <CCard class="shadow-sm w-100 mb-4 border-0">
-    <CCardHeader class="bg-primary text-white py-3">
-      <h5 class="m-0 font-weight-bold">
-        <CIcon name="cil-check-circle" class="me-2" />
-        18) มาตรฐานการวิจัย <span class="required">*</span>
-      </h5>
-    </CCardHeader>
-
-    <CCardBody class="p-4 bg-white">
+  <CCard class="w-100 border-0">
+    <CCardBody class="px-4 bg-white">
+      <h5 class="font-weight-bold text-dark mb-3">
+            <span class="text-primary me-2">|</span> 18) มาตรฐานการวิจัย <span class="required">*</span>
+          </h5>
       <div class="bg-light p-4 rounded border shadow-sm w-100 border-left-primary ">
         <div class="ms-3">
 

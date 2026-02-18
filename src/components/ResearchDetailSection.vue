@@ -1,13 +1,8 @@
 <template>
-  <CCard class="shadow-sm w-100 mb-4 border-0">
-    <CCardHeader class="bg-primary text-white py-3">
-      <h5 class="m-0 font-weight-bold">
-        <CIcon name="cil-library" class="me-2" /> 5-11) รายละเอียดเนื้อหาโครงการวิจัย
-      </h5>
-    </CCardHeader>
-    <CCardBody class="p-4 bg-white">
+  <CCard class="w-100 border-0">
+    <CCardBody class="px-4 bg-white">
       <div v-for="(field, i) in textFields" :key="'text-' + i"
-        :class="['mb-5 pb-4', i < textFields.length - 1 ? 'border-bottom' : '']">
+        :class="[' pb-4', i < textFields.length - 1]">
 
         <h5 class="font-weight-bold text-dark mb-3">
           <span class="text-primary me-2">|</span> {{ field.label }}

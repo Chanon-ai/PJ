@@ -10,20 +10,17 @@
       <div class="d-flex align-items-center mb-4">
         <h1 class="font-weight-bold text-gray mb-0">แบบเสนอโครงการวิจัย (RS1)</h1>
       </div>
-      <GeneralInfoSection v-model:form="form" :budget-types="budgetTypes"
-        :research-type-options="researchTypeOptions" />
-
       <ResearchersSection v-model:form="form" @add-co="addCoResearcher" @remove-co="removeCoResearcher"
         @add-adv="addAdvisor" @remove-adv="removeAdvisor" />
+
+
+      <CCard class="shadow-sm w-100 mb-4 border-0">
+        <GeneralInfoSection v-model:form="form" :budget-types="budgetTypes"
+        :research-type-options="researchTypeOptions" />
 
       <ResearchDetailsSection v-model:form="form" :text-fields="textFields" :editor-option="editorOption" />
 
       <CCard class="shadow-sm w-100 mb-4 border-0">
-        <CCardHeader class="bg-primary text-white py-3">
-          <h5 class="m-0 font-weight-bold">
-            <CIcon name="cil-calendar" class="me-2" /> 12) แผนการดำเนินงาน
-          </h5>
-        </CCardHeader>
         <CCardBody class="p-4 bg-white">
           <ResearchSection12 v-model="form.activities" />
         </CCardBody>
@@ -35,6 +32,8 @@
       <SignatureSection v-model:form="form" />
       <FileManagement v-model:files="files" @upload="handleFileUpload2" @remove="removeFile" @open="openFile"
         @replace="triggerReplace" />
+      </CCard>
+      
       <footer class="bg-white p-4 border-top d-flex justify-content-end shadow-lg sticky-footer">
         <CButton color="danger" variant="outline" class="px-5 font-weight-bold me-3" @click="resetForm">
           <CIcon name="cil-brush" class="me-2" /> ล้างข้อมูล

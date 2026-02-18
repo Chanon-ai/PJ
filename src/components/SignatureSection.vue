@@ -1,12 +1,9 @@
 <template>
-  <CCard class="shadow-sm w-100 mb-5 border-0">
-    <CCardHeader class="bg-primary text-white py-3">
-      <h5 class="m-0 font-weight-bold">
-        <CIcon name="cil-pencil" class="me-2" /> 19) การลงนามยืนยันข้อมูลและคำรับรอง <span class="required">*</span>
-      </h5>
-    </CCardHeader>
-
+  <CCard class="w-100 mb-5 border-0">
     <CCardBody class="p-4 bg-white">
+      <h5 class="font-weight-bold text-dark mb-3">
+            <span class="text-primary me-2">|</span> 19) การลงนามยืนยันข้อมูลและคำรับรอง <span class="required">*</span>
+          </h5>
       <div class="bg-light p-4 rounded border shadow-sm w-100 border-left-primary">
         <CRow>
           <CCol lg="4" md="6" class="text-center mb-4">

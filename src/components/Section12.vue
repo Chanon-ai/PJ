@@ -1,7 +1,10 @@
 <template>
+  <h5 class="font-weight-bold text-dark mb-3">
+            <span class="text-primary me-2">|</span> 12) แผนการดำเนินงาน
+          </h5>
   <div class="section-12-container w-100">
     <div class="mb-4">
-      <div class="btn-group shadow-sm">
+      <div class="btn-group shadow-sm w-100 overflow-auto">
         <CButton v-for="d in [6, 12, 24]" :key="d" :color="duration === d ? 'primary' : 'secondary'" variant="outline"
           @click="changeDuration(d)" class="px-4 py-2 font-weight-bold">
           {{ d === 12 ? '1 ปี (12 เดือน)' : d === 24 ? '2 ปี (24 เดือน)' : d + ' เดือน' }}
@@ -184,7 +187,8 @@ export default {
 .gantt-table {
   display: flex;
   flex-direction: column;
-  min-width: 1200px;
+  min-width: max-content;
+  /* width: max-content; */
   /* บังคับความกว้างเพื่อให้เลื่อนแนวนอนได้ถ้าเดือนเยอะ */
 }
 
@@ -234,11 +238,15 @@ export default {
 }
 
 .month-cell {
-  flex: 1;
-  min-width: 35px;
+  /* ลบ flex: 1; ของเก่าออก */
+  flex: 1;       /* กำหนดความกว้างตายตัว */
+  min-width: 149px;   /* ป้องกันไม่ให้ Flexbox บีบช่องให้เล็กลง */
   cursor: pointer;
   border-right: 1px solid #ebedef;
   transition: background 0.2s;
+  display: flex;      /* เพื่อให้จุดสี (indicator) อยู่ตรงกลาง */
+  align-items: center;
+  justify-content: center;
 }
 
 .month-cell.header {
@@ -275,10 +283,8 @@ export default {
 }
 
 .check-indicator {
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(50, 31, 219, 0.3);
+  width: 100%;
+  height: 100%;
 }
 
 .border-white-50 {

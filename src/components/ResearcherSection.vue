@@ -6,7 +6,7 @@
       </h5>
     </CCardHeader>
     <CCardBody class="p-4">
-      <h5 class="font-weight-bold mb-4 text-dark">1) คณะผู้วิจัย</h5>
+      <h5 class="font-weight-bold mb-4 text-dark">คณะผู้วิจัย</h5>
 
       <div class="border rounded p-4 mb-4 bg-light shadow-sm w-100">
         <h6 class="font-weight-bold text-primary mb-3 border-bottom pb-2">
@@ -60,19 +60,19 @@
         </CRow>
       </div>
 
-      <div class="border rounded p-4 mb-4 bg-white shadow-sm border-success w-100">
+      <div class="border rounded p-4 mb-4 bg-white shadow-sm border-primary w-100">
         <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-          <h6 class="font-weight-bold text-success mb-0">
+          <h6 class="font-weight-bold text-primary mb-0">
             <CIcon name="cil-people" class="me-2" /> 1.2 ผู้ร่วมโครงการวิจัย (ถ้ามี)
           </h6>
-          <CButton color="success" size="sm" variant="outline" @click="addCoResearcher">
+          <CButton color="primary" size="sm" variant="outline" @click="addCoResearcher">
             <CIcon name="cil-plus" /> เพิ่มผู้ร่วม
           </CButton>
         </div>
         <div v-for="(r, idx) in form.researchers.coResearchers" :key="'co-' + idx"
           class="border rounded p-3 mb-3 bg-light position-relative w-100">
           <div class="d-flex justify-content-between mb-3">
-            <span class="badge bg-success d-flex align-items-center justify-content-center px-3">คนที่ {{ idx + 1
+            <span class="badge bg-primary d-flex align-items-center justify-content-center px-3">คนที่ {{ idx + 1
             }}</span>
             <CButton color="danger" size="sm" variant="ghost" class="border border-danger"
               @click="removeCoResearcher(idx)">
@@ -122,22 +122,23 @@
         </div>
       </div>
 
-      <div class="d-flex justify-content-between align-items-center mb-3 mt-5">
-        <h5 class="font-weight-bold text-dark mb-0">2) ที่ปรึกษาโครงการวิจัย (ถ้ามี)</h5>
+      <div class="border rounded p-4 mb-4 bg-white shadow-sm border-info w-100">
+        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+        <h5 class="font-weight-bold text-dark mb-0">ที่ปรึกษาโครงการวิจัย (ถ้ามี)</h5>
         <CButton color="info" size="sm" variant="outline" @click="addAdvisor">
           <CIcon name="cil-plus" /> เพิ่มที่ปรึกษา
         </CButton>
       </div>
       <div v-for="(adv, idx) in form.researchers.advisors" :key="'adv-' + idx"
         class="border rounded p-4 mb-3 bg-light shadow-sm border-info w-100">
-        <div class="d-flex justify-content-between mb-3 align-items-center">
-          <h6 class="font-weight-bold text-info mb-0">ที่ปรึกษาคนที่ {{ idx + 1 }}</h6>
-          <CButton color="danger" size="sm" variant="ghost" class="border border-danger" @click="removeAdvisor(idx)">
-            <CIcon name="cil-trash" />  ลบ
-          </CButton>
-
-
-        </div>
+        <div class="d-flex justify-content-between mb-3">
+            <span class="badge bg-info d-flex align-items-center justify-content-center px-3">คนที่ {{ idx + 1
+            }}</span>
+            <CButton color="danger" size="sm" variant="ghost" class="border border-danger"
+              @click="removeAdvisor(idx)">
+              <CIcon name="cil-trash" />  ลบ
+            </CButton>
+          </div>
         <CRow>
           <CCol lg="4" md="6">
             <CFormInput :model-value="adv.name" @update:modelValue="val => updateAdv(idx, 'name', val)">
@@ -171,6 +172,11 @@
           </CCol>
         </CRow>
       </div>
+      <div v-if="form.researchers.advisors.length === 0" class="text-center text-muted py-4">
+          <em>-- ยังไม่มีข้อมูลที่ปรึกษาโครงการ --</em>
+        </div>
+      </div>
+      
     </CCardBody>
   </CCard>
 </template>
