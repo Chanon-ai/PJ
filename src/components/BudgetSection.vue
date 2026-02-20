@@ -81,17 +81,29 @@
                     </div>
                   </td>
 
-                  <td class="py-2 align-middle">
-                    <div v-if="r.multipliers" class="d-flex align-items-center justify-content-center"
-                      style="gap: 5px;">
-                      <div v-for="(m, mi) in r.multipliers" :key="mi" class="text-center">
-                        <CFormInput type="number" v-model.number="m.val" size="sm" class="mb-0 text-center shadow-none"
-                          style="width: 60px;" @input="calculateRowTotal(r)" />
-                        <small class="text-muted d-block" style="font-size: 9px">{{ m.label }}</small>
+                  <td style="min-width: 300px;">
+                    <div class="d-flex flex-wrap align-items-center" style="gap: 12px;">
+                      <div v-for="(m, mi) in r.multipliers" :key="mi" class="multiplier-group position-relative">
+
+                        <CButton v-if="r.isManual && r.multipliers.length > 1" color="danger" variant="ghost" size="sm"
+                          class="p-0 position-absolute"
+                          style="top: -8px; right: -8px; z-index: 10; background: white; border-radius: 50%;"
+                          @click="removeMultiplier(r, mi)">
+                          <CIcon name="cil-x-circle" size="sm" />
+                        </CButton>
+
+                        <input type="text" v-model="m.label" class="form-control form-control-sm text-center mb-1"
+                          style="width: 80px; font-size: 13px; background: #eee;" placeholder="หน่วย" />
+
+                        <input type="number" v-model.number="m.val" class="form-control form-control-sm text-center"
+                          style="width: 80px;" @input="calculateRowTotal(r)" @keypress="preventMinus" />
                       </div>
+
+                      <CButton v-if="r.isManual" color="info" variant="outline" size="sm" @click="addMultiplier(r)"
+                        title="เพิ่มตัวคูณ">
+                        <CIcon name="cil-plus" size="sm" />
+                      </CButton>
                     </div>
-                    <CFormInput v-else v-model="r.detail" size="sm" class="mb-0 shadow-none border-info"
-                      placeholder="เช่น 500*3+100" @input="calculateManual($event, r)" />
                   </td>
 
                   <td class="py-2 align-middle">
@@ -101,11 +113,11 @@
                   </td>
 
                   <td v-for="p in ['p1', 'p2', 'p3']" :key="p" class="py-2 align-middle">
-                    <CFormInput type="number" v-model.number="r[p]" size="sm"
+                    <CFormInput type="number" v-model.number="r[p]"
                       :class="['mb-0 text-right shadow-none', r.errors[p] ? 'is-invalid-bg text-danger border-danger' : '']"
                       @input="validateInstallments(r, p)" />
-                    <small v-if="r.errors[p]" class="text-danger d-block mt-1 font-weight-bold text-center"
-                      style="font-size: 8px;">{{ r.errors[p] }}</small>
+                    <label v-if="r.errors[p]" class="text-danger d-block mt-1 font-weight-bold text-center"
+                      style="font-size: 13px;">{{ r.errors[p] }}</label>
                   </td>
 
                   <td class="text-center py-2 align-middle">
@@ -196,7 +208,7 @@ export default {
       deep: true,
       immediate: true,
       handler(val) {
-        if (!val || !val.categories) return;
+        if (!val || !val.categories || val.categories.length === 0) return;
 
         const incoming = JSON.stringify(val.categories);
         const current = JSON.stringify(this.categories);
@@ -239,12 +251,57 @@ export default {
   methods: {
     makeCat(title, options = []) { return { title, options, selected: "", rows: [] }; },
     addRow(ci) {
-      const cat = this.categories[ci];
-      if (!cat.selected) return;
-      cat.rows.push(this.newRow(cat.selected, false, null, cat.title));
-      cat.selected = "";
+      // ใช้ $nextTick เพื่อรอให้ v-model ของ Dropdown อัปเดตค่าล่าสุดก่อน
+      this.$nextTick(() => {
+        const cat = this.categories[ci];
+
+        // ตรวจสอบว่ามีการเลือกรายการจริงหรือไม่
+        if (!cat.selected) return;
+
+        // สร้างข้อมูลแถวใหม่จากค่าที่เลือก
+        const nr = this.newRow(cat.selected, false, null, cat.title);
+
+        // เพิ่มแถวใหม่ลงในรายการของหมวดนั้น
+        cat.rows.push(nr);
+
+        // สั่งให้คำนวณยอดรวมของแถวที่เพิ่งเพิ่มทันที (เพื่อให้ยอดรวมไม่เป็น 0 ในจังหวะแรก)
+        this.calculateRowTotal(nr);
+
+        // ล้างค่าที่เลือกใน Dropdown เพื่อให้พร้อมสำหรับการเลือกครั้งต่อไป
+        cat.selected = "";
+      });
     },
-    addManualRow(ci) { this.categories[ci].rows.push(this.newRow("", true, null, this.categories[ci].title)); },
+    addManualRow(catIndex) {
+      this.categories[catIndex].rows.push({
+        id: Date.now() + Math.random(),
+        name: "",
+        isManual: true,
+        multipliers: [
+          { label: "จำนวน", val: 1 },
+          { label: "หน่วย", val: 1 },
+          { label: "ราคา/หน่วย", val: 0 }
+        ],
+        p1: 0, p2: 0, p3: 0, total: 0,
+        errors: { p1: "", p2: "", p3: "" },
+        fileUrl: null
+      });
+    },
+    // ฟังก์ชันลบตัวคูณช่องที่ระบุ
+    removeMultiplier(row, index) {
+      if (row.multipliers && row.multipliers.length > 1) {
+        // ลบสมาชิกออกจากตำแหน่งที่เลือก
+        row.multipliers.splice(index, 1);
+
+        // สำคัญ: ต้องสั่งคำนวณยอดรวมแถวใหม่ทันทีที่ลบช่องออก
+        this.calculateRowTotal(row);
+      }
+    },
+    // ฟังก์ชันเพิ่มตัวคูณ (ปรับปรุงให้ใช้ calculateRowTotal ที่รับ row)
+    addMultiplier(row) {
+      if (!row.multipliers) row.multipliers = [];
+      row.multipliers.push({ label: "ตัวคูณใหม่", val: 1 });
+      this.calculateRowTotal(row);
+    },
 
     newRow(name, isManual, fileName = null, catTitle = "", fileUrl = null) {
       let multipliers = null;
@@ -305,28 +362,39 @@ export default {
     }
     ,
     calculateRowTotal(row) {
-      if (row.multipliers) {
-        row.total = row.multipliers.reduce(
-          (acc, m) => acc * (Number(m.val) || 0),
-          1
-        );
-      }
+      this.$nextTick(() => {
+        if (row.multipliers && row.multipliers.length > 0) {
+          row.total = row.multipliers.reduce((acc, m) => {
+            const val = (m.val === "" || m.val === null) ? 0 : Number(m.val);
+            return acc * val;
+          }, 1);
+        } else {
+          row.total = 0; // กรณีไม่มีตัวคูณให้เป็น 0
+        }
+        // ตรวจสอบ Error ของทุกงวดใหม่หลังจากยอดรวมเปลี่ยน
+        ['p1', 'p2', 'p3'].forEach(p => this.validateInstallments(row, p));
+      });
     }
     ,
     validateInstallments(row, field) {
-      const p1 = Number(row.p1 || 0);
-      const p2 = Number(row.p2 || 0);
-      const p3 = Number(row.p3 || 0);
+      // ใช้ $nextTick เพื่อรอให้ v-model อัปเดตค่าล่าสุดให้เสร็จก่อน
+      this.$nextTick(() => {
+        const p1 = Number(row.p1 || 0);
+        const p2 = Number(row.p2 || 0);
+        const p3 = Number(row.p3 || 0);
 
-      const sum = p1 + p2 + p3;
+        const sum = p1 + p2 + p3;
 
-      if (sum > row.total) {
-        row.errors[field] = "ยอดรวมเกินงบประมาณ";
-      } else {
-        row.errors.p1 = "";
-        row.errors.p2 = "";
-        row.errors.p3 = "";
-      }
+        // ตรวจสอบกับยอดรวม (row.total) ที่คำนวณได้ล่าสุด
+        if (sum > row.total) {
+          row.errors[field] = "ยอดรวมเกินงบประมาณ";
+        } else {
+          // หากไม่เกิน ให้เคลียร์ Error ของทุกช่องในแถวนี้
+          row.errors.p1 = "";
+          row.errors.p2 = "";
+          row.errors.p3 = "";
+        }
+      });
     }
     ,
     triggerFileUpload(ci) { this.activeCategoryIndex = ci; this.$refs.fileInput.click(); },
@@ -335,7 +403,19 @@ export default {
       if (file && this.activeCategoryIndex !== null) {
         const fileUrl = URL.createObjectURL(file);
         const cat = this.categories[this.activeCategoryIndex];
-        cat.rows.push(this.newRow("", true, file.name, cat.title, fileUrl));
+
+        // สร้าง Row ใหม่โดยระบุชื่อไฟล์เป็นชื่อรายการเบื้องต้น และตรวจสอบว่า multipliers ไม่เป็น null
+        const rowData = this.newRow(file.name, true, file.name, cat.title, fileUrl);
+
+        // ถ้า multipliers เป็น null ให้กำหนดค่าเริ่มต้นให้ทันที
+        if (!rowData.multipliers) {
+          rowData.multipliers = [
+            { label: "จำนวน", val: 1 },
+            { label: "บาท", val: 0 }
+          ];
+        }
+
+        cat.rows.push(rowData);
       }
       event.target.value = "";
     },
