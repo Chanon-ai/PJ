@@ -5,7 +5,7 @@
     </button>
 
     <div id="report-area" class="report-container">
-
+      
       <!-- รหัสเอกสาร -->
       <div class="doc-code">RS-01</div>
 
@@ -272,8 +272,10 @@
               <td class="col-activity">
                 {{ act.name }}
               </td>
-              <td v-for="(month, i) in act.months" :key="i" :style="{ width: monthWidth + 'px' }">
-                <span v-if="month">●</span>
+              <td v-for="(month, i) in act.months" :key="i" :style="{
+                width: monthWidth + 'px',
+                backgroundColor: month ? '#444' : 'transparent'
+              }">
               </td>
               <td class="col-owner">
                 {{ act.owner }}
@@ -406,38 +408,45 @@
 
 
       <!-- 17 -->
-      <div class="section">
-        <div class="sub-title">
-          17. งบประมาณ
-        </div>
-        <div v-if="budgetData" class="budget-table-section">
-          <table class="budget-print-table">
-            <thead>
-              <tr>
-                <th>หมวด</th>
-                <th>รายการ</th>
-                <th>รวม (บาท)</th>
-                <th>งวด 1</th>
-                <th>งวด 2</th>
-                <th>งวด 3</th>
-              </tr>
-            </thead>
-            <tbody>
-              <template v-for="(cat, ci) in budgetData.categories" :key="ci">
-                <tr v-for="(row, ri) in cat.rows" :key="ri">
-                  <td>{{ cat.title }}</td>
-                  <td>{{ row.name }}</td>
-                  <td>{{ Number(row.total).toLocaleString() }}</td>
-                  <td>{{ row.p1 }}</td>
-                  <td>{{ row.p2 }}</td>
-                  <td>{{ row.p3 }}</td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
-
-          <div class="budget-grand-total">
-            รวมทั้งสิ้น {{ budgetData.grandTotal.toLocaleString() }} บาท
+      <div class="word-page shadow-sm landscape-container">
+        <div class="rotated-content">
+          <div class="section">
+            <div class="sub-title">17. งบประมาณ</div>
+            <div v-if="budgetData" class="budget-table-section mt-4">
+              <table class="budget-print-table landscape-table">
+                <thead>
+                  <tr>
+                    <th>หมวด</th>
+                    <th>รายการ</th>
+                    <th>รายละเอียดตัวคูณ</th>
+                    <th>รวม (บาท)</th>
+                    <th>งวด 1</th>
+                    <th>งวด 2</th>
+                    <th>งวด 3</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template v-for="(cat, ci) in budgetData.categories" :key="ci">
+                    <tr v-for="(row, ri) in cat.rows" :key="ri">
+                      <td>{{ cat.title }}</td>
+                      <td>{{ row.name }}</td>
+                      <td class="text-start">
+                        <span v-if="row.multipliers">
+                          {{row.multipliers.map(m => (m.val || 0) + ' ' + (m.label || '')).join(' x ')}}
+                        </span>
+                      </td>
+                      <td class="text-end fw-bold">{{ Number(row.total || 0).toLocaleString() }}</td>
+                      <td class="text-end">{{ Number(row.p1 || 0).toLocaleString() }}</td>
+                      <td class="text-end">{{ Number(row.p2 || 0).toLocaleString() }}</td>
+                      <td class="text-end">{{ Number(row.p3 || 0).toLocaleString() }}</td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+              <div class="budget-grand-total mt-3">
+                รวมทั้งสิ้น {{ budgetData.grandTotal.toLocaleString() }} บาท
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -515,62 +524,47 @@
 
       <!-- 19 -->
       <div class="section">
-        <div class="sub-title">19. หมายเหตุ</div>
-        <div class="field-line" v-html="form.remark"></div>
+        <div class="sub-title">19. การลงนามยืนยันข้อมูลและคำรับรอง</div>
+        <div class="signature-page-in-section">
+          <div class="signature-row">
+            <div class="signature-box">
+              <div class="sign-label">ลงชื่อ (หัวหน้าโครงการวิจัย)</div>
+              <img v-if="form.researchers.mainResearcher.signature" :src="form.researchers.mainResearcher.signature"
+                class="sign-img" />
+              <div class="dot-line-sign">
+                ({{ form.researchers.mainResearcher.name || '................................................' }})
+              </div>
+              <div>วันที่ {{ form.researchers.mainResearcher.signatureDate || '................................' }}
+              </div>
+            </div>
+
+            <div class="signature-box" v-if="form.researchers.advisors.length">
+              <div class="sign-label">ลงชื่อ (ที่ปรึกษาโครงการวิจัย)</div>
+              <img v-if="form.researchers.advisors[0].signature" :src="form.researchers.advisors[0].signature"
+                class="sign-img" />
+              <div class="dot-line-sign">
+                ({{ form.researchers.advisors[0].name || '................................................' }})
+              </div>
+              <div>วันที่ {{ form.researchers.advisors[0].signatureDate || '................................' }}</div>
+            </div>
+          </div>
+
+          <div class="signature-row" v-for="(co, index) in form.researchers.coResearchers" :key="'report-co-' + index">
+            <div class="signature-box">
+              <div class="sign-label">ลงชื่อ (ผู้ร่วมโครงการวิจัย คนที่ {{ index + 1 }})</div>
+              <img v-if="co.signature" :src="co.signature" class="sign-img" />
+              <div class="dot-line-sign">
+                ({{ co.name || '................................................' }})
+              </div>
+              <div>วันที่ {{ co.signatureDate || '................................' }}</div>
+            </div>
+          </div>
+        </div>
       </div>
-      <!-- หน้าลงนาม -->
-      <div class="signature-page">
 
-        <!-- แถวบน -->
-        <div class="signature-row">
-
-          <!-- ที่ปรึกษา -->
-          <div class="signature-box" v-if="form.researchers.advisors.length">
-            <div class="sign-label">ลงชื่อ</div>
-
-
-            <img v-if="form.researchers.advisors[0].signature" :src="form.researchers.advisors[0].signature"
-              class="sign-img" />
-
-            <div class="dot-line-sign">
-              ({{ form.researchers.advisors[0].name }})
-            </div>
-
-            <div>ที่ปรึกษาโครงการวิจัย</div>
-            <div>วันที่ {{ currentThaiDate }}</div>
-          </div>
-
-          <!-- หัวหน้า -->
-          <div class="signature-box">
-            <div class="sign-label">ลงชื่อ</div>
-
-            <img v-if="form.mainSignature" :src="form.mainSignature" class="sign-img" />
-
-            <div class="dot-line-sign">
-              ({{ form.researchers.mainResearcher.name }})
-            </div>
-
-            <div>หัวหน้าโครงการวิจัย</div>
-            <div>วันที่ {{ currentThaiDate }}</div>
-          </div>
-
-        </div>
-
-        <!-- แถวล่าง -->
-        <div class="signature-row" v-for="(co, index) in form.researchers.coResearchers" :key="index">
-          <div class="signature-box">
-            <div class="sign-label">ลงชื่อ</div>
-
-            <img v-if="co.signature" :src="co.signature" class="sign-img" />
-
-            <div class="dot-line-sign">
-              ({{ co.name }})
-            </div>
-
-            <div>ผู้ร่วมโครงการวิจัย</div>
-            <div>วันที่ {{ currentThaiDate }}</div>
-          </div>
-        </div>
+      <div class="section">
+        <div class="sub-title">20. หมายเหตุ</div>
+        <div class="field-line" v-html="form.remark || '-'"></div>
       </div>
 
 
@@ -789,11 +783,15 @@ export default {
 
 
 <style scoped>
-/* พื้นหลังรอบนอก */
+/* ปรับพื้นหลัง wrapper ให้เหมือนโต๊ะวางกระดาษ */
 .page-wrapper {
-  background: #f0f2f5;
-  min-height: 100vh;
+  background: #525659;
+  /* สีเทาเข้มแบบโปรแกรม Preview PDF */
   padding: 40px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
 
 /* แถบปุ่มด้านบน */
@@ -837,6 +835,26 @@ export default {
   box-shadow: 0 4px 12px rgba(22, 119, 255, 0.2);
 }
 
+.landscape-table {
+  width: 100%;
+  font-size: 14px; /* ปรับขนาดฟอนต์ให้เล็กลงเล็กน้อยสำหรับตารางแนวนอน */
+}
+
+
+/* ปรับตารางงบประมาณให้ตัวอักษรเล็กลงเล็กน้อยเพื่อความชัดเจน */
+.budget-print-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  /* ปรับลดขนาดฟอนต์ลงเพื่อให้เหมาะกับแนวนอน */
+}
+
+.budget-print-table th,
+.budget-print-table td {
+  border: 1px solid #000;
+  padding: 8px 5px;
+  vertical-align: top;
+}
 
 /* กระดาษ A4 */
 .report-container {
@@ -941,11 +959,18 @@ export default {
   padding-left: 5px;
 }
 
+/* เพิ่มใน <style scoped> */
 .section {
-  margin-top: 15px;
-  padding-left: 15px;
   page-break-inside: avoid;
+  /* ป้องกันเนื้อหาใน section เดียวกันแยกอยู่คนละหน้า */
   break-inside: avoid;
+  margin-bottom: 20px;
+}
+
+/* บังคับขึ้นหน้าใหม่ในหัวข้อสำคัญ */
+.force-page-break {
+  page-break-before: always;
+  break-before: page;
 }
 
 .option,
@@ -989,9 +1014,37 @@ export default {
   padding-left: 15px;
 }
 
+/* สำหรับแสดงเลขหน้าตอนพิมพ์/PDF */
 @media print {
-  .report-container {
-    padding: 20mm;
+  body {
+    counter-reset: page;
+  }
+
+  .word-page {
+    margin-bottom: 0; /* ลบช่องว่างออกตอนเป็น PDF เพื่อให้ต่อเนื่อง */
+    box-shadow: none;
+    page-break-after: always; /* บังคับให้ PDF ตัดขึ้นหน้าใหม่ทันทีที่จบ Class นี้ */
+    break-after: page;
+  }
+
+  .report-container::after {
+    counter-increment: page;
+    content: "หน้า " counter(page);
+    position: fixed;
+    bottom: 10mm;
+    right: 20mm;
+    font-size: 14px;
+  }
+
+  .landscape-container .rotated-content {
+    transform: rotate(90deg);
+    transform-origin: center;
+    width: 250mm; /* ความกว้างตารางจะกลายเป็นความสูงของหน้า */
+    height: 170mm;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
   }
 }
 
@@ -1012,7 +1065,7 @@ export default {
 }
 
 .signature-box {
-  width: 45%;
+  width: 48%;
   /* จาก 30% เป็น 45% */
   position: relative;
   height: 150px;
@@ -1026,7 +1079,7 @@ export default {
 }
 
 .sign-img {
-  max-height: 65px;
+  max-height: 50px;
   object-fit: contain;
   margin: 0 auto;
 }
@@ -1070,20 +1123,6 @@ export default {
   word-break: break-word;
   overflow-wrap: break-word;
   text-align: left;
-}
-
-.budget-print-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  font-size: 16px;
-}
-
-.budget-print-table th,
-.budget-print-table td {
-  border: 1px solid #000;
-  padding: 5px;
-  text-align: center;
 }
 
 .budget-grand-total {
