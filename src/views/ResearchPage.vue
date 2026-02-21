@@ -264,52 +264,89 @@ export default {
       event.target.value = null;
     }
     ,
+    // submit() {
+    //   console.log("Final Form Data:", this.form);
+
+    //   Swal.fire({
+    //     icon: 'success',
+    //     title: 'บันทึกสำเร็จ',
+    //     text: 'บันทึกข้อมูลสำเร็จ',
+    //     confirmButtonText: 'ตกลง',
+    //     buttonsStyling: false,
+    //     customClass: {
+    //       confirmButton: 'btn btn-primary'
+    //     }
+    //   });
     async submit() {
-      try {
-        const formData = new FormData()
-        formData.append("form", JSON.stringify(this.form))
+  try {
+    console.log("SUBMIT CLICKED");
 
-        this.files.forEach((file) => {
-          formData.append("attachments", file.raw)
-        })
+    // 1) ทำสำเนา form แบบตัด File ออก (กัน JSON stringify พัง/ใหญ่เกิน)
+    const cleanForm = JSON.parse(JSON.stringify(this.form));
+    if (cleanForm.humanDetail) cleanForm.humanDetail.file = null;
+    if (cleanForm.animalDetail) cleanForm.animalDetail.file = null;
 
-        if (this.form.humanDetail.file) {
-          formData.append("humanFile", this.form.humanDetail.file)
-        }
+    // 2) สร้าง FormData ให้ตรงกับ backend
+    const fd = new FormData();
+    fd.append("form", JSON.stringify(cleanForm));
 
-        if (this.form.animalDetail.file) {
-          formData.append("animalFile", this.form.animalDetail.file)
-        }
-
-        const id = this.$route.params.id
-
-        const url = id
-          ? `http://localhost:5000/api/research/${id}`
-          : "http://localhost:5000/api/research"
-
-        const method = id ? "PUT" : "POST"
-
-        const response = await fetch(url, {
-          method,
-          body: formData
-        })
-
-        if (!response.ok) throw new Error("Save failed")
-
-        Swal.fire({
-          icon: "success",
-          title: id ? "อัปเดตสำเร็จ" : "บันทึกสำเร็จ"
-        })
-
-      } catch (error) {
-        Swal.fire({
-          icon: "error",
-          title: "เกิดข้อผิดพลาด",
-          text: error.message
-        })
-      }
+    // attachments (จาก FileManagement)
+    if (Array.isArray(this.files) && this.files.length) {
+      this.files.forEach((f) => {
+        if (f?.raw) fd.append("attachments", f.raw); // key ต้องชื่อ attachments
+      });
     }
 
+    // humanFile / animalFile (จาก EthicsSection)
+    if (this.form?.humanDetail?.file) {
+      fd.append("humanFile", this.form.humanDetail.file);
+    }
+    if (this.form?.animalDetail?.file) {
+      fd.append("animalFile", this.form.animalDetail.file);
+    }
+
+    // 3) ยิงไป backend (ถ้ามึงมี proxy /api อยู่แล้ว ใช้ path นี้ได้เลย)
+    Swal.fire({
+      title: "กำลังบันทึก...",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    const res = await fetch("/api/research", {
+      method: "POST",
+      body: fd,
+      // อย่าตั้ง Content-Type เองนะ ให้ browser ตั้ง boundary ให้เอง
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(data?.error || `Save failed (${res.status})`);
+    }
+
+    Swal.fire({
+      icon: "success",
+      title: "บันทึกสำเร็จ",
+      text: data?.message || "บันทึกข้อมูลสำเร็จ",
+      confirmButtonText: "ตกลง",
+      buttonsStyling: false,
+      customClass: { confirmButton: "btn btn-primary" },
+    });
+
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: "error",
+      title: "บันทึกไม่สำเร็จ",
+      text: err.message || "มีบางอย่างพัง",
+      confirmButtonText: "ปิด",
+      buttonsStyling: false,
+      customClass: { confirmButton: "btn btn-danger" },
+    });
+  }
+}
+  
+     
     ,
     resetForm() {
       Swal.fire({

@@ -18,7 +18,7 @@
                 <div class="font-weight-bold text-dark">
                   ({{ form.researchers.mainResearcher.name || '................................................' }})
                 </div>
-                <div class="text-muted small mt-1">วันที่: {{ currentDate }}</div>
+                <div class="text-muted small mt-1">วันที่: {{ form.researchers.mainResearcher.signatureDate || '' }}</div>
               </div>
             </div>
           </CCol>
@@ -36,7 +36,7 @@
                 <div class="font-weight-bold text-dark">
                   ({{ co.name || '................................................' }})
                 </div>
-                <div class="text-muted small mt-1">วันที่: {{ currentDate }}</div>
+                <div class="text-muted small mt-1">วันที่: {{ co.signatureDate || '' }}</div>
               </div>
             </div>
           </CCol>
@@ -54,7 +54,7 @@
                 <div class="font-weight-bold text-dark">
                   ({{ adv.name || '................................................' }})
                 </div>
-                <div class="text-muted small mt-1">วันที่: {{ currentDate }}</div>
+                <div class="text-muted small mt-1">วันที่: {{ adv.signatureDate || '' }}</div>
               </div>
             </div>
           </CCol>
@@ -80,30 +80,29 @@ export default {
     form: { type: Object, required: true }
   },
   emits: ['update:form'],
-  computed: {
-    currentDate() {
-      return new Date().toLocaleDateString('th-TH');
-    }
-  }, methods: {
+   methods: {
     updateMainSignature(val) {
       const newForm = JSON.parse(JSON.stringify(this.form));
       newForm.researchers.mainResearcher.signature = val;
+      // บันทึกวันที่เมื่อมีข้อมูลลายเซ็น ถ้าล้างลายเซ็นให้เป็นค่าว่าง
+      newForm.researchers.mainResearcher.signatureDate = val ? new Date().toLocaleDateString('th-TH') : '';
       this.$emit('update:form', newForm);
-    }
-    ,
+    },
 
     updateCoSignature(index, val) {
       const newForm = JSON.parse(JSON.stringify(this.form));
       newForm.researchers.coResearchers[index].signature = val;
+      newForm.researchers.coResearchers[index].signatureDate = val ? new Date().toLocaleDateString('th-TH') : '';
       this.$emit('update:form', newForm);
     },
 
     updateAdvSignature(index, val) {
       const newForm = JSON.parse(JSON.stringify(this.form));
       newForm.researchers.advisors[index].signature = val;
+      newForm.researchers.advisors[index].signatureDate = val ? new Date().toLocaleDateString('th-TH') : '';
       this.$emit('update:form', newForm);
     }
-  }
+}
 
 }
 
