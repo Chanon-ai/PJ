@@ -1,0 +1,1148 @@
+<template>
+  <div class="app-layout">
+
+    <!-- ───────────── SIDEBAR ───────────── -->
+    <aside class="sidebar" :class="{ expanded: sidebarExpanded }">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-text">LOGO</span>
+        </div>
+        <button class="hamburger-btn" @click="sidebarExpanded = !sidebarExpanded">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6"  x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="sidebar-subtitle">
+        <Transition name="fade-text">
+          <span v-if="sidebarExpanded">ระบบพิจารณาข้อเสนอโครงการ</span>
+        </Transition>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a v-for="item in navItems" :key="item.route" href="#"
+          class="nav-item"
+          :class="{ active: currentRoute === item.route }"
+          :title="!sidebarExpanded ? item.label : ''"
+          @click.prevent="currentRoute = item.route"
+        >
+          <span class="nav-icon-wrap">
+            <svg v-if="item.icon === 'grid'" width="22" height="22" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+            </svg>
+            <svg v-else-if="item.icon === 'bell'" width="22" height="22" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <svg v-else-if="item.icon === 'file'" width="22" height="22" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14,2 14,8 20,8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            <svg v-else-if="item.icon === 'user'" width="22" height="22" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </span>
+          <Transition name="fade-text">
+            <span v-if="sidebarExpanded" class="nav-label">{{ item.label }}</span>
+          </Transition>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Overlay -->
+    <Transition name="overlay-fade">
+      <div v-if="sidebarExpanded" class="sidebar-overlay" @click="sidebarExpanded = false" />
+    </Transition>
+
+    <!-- ───────────── MAIN BODY ───────────── -->
+    <div class="app-body" :class="{ 'sidebar-open': sidebarExpanded }">
+
+      <!-- TOPBAR -->
+      <header class="topbar" :style="{ left: sidebarExpanded ? '240px' : '72px' }">
+        <div class="topbar-right">
+          <div class="lang-switcher">
+            <span v-for="l in ['TH', 'EN']" :key="l"
+              :class="{ active: lang === l }" @click="lang = l">{{ l }}</span>
+            <span class="divider">|</span>
+          </div>
+          
+          <div class="notif-dropdown-wrap">
+  <button class="bell-btn" @click="notifOpen = !notifOpen">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+      <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+    <span class="bell-badge" v-if="unreadCount > 0"></span>
+  </button>
+
+  <Transition name="dropdown">
+    <div v-if="notifOpen" class="dropdown-panel">
+
+      <div class="dp-header">
+        <span class="dp-title">การแจ้งเตือน</span>
+        <span class="dp-unread" v-if="unreadCount > 0">{{ unreadCount }} ใหม่</span>
+      </div>
+
+      <div class="dp-list">
+        <div
+          v-for="item in notifications.slice(0, 5)"
+          :key="item.id"
+          class="dp-item"
+          :class="{ unread: !item.read }"
+          @click="item.read = true; notifOpen = false; $router.push({ name: 'Notifications' })"
+        >
+          <div class="dp-icon" :class="item.iconClass">
+            <svg v-if="item.icon === 'person'" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <svg v-else-if="item.icon === 'edit'" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            <svg v-else-if="item.icon === 'check'" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <svg v-else-if="item.icon === 'info'" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <svg v-else-if="item.icon === 'alert'" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+
+          <div class="dp-content">
+            <div class="dp-item-title">{{ item.title }}</div>
+            <div class="dp-item-desc">{{ item.desc }}</div>
+            <div class="dp-item-time">{{ item.time }}</div>
+          </div>
+
+          <span v-if="!item.read" class="dp-dot"></span>
+        </div>
+      </div>
+
+      <div class="dp-footer">
+        <button class="dp-view-all" @click="notifOpen = false; $router.push({ name: 'Notifications' })">
+          ดูทั้งหมด
+        </button>
+      </div>
+
+    </div>
+  </Transition>
+
+  <div v-if="notifOpen" class="dp-backdrop" @click="notifOpen = false" />
+</div>
+
+          <div class="user-menu">
+            <div class="user-avatar">👤</div>
+            <span class="caret">▾</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ───────────── PROFILE PAGE ───────────── -->
+      <div class="page-wrapper">
+        <div class="profile-container">
+
+          <!-- ── Left card: Avatar + name ── -->
+          <div class="profile-left-card">
+            <div class="avatar-ring">
+              <div class="avatar-circle">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none"
+                  stroke="#4a7c59" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+            </div>
+
+            <h2 class="profile-name">ผศ.ดร. ชานนท์ สมศรี</h2>
+            <p class="profile-role">นักวิจัย / อาจารย์</p>
+            <p class="profile-dept">คณะวิทยาศาสตร์และเทคโนโลยี</p>
+
+            <div class="profile-stats">
+              <div class="stat-item">
+                <span class="stat-num">12</span>
+                <span class="stat-label">โครงการ</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <span class="stat-num">8</span>
+                <span class="stat-label">อนุมัติ</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <span class="stat-num">3</span>
+                <span class="stat-label">รอพิจารณา</span>
+              </div>
+            </div>
+
+            <button class="btn-edit-avatar">เปลี่ยนรูปโปรไฟล์</button>
+          </div>
+
+          <!-- ── Right: Info + Edit form ── -->
+          <div class="profile-right">
+
+            <!-- Tabs -->
+            <div class="profile-tabs">
+              <button
+                v-for="tab in tabs" :key="tab.key"
+                class="tab-btn"
+                :class="{ active: activeTab === tab.key }"
+                @click="activeTab = tab.key"
+              >{{ tab.label }}</button>
+            </div>
+
+            <!-- Tab: ข้อมูลส่วนตัว -->
+            <div v-if="activeTab === 'info'" class="tab-content">
+              <div class="section-title">ข้อมูลส่วนตัว</div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>คำนำหน้า</label>
+                  <input v-model="form.prefix" class="form-input" :disabled="!editing" />
+                </div>
+                <div class="form-group">
+                  <label>ชื่อ - นามสกุล</label>
+                  <input v-model="form.name" class="form-input" :disabled="!editing" />
+                </div>
+                <div class="form-group">
+                  <label>อีเมล</label>
+                  <input v-model="form.email" type="email" class="form-input" :disabled="!editing" />
+                </div>
+                <div class="form-group">
+                  <label>เบอร์โทรศัพท์</label>
+                  <input v-model="form.phone" class="form-input" :disabled="!editing" />
+                </div>
+                <div class="form-group">
+                  <label>ตำแหน่ง</label>
+                  <input v-model="form.position" class="form-input" :disabled="!editing" />
+                </div>
+                <div class="form-group">
+                  <label>สังกัด / คณะ</label>
+                  <input v-model="form.department" class="form-input" :disabled="!editing" />
+                </div>
+                <div class="form-group full-width">
+                  <label>ที่อยู่</label>
+                  <textarea v-model="form.address" class="form-input form-textarea" :disabled="!editing" rows="3" />
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button v-if="!editing" class="btn-primary" @click="editing = true">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                  แก้ไขข้อมูล
+                </button>
+                <template v-else>
+                  <button class="btn-cancel" @click="cancelEdit">ยกเลิก</button>
+                  <button class="btn-primary" @click="saveEdit">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    บันทึก
+                  </button>
+                </template>
+              </div>
+            </div>
+
+            <!-- Tab: เปลี่ยนรหัสผ่าน -->
+            <div v-if="activeTab === 'password'" class="tab-content">
+              <div class="section-title">เปลี่ยนรหัสผ่าน</div>
+
+              <div class="form-grid single">
+                <div class="form-group full-width">
+                  <label>รหัสผ่านปัจจุบัน</label>
+                  <div class="input-wrap">
+                    <input v-model="pwd.current" :type="showPwd.current ? 'text' : 'password'" class="form-input" placeholder="••••••••" />
+                    <button class="eye-btn" @click="showPwd.current = !showPwd.current">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <template v-if="!showPwd.current">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                            </template>
+                            <template v-else>
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                            <line x1="1" y1="1" x2="23" y2="23"/>
+                            </template>
+                        </svg>
+                        </button>
+                  </div>
+                </div>
+                <div class="form-group full-width">
+                  <label>รหัสผ่านใหม่</label>
+                  <div class="input-wrap">
+                    <input v-model="pwd.new" :type="showPwd.new ? 'text' : 'password'" class="form-input" placeholder="••••••••" />
+                   <button class="eye-btn" @click="showPwd.new = !showPwd.new">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <template v-if="!showPwd.new">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                            </template>
+                            <template v-else>
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                            <line x1="1" y1="1" x2="23" y2="23"/>
+                            </template>
+                        </svg>
+                        </button>
+                  </div>
+                  <!-- Strength bar -->
+                  <div class="strength-bar" v-if="pwd.new">
+                    <div class="strength-fill" :style="{ width: pwdStrength.pct + '%', background: pwdStrength.color }"></div>
+                  </div>
+                  <span class="strength-label" v-if="pwd.new" :style="{ color: pwdStrength.color }">{{ pwdStrength.label }}</span>
+                </div>
+                <div class="form-group full-width">
+                  <label>ยืนยันรหัสผ่านใหม่</label>
+                  <div class="input-wrap">
+                    <input v-model="pwd.confirm" :type="showPwd.confirm ? 'text' : 'password'" class="form-input"
+                      placeholder="••••••••" :class="{ 'input-error': pwd.confirm && pwd.new !== pwd.confirm }" />
+                   <button class="eye-btn" @click="showPwd.confirm = !showPwd.confirm">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <template v-if="!showPwd.confirm">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                            </template>
+                            <template v-else>
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                            <line x1="1" y1="1" x2="23" y2="23"/>
+                            </template>
+                        </svg>
+                        </button>
+                  </div>
+                  <span v-if="pwd.confirm && pwd.new !== pwd.confirm" class="error-msg">รหัสผ่านไม่ตรงกัน</span>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button class="btn-primary" :disabled="!canSavePwd" @click="savePassword">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  บันทึกรหัสผ่าน
+                </button>
+              </div>
+            </div>
+
+            <!-- Tab: ประวัติโครงการ -->
+            <div v-if="activeTab === 'history'" class="tab-content">
+              <div class="section-title">ประวัติโครงการ</div>
+              <div class="history-list">
+                <div v-for="proj in projectHistory" :key="proj.code" class="history-item">
+                  <div class="history-left">
+                    <div class="history-code">{{ proj.code }}</div>
+                    <div class="history-title">{{ proj.title }}</div>
+                    <div class="history-date">ยื่น {{ proj.date }}</div>
+                  </div>
+                  <div class="history-right">
+                    <span class="history-badge" :class="proj.statusClass">{{ proj.status }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast -->
+      <Transition name="toast">
+        <div v-if="toast.show" class="toast-msg" :class="toast.type">
+          <svg v-if="toast.type === 'success'" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          {{ toast.msg }}
+        </div>
+      </Transition>
+
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'ProfilePage',
+
+  data() {
+    return {
+      // Layout
+      sidebarExpanded: false,
+      lang: 'TH',
+      currentRoute: '/profile',
+      navItems: [
+        { icon: 'grid', label: 'โครงการของฉัน',  route: '/projects' },
+        { icon: 'bell', label: 'การแจ้งเตือน',    route: '/notifications' },
+        { icon: 'file', label: 'รายงาน',           route: '/reports' },
+        { icon: 'user', label: 'โปรไฟล์',          route: '/profile' },
+      ],
+
+      // Tabs
+      activeTab: 'info',
+      tabs: [
+        { key: 'info',     label: 'ข้อมูลส่วนตัว' },
+        { key: 'password', label: 'เปลี่ยนรหัสผ่าน' },
+        { key: 'history',  label: 'ประวัติโครงการ' },
+      ],
+
+      // Profile form
+      editing: false,
+      form: {
+        prefix:     'ผศ.ดร.',
+        name:       'ชานนท์ สมศรี',
+        email:      'chanon.s@university.ac.th',
+        phone:      '081-234-5678',
+        position:   'อาจารย์ประจำ',
+        department: 'คณะวิทยาศาสตร์และเทคโนโลยี',
+        address:    '123 ถ.พหลโยธิน แขวงลาดยาว เขตจตุจักร กรุงเทพฯ 10900',
+      },
+      formBackup: null,
+
+      // Password
+      pwd: { current: '', new: '', confirm: '' },
+      showPwd: { current: false, new: false, confirm: false },
+
+      // Toast
+      toast: { show: false, msg: '', type: 'success' },
+
+      // History
+      projectHistory: [
+        { code: 'RS-2568-000123', title: 'การพัฒนา AI เพื่อการเกษตร',   date: '15 ก.พ. 69', status: 'รอดำเนินการ',  statusClass: 's-waiting' },
+        { code: 'RS-2568-000122', title: 'ระบบจัดการขยะอัจฉริยะ',        date: '10 ก.พ. 69', status: 'รอแก้ไข',       statusClass: 's-fix' },
+        { code: 'RS-2568-000120', title: 'ระบบจัดการขยะอัจฉริยะ v2',     date: '7 ก.พ. 69',  status: 'อนุมัติ',       statusClass: 's-approved' },
+        { code: 'RS-2568-000116', title: 'ระบบจัดการขยะอัจฉริยะ v1',     date: '27 ม.ค. 69', status: 'ไม่อนุมัติ',    statusClass: 's-rejected' },
+        { code: 'RS-2568-000113', title: 'นวัตกรรมพลังงานสะอาด',          date: '20 ม.ค. 69', status: 'อนุมัติ',       statusClass: 's-approved' },
+        { code: 'RS-2568-000110', title: 'การศึกษาระบบนิเวศป่าไม้',       date: '10 ม.ค. 69', status: 'กำลังพิจารณา', statusClass: 's-reviewing' },
+      ],
+    }
+  },
+
+  computed: {
+    pwdStrength() {
+      const p = this.pwd.new
+      if (!p) return { pct: 0, color: '#ccc', label: '' }
+      let score = 0
+      if (p.length >= 8)           score++
+      if (/[A-Z]/.test(p))         score++
+      if (/[0-9]/.test(p))         score++
+      if (/[^A-Za-z0-9]/.test(p))  score++
+      const map = [
+        { pct: 25,  color: '#ef5350', label: 'อ่อนมาก' },
+        { pct: 50,  color: '#f5a623', label: 'พอใช้' },
+        { pct: 75,  color: '#4fc3f7', label: 'ดี' },
+        { pct: 100, color: '#66bb6a', label: 'แข็งแกร่ง' },
+      ]
+      return map[score - 1] || map[0]
+    },
+
+    canSavePwd() {
+      return this.pwd.current && this.pwd.new && this.pwd.new === this.pwd.confirm
+    },
+  },
+
+  methods: {
+    cancelEdit() {
+      if (this.formBackup) this.form = { ...this.formBackup }
+      this.editing = false
+    },
+
+    saveEdit() {
+      this.formBackup = { ...this.form }
+      this.editing = false
+      this.showToast('บันทึกข้อมูลเรียบร้อยแล้ว', 'success')
+    },
+
+    savePassword() {
+      this.pwd = { current: '', new: '', confirm: '' }
+      this.showToast('เปลี่ยนรหัสผ่านเรียบร้อยแล้ว', 'success')
+    },
+
+    showToast(msg, type = 'success') {
+      this.toast = { show: true, msg, type }
+      setTimeout(() => { this.toast.show = false }, 3000)
+    },
+  },
+}
+</script>
+
+<style scoped>
+/* ══════════════════════════════════
+   Variables
+══════════════════════════════════ */
+:root {
+  --sidebar-width: 72px;
+  --topbar-height: 60px;
+}
+
+/* ══════════════════════════════════
+   Layout
+══════════════════════════════════ */
+.app-layout { display: flex; min-height: 100vh; }
+
+.app-body {
+  margin-left: 72px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.app-body.sidebar-open { margin-left: 240px; }
+
+/* ══════════════════════════════════
+   Sidebar
+══════════════════════════════════ */
+.sidebar {
+  width: 72px;
+  background: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
+  z-index: 200;
+  border-right: 1px solid #2a2a2a;
+  overflow: hidden;
+  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sidebar.expanded { width: 240px; }
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  background: #111;
+  border-bottom: 1px solid #2a2a2a;
+  flex-shrink: 0;
+}
+
+.sidebar-logo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.sidebar.expanded .sidebar-logo { opacity: 1; }
+
+.logo-text {
+  font-weight: 700;
+  font-size: 15px;
+  color: #c8e6c9;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.hamburger-btn {
+  flex-shrink: 0;
+  width: 72px;
+  height: 60px;
+  background: none;
+  border: none;
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.hamburger-btn:hover { color: #c8e6c9; }
+
+.sidebar-subtitle {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-bottom: 1px solid #242424;
+}
+.sidebar-subtitle span {
+  font-size: 11.5px;
+  color: #6a8c6b;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 10px;
+  flex: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 46px;
+  border-radius: 10px;
+  padding: 0 12px;
+  color: #888;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: background 0.2s, color 0.2s;
+}
+.nav-item:hover,
+.nav-item.active { background: #2a2a2a; color: #c8e6c9; }
+
+.nav-icon-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+}
+
+.nav-label { font-size: 14px; font-weight: 500; color: inherit; }
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 199;
+}
+
+.fade-text-enter-active { transition: opacity 0.2s ease 0.1s, transform 0.2s ease 0.1s; }
+.fade-text-leave-active { transition: opacity 0.1s ease, transform 0.1s ease; }
+.fade-text-enter-from,
+.fade-text-leave-to     { opacity: 0; transform: translateX(-8px); }
+
+.overlay-fade-enter-active,
+.overlay-fade-leave-active { transition: opacity 0.28s ease; }
+.overlay-fade-enter-from,
+.overlay-fade-leave-to     { opacity: 0; }
+
+/* ══════════════════════════════════
+   Topbar
+══════════════════════════════════ */
+.topbar {
+  position: fixed;
+  top: 0; right: 0;
+  height: 60px;
+  background: #2d3a2e;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 24px;
+  z-index: 100;
+  border-bottom: 1px solid #3a4a3b;
+  transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #d0d0d0;
+}
+
+.lang-switcher { display: flex; align-items: center; gap: 4px; font-size: 14px; }
+.lang-switcher span { cursor: pointer; padding: 2px 4px; border-radius: 4px; color: #aaa; transition: color 0.2s; }
+.lang-switcher span.active { color: #fff; font-weight: 600; }
+.lang-switcher span:hover  { color: #c8e6c9; }
+.lang-switcher .divider    { color: #555; cursor: default; }
+
+.bell-btn {
+  background: none; border: none;
+  color: #c8e6c9; position: relative;
+  display: flex; align-items: center; cursor: pointer;
+}
+.bell-badge {
+  position: absolute; top: -2px; right: -2px;
+  width: 9px; height: 9px;
+  background: #ef5350; border-radius: 50%;
+  border: 1.5px solid #2d3a2e;
+}
+
+.user-menu {
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer; padding: 6px 10px;
+  border-radius: 8px; transition: background 0.2s;
+}
+.user-menu:hover { background: rgba(255,255,255,0.08); }
+
+.user-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: #4a7c59;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.caret { font-size: 12px; color: #aaa; }
+
+/* ══════════════════════════════════
+   Page Wrapper
+══════════════════════════════════ */
+.page-wrapper {
+  margin-top: 60px;
+  background: linear-gradient(135deg, #eef4ff, #f8fbff);
+  padding: 36px 40px;
+  min-height: calc(100vh - 60px);
+}
+
+/* ══════════════════════════════════
+   Profile Layout
+══════════════════════════════════ */
+.profile-container {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 28px;
+  max-width: 1100px;
+}
+
+/* ── Left Card ── */
+.profile-left-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 36px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  height: fit-content;
+}
+
+.avatar-ring {
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4a7c59, #81c784);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px;
+  box-shadow: 0 6px 20px rgba(74,124,89,0.3);
+}
+
+.avatar-circle {
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  background: #e8f5e9;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.profile-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #111827;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.profile-role {
+  font-size: 13px;
+  color: #4a7c59;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.profile-dept {
+  font-size: 12px;
+  color: #9ca3af;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.profile-stats {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  background: #f9fafb;
+  border-radius: 14px;
+  padding: 16px 20px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.stat-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 36px;
+  background: #e5e7eb;
+}
+
+.btn-edit-avatar {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1.5px dashed #d1d5db;
+  background: none;
+  color: #6b7280;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Sarabun', sans-serif;
+}
+.btn-edit-avatar:hover {
+  border-color: #4a7c59;
+  color: #4a7c59;
+  background: #f0faf3;
+}
+
+/* ── Right Panel ── */
+.profile-right {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tabs */
+.profile-tabs {
+  display: flex;
+  border-bottom: 2px solid #f3f4f6;
+  padding: 0 24px;
+}
+
+.tab-btn {
+  padding: 18px 20px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #9ca3af;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+  font-family: 'Sarabun', sans-serif;
+}
+.tab-btn:hover  { color: #4a7c59; }
+.tab-btn.active { color: #4a7c59; border-bottom-color: #4a7c59; font-weight: 600; }
+
+/* Tab content */
+.tab-content { padding: 28px 28px 32px; }
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* Form */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.form-group { display: flex; flex-direction: column; gap: 7px; }
+.form-group.full-width { grid-column: 1 / -1; }
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.form-input {
+  padding: 11px 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #111827;
+  background: #fff;
+  font-family: 'Sarabun', sans-serif;
+  transition: border-color 0.2s;
+  outline: none;
+}
+.form-input:focus:not(:disabled) { border-color: #4a7c59; }
+.form-input:disabled { background: #f9fafb; color: #6b7280; cursor: not-allowed; }
+.form-input.input-error { border-color: #ef5350; }
+
+.form-textarea { resize: vertical; min-height: 80px; }
+
+/* Input with eye button */
+.input-wrap { position: relative; }
+.input-wrap .form-input { width: 100%; padding-right: 44px; }
+.eye-btn {
+  position: absolute;
+  right: 12px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none;
+  color: #9ca3af; cursor: pointer;
+  display: flex; align-items: center;
+  padding: 0;
+  transition: color 0.2s;
+}
+.eye-btn:hover { color: #4a7c59; }
+
+/* Password strength */
+.strength-bar {
+  height: 4px;
+  background: #f3f4f6;
+  border-radius: 99px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.strength-fill { height: 100%; border-radius: 99px; transition: width 0.4s ease, background 0.4s; }
+.strength-label { font-size: 12px; font-weight: 600; margin-top: 4px; display: block; }
+
+.error-msg { font-size: 12px; color: #ef5350; margin-top: 4px; }
+
+/* Form actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-primary {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 22px;
+  background: #4a7c59; color: #fff;
+  border: none; border-radius: 10px;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: opacity 0.2s;
+  font-family: 'Sarabun', sans-serif;
+}
+.btn-primary:hover:not(:disabled) { opacity: 0.85; }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-cancel {
+  padding: 10px 22px;
+  background: #f3f4f6; color: #6b7280;
+  border: none; border-radius: 10px;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: background 0.2s;
+  font-family: 'Sarabun', sans-serif;
+}
+.btn-cancel:hover { background: #e5e7eb; }
+
+/* ── History ── */
+.history-list { display: flex; flex-direction: column; gap: 12px; }
+
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1.5px solid #f3f4f6;
+  transition: border-color 0.2s, background 0.2s;
+}
+.history-item:hover { border-color: #d1fae5; background: #f0faf3; }
+
+.history-code  { font-size: 12px; color: #9ca3af; margin-bottom: 3px; }
+.history-title { font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 3px; }
+.history-date  { font-size: 12px; color: #9ca3af; }
+
+.history-badge {
+  padding: 5px 14px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.s-waiting   { background: #f3f4f6; color: #374151; }
+.s-fix       { background: #fff7e6; color: #d97706; }
+.s-reviewing { background: #e0f2fe; color: #0369a1; }
+.s-approved  { background: #d1fae5; color: #065f46; }
+.s-rejected  { background: #fee2e2; color: #991b1b; }
+
+/* ── Toast ── */
+.toast-msg {
+  position: fixed;
+  bottom: 32px; left: 50%;
+  transform: translateX(-50%);
+  padding: 13px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  z-index: 999;
+}
+.toast-msg.success { background: #4a7c59; color: #fff; }
+.toast-msg.error   { background: #ef5350; color: #fff; }
+
+.toast-enter-active, .toast-leave-active { transition: all 0.3s ease; }
+.toast-enter-from, .toast-leave-to { opacity: 0; transform: translate(-50%, 16px); }
+
+/* ══ Notification Dropdown ══ */
+.notif-dropdown-wrap { position: relative; }
+
+.bell-btn {
+  background: none; border: none;
+  color: #c8e6c9; position: relative;
+  display: flex; align-items: center;
+  cursor: pointer; padding: 4px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.bell-btn:hover { background: rgba(255,255,255,0.1); }
+
+.bell-badge {
+  position: absolute; top: 2px; right: 2px;
+  width: 9px; height: 9px;
+  background: #ef5350; border-radius: 50%;
+  border: 1.5px solid #2d3a2e;
+}
+
+.dp-backdrop {
+  position: fixed; inset: 0; z-index: 149;
+}
+
+.dropdown-panel {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  width: 360px;
+  background: #1e1e1e;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+  z-index: 150;
+  overflow: hidden;
+  border: 1px solid #2a2a2a;
+}
+
+.dropdown-panel::before {
+  content: '';
+  position: absolute;
+  top: -8px; right: 18px;
+  width: 16px; height: 16px;
+  background: #1e1e1e;
+  border-left: 1px solid #2a2a2a;
+  border-top: 1px solid #2a2a2a;
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+.dp-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid #2a2a2a;
+}
+.dp-title { font-size: 16px; font-weight: 700; color: #e0e0e0; }
+.dp-unread {
+  font-size: 12px; font-weight: 600; color: #fff;
+  background: #ef5350; padding: 2px 10px; border-radius: 99px;
+}
+
+.dp-list {
+  max-height: 320px; overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: #333 transparent;
+}
+.dp-list::-webkit-scrollbar { width: 4px; }
+.dp-list::-webkit-scrollbar-thumb { background: #333; border-radius: 99px; }
+
+.dp-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #2a2a2a;
+  cursor: pointer; transition: background 0.15s;
+  position: relative;
+}
+.dp-item:last-child { border-bottom: none; }
+.dp-item:hover { background: #252525; }
+.dp-item.unread { background: #1a2820; }
+.dp-item.unread:hover { background: #1e3025; }
+
+.dp-icon {
+  flex-shrink: 0; width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 2px;
+}
+.icon-blue   { background: #1e3a5f; color: #60a5fa; }
+.icon-orange { background: #3d2408; color: #fb923c; }
+.icon-green  { background: #14301e; color: #4ade80; }
+.icon-gray   { background: #2a2a2a; color: #9ca3af; }
+
+.dp-content { flex: 1; min-width: 0; }
+.dp-item-title {
+  font-size: 13px; font-weight: 600; color: #e0e0e0;
+  line-height: 1.4; margin-bottom: 3px;
+  display: -webkit-box;   line-clamp: 1; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.dp-item-desc {
+  font-size: 12px; color: #777; line-height: 1.4; margin-bottom: 5px;
+  display: -webkit-box;   line-clamp: 1;-webkit-line-clamp: 1;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.dp-item-time { font-size: 11px; color: #555; }
+
+.dp-dot {
+  flex-shrink: 0; width: 8px; height: 8px;
+  border-radius: 50%; background: #ef5350; margin-top: 6px;
+}
+
+.dp-footer {
+  padding: 12px 20px;
+  border-top: 1px solid #2a2a2a;
+}
+.dp-view-all {
+  width: 100%; padding: 10px;
+  background: #2a2a2a; border: none; border-radius: 10px;
+  color: #c8e6c9; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: 'Sarabun', sans-serif;
+  transition: background 0.2s;
+}
+.dp-view-all:hover { background: #333; }
+
+.dropdown-enter-active { transition: opacity 0.18s ease, transform 0.18s ease; }
+.dropdown-leave-active { transition: opacity 0.12s ease, transform 0.12s ease; }
+.dropdown-enter-from,
+.dropdown-leave-to { opacity: 0; transform: translateY(-8px) scale(0.97); }
+</style>
