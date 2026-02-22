@@ -400,8 +400,8 @@ export default {
 <style>
 .page-bg {
   background: linear-gradient(to bottom,
-      #D6F4ED,
-      #473472);
+      #d6c9f3,
+      #f1edb4);
 }
 
 .sticky-footer {
