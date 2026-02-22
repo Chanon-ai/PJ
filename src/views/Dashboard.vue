@@ -2,13 +2,14 @@
   <div class="app-shell">
 
     <!-- ═══════════════════════════════════════════
-         SIDEBAR
+         SIDEBAR - แก้ไขให้หายไปจริงๆ ไม่กินพื้นที่
     ════════════════════════════════════════════ -->
     <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
       <!-- Brand -->
       <div class="sidebar-brand">
         <div class="brand-logo">
-          <span class="brand-flame">🔥</span>
+          <!-- <span class="brand-flame">🔥</span> -->
+           <img src="/PJ/src/assets/logo.svg" height="60px" class="pt-2 pb-2">
         </div>
         <div class="brand-text" v-show="!sidebarCollapsed">
           <div class="brand-title">MFU</div>
@@ -45,9 +46,9 @@
     </aside>
 
     <!-- ═══════════════════════════════════════════
-         MAIN AREA
+         MAIN AREA - ขยายเต็มที่เมื่อ sidebar หาย
     ════════════════════════════════════════════ -->
-    <div class="main-area">
+    <div class="main-area" :class="{ 'full-width': sidebarCollapsed }">
 
       <!-- Top Header -->
       <header class="top-header">
@@ -506,20 +507,21 @@ export default {
 }
 
 /* ═══════════════════════════════════════
-   Shell layout
+   Shell layout - แก้ไขหลัก
 ═══════════════════════════════════════ */
 .app-shell {
   display: flex;
   min-height: 100vh;
   background: #f0f4ff;
   font-family: 'Sarabun', 'Noto Sans Thai', sans-serif;
+  position: relative; /* สำหรับ positioning ของ sidebar */
 }
 
 /* ═══════════════════════════════════════
-   SIDEBAR
+   SIDEBAR - แก้ไขให้หายไปจริงๆ ไม่กินพื้นที่
 ═══════════════════════════════════════ */
 .sidebar {
-  width: var(--sb-width);
+  width: 210px; /* กำหนด width คงที่แทนการใช้ variable */
   min-height: 100vh;
   background: linear-gradient(180deg, #7b0d0d 0%, #5a0909 100%);
   display: flex;
@@ -529,12 +531,17 @@ export default {
   box-shadow: 3px 0 20px rgba(0,0,0,0.22);
   position: relative;
   z-index: 100;
-  transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.32s ease;
-  will-change: width;
+  
+  /* เปลี่ยนจาก transform เป็น margin-left เพื่อให้หายไปจริงๆ */
+  margin-left: 0;
+  transition: margin-left 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: margin-left, width;
 }
+
 .sidebar.collapsed {
-  width: 0;
+  margin-left: -210px; /* เลื่อนออกไปทางซ้ายเท่ากับความกว้างตัวเอง */
+  width: 0; /* หด width เป็น 0 */
   box-shadow: none;
 }
 
@@ -633,13 +640,20 @@ export default {
 .logout-btn:hover { color: #fca5a5; background: rgba(239,68,68,0.18) !important; }
 
 /* ═══════════════════════════════════════
-   MAIN AREA
+   MAIN AREA - ขยายเต็มที่อัตโนมัติ
 ═══════════════════════════════════════ */
 .main-area {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  /* ไม่ต้องกำหนด margin-left เพราะ flex: 1 จะจัดการให้เอง */
+  transition: all 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* เมื่อ sidebar หายไป main-area จะขยายเต็มที่อัตโนมัติ */
+.main-area.full-width {
+  /* flex: 1 ทำงานอยู่แล้ว ไม่ต้องกำหนดอะไรเพิ่ม */
 }
 
 /* ═══════════════════════════════════════
