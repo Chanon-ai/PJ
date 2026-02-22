@@ -1,817 +1,978 @@
 <template>
-  <div class="app-layout">
+  <div class="app-shell">
 
-    <!-- ───────────── SIDEBAR ───────────── -->
-    <aside class="sidebar" :class="{ expanded: sidebarExpanded }">
-
-      <!-- Header: Logo + hamburger -->
-      <div class="sidebar-header">
-        <div class="sidebar-logo">
-          <span class="logo-text">LOGO</span>
+    <!-- ═══════════════════════════════════════════
+         SIDEBAR
+    ════════════════════════════════════════════ -->
+    <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
+      <!-- Brand -->
+      <div class="sidebar-brand">
+        <div class="brand-logo">
+          <span class="brand-flame">🔥</span>
         </div>
-        <button class="hamburger-btn" @click="sidebarExpanded = !sidebarExpanded">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="6"  x2="21" y2="6"/>
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
+        <div class="brand-text" v-show="!sidebarCollapsed">
+          <div class="brand-title">MFU</div>
+          <div class="brand-sub">Research System</div>
+        </div>
       </div>
 
-      <!-- Subtitle -->
-      <div class="sidebar-subtitle">
-        <Transition name="fade-text">
-          <span v-if="sidebarExpanded">ระบบพิจารณาข้อเสนอโครงการ</span>
-        </Transition>
-      </div>
-
-      <!-- Nav items -->
+      <!-- Nav -->
       <nav class="sidebar-nav">
-        <a
+        <div
           v-for="item in navItems"
-          :key="item.route"
-          href="#"
+          :key="item.key"
           class="nav-item"
-          :class="{ active: currentRoute === item.route }"
-          :title="!sidebarExpanded ? item.label : ''"
-          @click.prevent="currentRoute = item.route"
+          :class="{ active: activeNav === item.key }"
+          @click="handleNav(item)"
+          :title="sidebarCollapsed ? item.label : ''"
         >
-          <span class="nav-icon-wrap">
-            <!-- Grid icon -->
-            <svg v-if="item.icon === 'grid'" width="22" height="22" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="7" height="7"/>
-              <rect x="14" y="3" width="7" height="7"/>
-              <rect x="3" y="14" width="7" height="7"/>
-              <rect x="14" y="14" width="7" height="7"/>
-            </svg>
-            <!-- Bell icon -->
-            <svg v-else-if="item.icon === 'bell'" width="22" height="22" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-            <!-- File icon -->
-            <svg v-else-if="item.icon === 'file'" width="22" height="22" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14,2 14,8 20,8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-            </svg>
-          </span>
-
-          <Transition name="fade-text">
-            <span v-if="sidebarExpanded" class="nav-label">{{ item.label }}</span>
-          </Transition>
-        </a>
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-label" v-show="!sidebarCollapsed">{{ item.label }}</span>
+          <span
+            v-if="item.badge && !sidebarCollapsed"
+            class="nav-badge"
+          >{{ item.badge }}</span>
+        </div>
       </nav>
+
+      <!-- Logout -->
+      <div class="sidebar-footer">
+        <div class="nav-item logout-btn" @click="onLogout">
+          <span class="nav-icon">🚪</span>
+          <span class="nav-label">ออกจากระบบ</span>
+        </div>
+      </div>
     </aside>
 
-    <!-- Overlay (กดปิด sidebar) -->
-    <Transition name="overlay-fade">
-      <div v-if="sidebarExpanded" class="sidebar-overlay" @click="sidebarExpanded = false" />
-    </Transition>
+    <!-- ═══════════════════════════════════════════
+         MAIN AREA
+    ════════════════════════════════════════════ -->
+    <div class="main-area">
 
-    <!-- ───────────── MAIN BODY ───────────── -->
-    <div class="app-body" :class="{ 'sidebar-open': sidebarExpanded }">
-
-      <!-- ───────── TOPBAR ───────── -->
-      <header class="topbar" :style="{ left: sidebarExpanded ? '240px' : '72px' }">
-
-        <div class="topbar-right">
-          <!-- Language switcher -->
-          <div class="lang-switcher">
-            <span
-              v-for="l in ['TH', 'EN']"
-              :key="l"
-              :class="{ active: lang === l }"
-              @click="lang = l"
-            >{{ l }}</span>
-            <span class="divider">|</span>
-          </div>
-
-          <!-- Bell -->
-          <div class="notif-dropdown-wrap">
-  <button class="bell-btn" @click="notifOpen = !notifOpen">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-      <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-    </svg>
-    <span class="bell-badge" v-if="unreadCount > 0"></span>
-  </button>
-
-  <Transition name="dropdown">
-    <div v-if="notifOpen" class="dropdown-panel">
-
-      <div class="dp-header">
-        <span class="dp-title">การแจ้งเตือน</span>
-        <span class="dp-unread" v-if="unreadCount > 0">{{ unreadCount }} ใหม่</span>
-      </div>
-
-      <div class="dp-list">
-        <div
-          v-for="item in notifications.slice(0, 5)"
-          :key="item.id"
-          class="dp-item"
-          :class="{ unread: !item.read }"
-          @click="item.read = true; notifOpen = false; $router.push({ name: 'Notifications' })"
+      <!-- Top Header -->
+      <header class="top-header">
+        <button
+          class="hamburger"
+          :class="{ 'is-open': !sidebarCollapsed }"
+          @click="sidebarCollapsed = !sidebarCollapsed"
+          aria-label="toggle sidebar"
         >
-          <div class="dp-icon" :class="item.iconClass">
-            <svg v-if="item.icon === 'person'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-            <svg v-else-if="item.icon === 'edit'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-            <svg v-else-if="item.icon === 'check'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            <svg v-else-if="item.icon === 'info'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="16" x2="12" y2="12"/>
-              <line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
-            <svg v-else-if="item.icon === 'alert'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-              <line x1="12" y1="9" x2="12" y2="13"/>
-              <line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>
-          </div>
-
-          <div class="dp-content">
-            <div class="dp-item-title">{{ item.title }}</div>
-            <div class="dp-item-desc">{{ item.desc }}</div>
-            <div class="dp-item-time">{{ item.time }}</div>
-          </div>
-
-          <span v-if="!item.read" class="dp-dot"></span>
-        </div>
-      </div>
-
-      <div class="dp-footer">
-        <button class="dp-view-all" @click="notifOpen = false; $router.push({ name: 'Notifications' })">
-          ดูทั้งหมด
+          <span class="hb-line hb-line1"></span>
+          <span class="hb-line hb-line2"></span>
+          <span class="hb-line hb-line3"></span>
         </button>
-      </div>
-
-    </div>
-  </Transition>
-
-  <div v-if="notifOpen" class="dp-backdrop" @click="notifOpen = false" />
-</div>
-          <!-- User avatar -->
-          <div class="user-menu">
-            <div class="user-avatar">👤</div>
-            <span class="caret">▾</span>
-          </div>
+        <span class="header-title">{{ currentNavLabel }}</span>
+        <div class="header-right">
+          <span class="header-user">👤 นักวิจัย</span>
         </div>
       </header>
 
-      <!-- ───────── PAGE CONTENT ───────── -->
-      <div class="page-wrapper">
+      <!-- Page Content -->
+      <div class="page-content">
 
-        <!-- Floating Buttons -->
-        <div class="floating-buttons">
-          <CButton color="primary" class="fab-btn" @click="onSearch">
-            <i class="bi bi-search"></i>
-          </CButton>
-          <CButton color="primary" class="fab-btn" @click="onAdd">
-            <i class="bi bi-plus-lg"></i>
-          </CButton>
+        <!-- Summary strip (read-only, no filter click) -->
+        <div class="summary-strip mb-4">
+          <div
+            v-for="s in stageSummary"
+            :key="s.key"
+            class="strip-card"
+            :class="[`strip-${s.key}`, { 'strip-active': activeFilter === s.key }]"
+            @click="toggleFilter(s.key)"
+          >
+            <span class="strip-icon">{{ s.icon }}</span>
+            <span class="strip-count">{{ s.count }}</span>
+            <span class="strip-label">{{ s.label }}</span>
+          </div>
         </div>
 
-        <CCard class="table-card">
-          <CCardBody class="p-3">
-            <CTable hover class="align-middle w-100">
+        <!-- Table -->
+        <div class="panels-row">
 
-              <!-- Header -->
-              <CTableHead>
-                <CTableRow>
-                  <CTableHeaderCell style="width: 35%">
-                    ชื่อโครงการวิจัย / หัวหน้าโครงการ
-                  </CTableHeaderCell>
-                  <CTableHeaderCell style="width: 15%">
-                    วันที่ยื่น
-                  </CTableHeaderCell>
-                  <CTableHeaderCell style="width: 25%">
-                    สถานะ
-                  </CTableHeaderCell>
-                  <CTableHeaderCell style="width: 15%">
-                    Activity
-                  </CTableHeaderCell>
-                </CTableRow>
-              </CTableHead>
+          <!-- Main Table Card -->
+          <div class="panel-table">
+            <div class="table-card-header">
+              <div class="d-flex align-items-center gap-2">
+                <span class="header-grid-icon">⊞</span>
+                <span class="table-card-title">Advanced <em>CDataTable</em> application</span>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn-quick btn-success" @click="continueDraft">📝 ร่างล่าสุด</button>
+                <button class="btn-quick btn-gray"    @click="exportPDF">📄 Export PDF</button>
+              </div>
+            </div>
 
-              <!-- Body -->
-              <CTableBody>
-                <CTableRow
-                  v-for="(item, index) in researchProjects"
-                  :key="item.id || index"
-                  class="clickable-row"
-                  @click="goToDetail(item.id)"
-                >
-                  <CTableDataCell>
-                    <div class="project-title">{{ item.projectName }}</div>
-                    <div class="project-leader">{{ item.projectLeader }}</div>
-                  </CTableDataCell>
+            <!-- Filter bar (Image 1 style) -->
+            <div class="filter-bar">
+              <div class="filter-left">
+                <label class="filter-label">Filter:</label>
+                <input v-model="searchText"  type="text"   placeholder="type string…" class="f-input f-text" />
+                <select v-model="stageFilter" class="f-input f-select">
+                  <option value="">ทุกสถานะ</option>
+                  <option value="DRAFT">ร่าง</option>
+                  <option value="SUBMITTED">ยื่นแล้ว</option>
+                  <option value="NEED_REVISION">ต้องแก้ไข</option>
+                  <option value="IN_REVIEW">กำลังพิจารณา</option>
+                  <option value="APPROVED">อนุมัติ</option>
+                </select>
+              </div>
+              <div class="filter-right">
+                <label class="filter-label">Items per page:</label>
+                <select v-model="perPage" class="f-input f-perpage">
+                  <option :value="5">5</option>
+                  <option :value="10">10</option>
+                  <option :value="25">25</option>
+                </select>
+              </div>
+            </div>
 
-                  <CTableDataCell>{{ item.submitDate }}</CTableDataCell>
+            <!-- Loading -->
+            <div v-if="loading" class="state-box">
+              <div class="spinner"></div>
+              <div class="state-text">กำลังโหลดข้อมูล…</div>
+            </div>
 
-                  <CTableDataCell>
-                    <div class="d-flex justify-content-between mb-2">
-                      <strong>{{ item.progress }}%</strong>
-                    </div>
-                    <CProgress :value="item.progress" :color="progressColor(item.progress)" :height="8" />
-                  </CTableDataCell>
+            <!-- Empty -->
+            <div v-else-if="filteredItems.length === 0" class="state-box">
+              <div style="font-size:2.2rem">📭</div>
+              <div class="state-text">ไม่พบโครงการวิจัย</div>
+            </div>
 
-                  <CTableDataCell>
-                    <div class="small text-muted mb-1">บันทึกล่าสุด</div>
-                    <strong class="activity-text">{{ item.activity }}</strong>
-                  </CTableDataCell>
-                </CTableRow>
-              </CTableBody>
+            <!-- Table -->
+            <div v-else class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <!-- Sortable headers -->
+                  <tr class="thead-row">
+                    <th class="th-sort" @click="sortBy('projectName')">
+                      ชื่อโครงการวิจัย / หัวหน้าโครงการ
+                      <span class="sort-ic">{{ sortIcon('projectName') }}</span>
+                    </th>
+                    <th class="th-sort" @click="sortBy('submitDate')">
+                      วันที่ยื่น
+                      <span class="sort-ic">{{ sortIcon('submitDate') }}</span>
+                    </th>
+                    <th class="th-sort" @click="sortBy('stageLabel')">
+                      สถานะ
+                      <span class="sort-ic">{{ sortIcon('stageLabel') }}</span>
+                    </th>
+                    <th>ขั้นตอนถัดไป</th>
+                    <th class="th-sort" @click="sortBy('activityMeta')">
+                      Activity
+                      <span class="sort-ic">{{ sortIcon('activityMeta') }}</span>
+                    </th>
+                    <th class="th-sort" @click="sortBy('stageLabel')">
+                      <span class="sort-ic">↕</span>
+                    </th>
+                  </tr>
+                  <!-- Sub-filter row -->
+                  <tr class="thead-sub">
+                    <th><input v-model="colFilter.projectName" class="col-fi" /></th>
+                    <th><input v-model="colFilter.submitDate"  class="col-fi" /></th>
+                    <th><input v-model="colFilter.stage"       class="col-fi" /></th>
+                    <th></th><th></th><th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(item, i) in paginatedItems"
+                    :key="item.id || i"
+                    class="tbody-row"
+                  >
+                    <td>
+                      <div class="td-title">{{ item.projectName }}</div>
+                      <div class="td-sub">{{ item.projectLeader }}</div>
+                    </td>
+                    <td><span class="td-date">{{ item.submitDate }}</span></td>
+                    <td>
+                      <span class="badge" :class="`badge-${item.stageBadgeColor}`">
+                        {{ item.stageLabel }}
+                      </span>
+                    </td>
+                    <td><span class="td-next">{{ item.nextAction }}</span></td>
+                    <td>
+                      <div class="td-act-msg">{{ item.activityMessage }}</div>
+                      <div class="td-act-meta">{{ item.activityMeta }}</div>
+                    </td>
+                    <td class="td-right">
+                      <button class="btn-show" @click.stop="goToDetail(item.id)">Show</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-            </CTable>
-          </CCardBody>
-        </CCard>
+            <!-- Pagination -->
+            <div v-if="totalPages > 1" class="pagi-bar">
+              <button class="pg-btn" :disabled="currentPage === 1" @click="currentPage = 1">«</button>
+              <button class="pg-btn" :disabled="currentPage === 1" @click="currentPage--">‹</button>
+              <button
+                v-for="p in visiblePages"
+                :key="p"
+                class="pg-btn"
+                :class="{ 'pg-active': p === currentPage }"
+                @click="currentPage = p"
+              >{{ p }}</button>
+              <button class="pg-btn" :disabled="currentPage === totalPages" @click="currentPage++">›</button>
+              <button class="pg-btn" :disabled="currentPage === totalPages" @click="currentPage = totalPages">»</button>
+            </div>
 
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- FAB -->
+    <button class="fab" title="สร้างโครงการใหม่" @click="onAdd">＋</button>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Dashboard',
+  name: "Dashboard",
 
   data() {
     return {
-      // Sidebar / Topbar state
-      sidebarExpanded: false,
-      lang: 'TH',
-      currentRoute: '/projects',
+      sidebarCollapsed: false,
+      activeNav: "dashboard",
+      allProjects: [],
+      loading: true,
+      searchText: "",
+      stageFilter: "",
+      activeFilter: "",
+      perPage: 10,
+      currentPage: 1,
+      sortKey: "",
+      sortDir: 1,
+      colFilter: { projectName: "", submitDate: "", stage: "" },
+
       navItems: [
-        { icon: 'grid', label: 'โครงการของฉัน', route: '/projects' },
-        { icon: 'bell', label: 'การแจ้งเตือน',  route: '/notifications' },
-        { icon: 'file', label: 'รายงาน',         route: '/reports' },
+        { key: "dashboard",   label: "Dashboard",      icon: "📊", route: null         },
+        { key: "attachments", label: "เอกสารแนบ",      icon: "📎", route: "Attachments" },
+        { key: "manual",      label: "คู่มือ / เกณฑ์", icon: "📘", route: "Manual"      },
       ],
-
-      // Table data
-      researchProjects: [],
-
-    // ── Notification dropdown ──
-    notifOpen: false,
-    notifications: [
-      {
-        id: 1, icon: 'person', iconClass: 'icon-blue',
-        title: 'การตอบรับเข้าร่วมโครงการ',
-        desc: 'ผศ.ดร.โอดี ยืนยันการเข้าร่วม "ระบบจัดการขยะอัจฉริยะ" แล้ว',
-        time: '10 นาทีที่แล้ว', read: false,
-      },
-      {
-        id: 2, icon: 'edit', iconClass: 'icon-orange',
-        title: 'แจ้งผลการพิจารณา: ให้แก้ไข RS-2568-000123',
-        desc: 'ส่งข้อเสนอโครงการเพื่อขอรับการพิจารณาใหม่',
-        time: '2 ชั่วโมงที่แล้ว', read: false,
-      },
-      {
-        id: 3, icon: 'check', iconClass: 'icon-green',
-        title: 'สถานะโครงการเปลี่ยนเป็น: รอตรวจสอบ',
-        desc: 'โครงการได้รับเลขรหัสโครงการแล้ว',
-        time: '1 วันที่แล้ว', read: true,
-      },
-      {
-        id: 4, icon: 'info', iconClass: 'icon-gray',
-        title: 'แจ้งปิดปรับปรุงระบบ',
-        desc: 'ระบบจะปิดปรับปรุงคืนวันเสาร์ที่ 15 ก.พ. 00:00–04:00 น.',
-        time: '1 วันที่แล้ว', read: true,
-      },
-      {
-        id: 5, icon: 'alert', iconClass: 'icon-orange',
-        title: 'ประธานสำนักแจ้งแก้ไขข้อมูล',
-        desc: 'กรุณาปรับปรุง "ความสอดคล้องกลยุทธศาสตร์" ก่อนส่งต่อ',
-        time: '2 วันที่แล้ว', read: true,
-      },
-    ],
-  }
-},
+    };
+  },
 
   async mounted() {
-    await this.fetchResearch()
+    await this.fetchResearch();
+  },
+
+  watch: {
+    searchText()  { this.currentPage = 1; },
+    stageFilter() { this.currentPage = 1; },
+    activeFilter(){ this.currentPage = 1; },
+    perPage()     { this.currentPage = 1; },
+    colFilter: { deep: true, handler() { this.currentPage = 1; } },
+  },
+
+  computed: {
+    currentNavLabel() {
+      return this.navItems.find(n => n.key === this.activeNav)?.label || "Dashboard";
+    },
+
+    stageSummary() {
+      return [
+        { key: "DRAFT",         label: "ร่าง",           icon: "📝" },
+        { key: "SUBMITTED",     label: "ยื่นแล้ว",       icon: "📤" },
+        { key: "NEED_REVISION", label: "ต้องแก้ไข",     icon: "⚠️"  },
+        { key: "IN_REVIEW",     label: "กำลังพิจารณา",  icon: "🔍" },
+        { key: "APPROVED",      label: "อนุมัติ",        icon: "✅" },
+      ].map(s => ({
+        ...s,
+        count: this.allProjects.filter(p => p.stage === s.key).length,
+      }));
+    },
+
+    nextActionItems() {
+      return this.allProjects.filter(p => p.stage === "NEED_REVISION" || p.stage === "DRAFT");
+    },
+
+    filteredItems() {
+      let list = [...this.allProjects];
+      if (this.activeFilter) list = list.filter(p => p.stage === this.activeFilter);
+      if (this.stageFilter)  list = list.filter(p => p.stage === this.stageFilter);
+      if (this.searchText) {
+        const q = this.searchText.toLowerCase();
+        list = list.filter(p =>
+          (p.projectName   || "").toLowerCase().includes(q) ||
+          (p.projectLeader || "").toLowerCase().includes(q)
+        );
+      }
+      if (this.colFilter.projectName) {
+        const q = this.colFilter.projectName.toLowerCase();
+        list = list.filter(p =>
+          (p.projectName   || "").toLowerCase().includes(q) ||
+          (p.projectLeader || "").toLowerCase().includes(q)
+        );
+      }
+      if (this.colFilter.submitDate) {
+        list = list.filter(p => (p.submitDate || "").includes(this.colFilter.submitDate));
+      }
+      if (this.colFilter.stage) {
+        const q = this.colFilter.stage.toLowerCase();
+        list = list.filter(p => (p.stageLabel || "").toLowerCase().includes(q));
+      }
+      if (this.sortKey) {
+        list.sort((a, b) =>
+          (a[this.sortKey] || "").toString()
+            .localeCompare((b[this.sortKey] || "").toString(), "th") * this.sortDir
+        );
+      }
+      return list;
+    },
+
+    totalPages() {
+      return Math.ceil(this.filteredItems.length / this.perPage) || 1;
+    },
+
+    paginatedItems() {
+      const s = (this.currentPage - 1) * this.perPage;
+      return this.filteredItems.slice(s, s + this.perPage);
+    },
+
+    visiblePages() {
+      const range = [];
+      const s = Math.max(1, this.currentPage - 2);
+      const e = Math.min(this.totalPages, this.currentPage + 2);
+      for (let i = s; i <= e; i++) range.push(i);
+      return range;
+    },
   },
 
   methods: {
     async fetchResearch() {
+      this.loading = true;
       try {
-        const res  = await fetch('http://localhost:5000/api/research')
-        const data = await res.json()
-        this.researchProjects = data.map(item => ({
-          id:           item._id,
-          projectName:  item.titleTH,
-          projectLeader: item.researchers?.mainResearcher?.name || '-',
-          submitDate:   item.createdAt
-            ? new Date(item.createdAt).toLocaleDateString('th-TH')
-            : '-',
-          progress: 50,
-          activity: item.updatedAt ? this.formatTimeAgo(item.updatedAt) : '-',
-        }))
+        const res  = await fetch("http://localhost:5000/api/research");
+        const data = await res.json();
+        this.allProjects = data.map(item => this.mapItem(item));
+        // Update nav badge for NEED_REVISION
+        const nrCount = this.allProjects.filter(p => p.stage === "NEED_REVISION").length;
+        if (nrCount > 0) this.navItems[0].badge = nrCount;
       } catch (err) {
-        console.error(err)
+        console.error("fetchResearch error:", err);
+        this.allProjects = [];
+      } finally {
+        this.loading = false;
       }
     },
 
-    progressColor(value) {
-      if (value <= 30) return 'danger'
-      if (value <= 60) return 'warning'
-      if (value <= 80) return 'primary'
-      return 'success'
+    mapItem(item) {
+      const stage      = this.inferStage(item);
+      const nextAction = this.inferNextAction(stage);
+      const { message, meta } = this.getLastActivityText(item);
+      return {
+        id:              item._id,
+        projectName:     item.titleTH || "(ไม่มีชื่อ)",
+        projectLeader:   item.researchers?.mainResearcher?.name || "-",
+        submitDate:      this.formatDate(item.createdAt),
+        stage,
+        stageLabel:      this.stageLabel(stage),
+        stageBadgeColor: this.stageBadgeColor(stage),
+        nextAction,
+        activityMessage: message,
+        activityMeta:    meta,
+      };
     },
 
-    goToDetail(id) {
-      this.$router.push({ name: 'Research', params: { id } })
+    inferStage(item) {
+      if (item.stage) return item.stage;
+      if (item.revisionRequested === true) return "NEED_REVISION";
+      const la = item.lastActivity;
+      if (la?.action === "CREATE") {
+        if (Math.abs(new Date(item.updatedAt) - new Date(item.createdAt)) < 60000)
+          return "DRAFT";
+      }
+      if (la?.action === "UPDATE") return "SUBMITTED";
+      return "DRAFT";
     },
 
-    onAdd() {
-      this.$router.push({ name: 'Research' })
+    inferNextAction(stage) {
+      return {
+        DRAFT:         "กรอกข้อมูลให้ครบและบันทึก",
+        SUBMITTED:     "รอเจ้าหน้าที่ตรวจสอบ",
+        NEED_REVISION: "แก้ไขตามข้อเสนอแนะและส่งใหม่",
+        IN_REVIEW:     "รอผลการพิจารณา",
+        APPROVED:      "ผ่านการพิจารณาแล้ว",
+      }[stage] || "-";
     },
 
-    onSearch() {
-      // implement search logic
+    stageLabel(stage) {
+      return {
+        DRAFT:         "ร่าง",
+        SUBMITTED:     "ยื่นแล้ว",
+        NEED_REVISION: "ต้องแก้ไข",
+        IN_REVIEW:     "กำลังพิจารณา",
+        APPROVED:      "อนุมัติ",
+      }[stage] || stage;
+    },
+
+    stageBadgeColor(stage) {
+      return {
+        DRAFT:         "secondary",
+        SUBMITTED:     "info",
+        NEED_REVISION: "warning",
+        IN_REVIEW:     "primary",
+        APPROVED:      "success",
+      }[stage] || "dark";
+    },
+
+    getLastActivityText(item) {
+      const la = item.lastActivity;
+      if (la?.message) {
+        return {
+          message: la.message,
+          meta:    `${la.by || ""} • ${this.formatTimeAgo(la.at || item.updatedAt)}`,
+        };
+      }
+      return { message: "บันทึกล่าสุด", meta: this.formatTimeAgo(item.updatedAt) };
+    },
+
+    formatDate(date) {
+      if (!date) return "-";
+      return new Date(date).toLocaleDateString("th-TH", {
+        year: "numeric", month: "short", day: "numeric",
+      });
     },
 
     formatTimeAgo(date) {
-      const diff    = Date.now() - new Date(date)
-      const minutes = Math.floor(diff / 60000)
-      const hours   = Math.floor(diff / 3600000)
-      const days    = Math.floor(diff / 86400000)
-      if (minutes < 1)  return 'เมื่อสักครู่'
-      if (minutes < 60) return `${minutes} นาทีที่แล้ว`
-      if (hours   < 24) return `${hours} ชั่วโมงที่แล้ว`
-      return `${days} วันที่แล้ว`
+      if (!date) return "-";
+      const diff    = Date.now() - new Date(date);
+      const minutes = Math.floor(diff / 60000);
+      const hours   = Math.floor(diff / 3600000);
+      const days    = Math.floor(diff / 86400000);
+      if (minutes < 1)  return "เมื่อสักครู่";
+      if (minutes < 60) return `${minutes} นาทีที่แล้ว`;
+      if (hours   < 24) return `${hours} ชั่วโมงที่แล้ว`;
+      return `${days} วันที่แล้ว`;
+    },
+
+    sortBy(key) {
+      if (this.sortKey === key) this.sortDir *= -1;
+      else { this.sortKey = key; this.sortDir = 1; }
+    },
+
+    sortIcon(key) {
+      if (this.sortKey !== key) return "↕";
+      return this.sortDir === 1 ? "↑" : "↓";
+    },
+
+    toggleFilter(key) {
+      this.activeFilter = this.activeFilter === key ? "" : key;
+      this.stageFilter  = "";
+    },
+
+    handleNav(item) {
+      this.activeNav = item.key;
+      if (item.route) this.$router.push({ name: item.route });
+    },
+
+    goToDetail(id) { this.$router.push({ name: "Research", params: { id } }); },
+    goToEdit(id)   { this.$router.push({ name: "Research", params: { id } }); },
+    onAdd()        { this.$router.push({ name: "Research" }); },
+
+    continueDraft() {
+      const draft = this.allProjects.find(p => p.stage === "DRAFT");
+      draft
+        ? this.$router.push({ name: "Research", params: { id: draft.id } })
+        : this.$router.push({ name: "Research" });
+    },
+
+    exportPDF() { this.$router.push("/report"); },
+
+    onLogout() {
+      // Clear session/token if needed, then redirect to login
+      this.$router.push({ name: "Login" });
     },
   },
-}
+};
 </script>
 
 <style scoped>
-/* ═══════════════════════════════════
+/* ═══════════════════════════════════════
    CSS Variables
-═══════════════════════════════════ */
+═══════════════════════════════════════ */
 :root {
-  --sidebar-width:  72px;
-  --sidebar-expanded-width: 240px;
-  --topbar-height:  60px;
-  --sidebar-bg:     #1a1a1a;
-  --topbar-bg:      #2d3a2e;
-  --accent:         #4a7c59;
-  --accent-light:   #c8e6c9;
+  --sb-bg:      #7b0d0d;
+  --sb-bg2:     #5a0a0a;
+  --sb-text:    #f5cece;
+  --sb-active:  rgba(255,255,255,0.18);
+  --sb-hover:   rgba(255,255,255,0.10);
+  --sb-width:   210px;
+  --sb-mini:    58px;
+  --blue:       #1d4ed8;
+  --blue-light: #eff6ff;
+  --yellow:     #f59e0b;
 }
 
-/* ═══════════════════════════════════
-   Layout
-═══════════════════════════════════ */
-.app-layout {
+/* ═══════════════════════════════════════
+   Shell layout
+═══════════════════════════════════════ */
+.app-shell {
   display: flex;
   min-height: 100vh;
+  background: #f0f4ff;
+  font-family: 'Sarabun', 'Noto Sans Thai', sans-serif;
 }
 
-.app-body {
-  margin-left: 72px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.app-body.sidebar-open {
-  margin-left: 240px;
-}
-
-/* ═══════════════════════════════════
-   Sidebar
-═══════════════════════════════════ */
+/* ═══════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════ */
 .sidebar {
-  width: 72px;
-  background: #574964;
+  width: var(--sb-width);
+  min-height: 100vh;
+  background: linear-gradient(180deg, #7b0d0d 0%, #5a0909 100%);
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  position: fixed;
-  top: 0; left: 0;
-  height: 100vh;
-  z-index: 200;
-  border-right: 1px solid #2a2a2a;
-  overflow: hidden;
-  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.sidebar.expanded { width: 240px; }
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;   /* เพิ่มบรรทัดนี้ */
-  height: 60px;
-  background: #111;
-  border-bottom: 1px solid #2a2a2a;
   flex-shrink: 0;
-}
-
-.sidebar-logo {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
+  box-shadow: 3px 0 20px rgba(0,0,0,0.22);
+  position: relative;
+  z-index: 100;
+  transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.32s ease;
+  will-change: width;
+}
+.sidebar.collapsed {
+  width: 0;
+  box-shadow: none;
 }
 
-.logo-text {
-  font-weight: 700;
-  font-size: 15px;
-  color: #c8e6c9;
-  letter-spacing: 2px;
-  white-space: nowrap;
-}
-
-.hamburger-btn {
-  flex-shrink: 0;
-  width: 72px;
-  height: 60px;
-  background: none;
-  border: none;
-  color: #aaa;
+/* Brand */
+.sidebar-brand {
   display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.hamburger-btn:hover { color: #c8e6c9; }
-
-.sidebar-subtitle {
-  height: 44px;
-  display: flex;
-  align-items: center;
-  padding: 0 20px;
+  gap: 10px;
+  padding: 20px 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
   overflow: hidden;
   flex-shrink: 0;
-  border-bottom: 1px solid #242424;
 }
-.sidebar-subtitle span {
-  font-size: 11.5px;
-  color: #6a8c6b;
-  white-space: nowrap;
-  font-weight: 500;
+.brand-logo {
+  width: 34px; height: 34px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
 }
+.brand-title { font-size: 1rem; font-weight: 700; color: #fff; line-height: 1.2; }
+.brand-sub   { font-size: 0.65rem; color: rgba(255,255,255,0.55); letter-spacing: 0.03em; }
 
+/* Nav */
 .sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 16px 10px;
   flex: 1;
+  padding: 10px 0;
+  overflow: hidden;
 }
 
+/* Nav items — stagger fade-in when sidebar opens */
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 14px;
-  height: 46px;
-  border-radius: 10px;
-  padding: 0 12px;
-  color: #888;
-  text-decoration: none;
+  gap: 11px;
+  padding: 11px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
   white-space: nowrap;
   overflow: hidden;
-  transition: background 0.2s, color 0.2s;
+  color: rgba(255,255,255,0.75);
+  animation: navFadeIn 0.3s ease both;
 }
-.nav-item:hover,
+
+/* Stagger each nav item */
+.sidebar-nav .nav-item:nth-child(1) { animation-delay: 0.06s; }
+.sidebar-nav .nav-item:nth-child(2) { animation-delay: 0.12s; }
+.sidebar-nav .nav-item:nth-child(3) { animation-delay: 0.18s; }
+
+@keyframes navFadeIn {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Reset animation when collapsed so it replays on open */
+.sidebar.collapsed .nav-item { animation: none; }
+
+.nav-item:hover  { background: rgba(255,255,255,0.10); color: #fff; }
 .nav-item.active {
-  background: #2a2a2a;
-  color: #c8e6c9;
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  font-weight: 600;
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: #fbbf24;
+  border-radius: 0 3px 3px 0;
+}
+.nav-icon  { font-size: 1.05rem; flex-shrink: 0; width: 22px; text-align: center; }
+.nav-label { font-size: 0.85rem; }
+.nav-badge {
+  margin-left: auto;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 1px 7px;
+  min-width: 20px;
+  text-align: center;
 }
 
-.nav-icon-wrap {
+/* Footer */
+.sidebar-footer {
+  border-top: 1px solid rgba(255,255,255,0.10);
+  padding: 6px 0;
+  overflow: hidden;
   flex-shrink: 0;
+}
+.logout-btn { color: rgba(255,255,255,0.6); }
+.logout-btn:hover { color: #fca5a5; background: rgba(239,68,68,0.18) !important; }
+
+/* ═══════════════════════════════════════
+   MAIN AREA
+═══════════════════════════════════════ */
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* ═══════════════════════════════════════
+   TOP HEADER
+═══════════════════════════════════════ */
+.top-header {
+  height: 52px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 22px;
+  padding: 0 20px;
+  gap: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  flex-shrink: 0;
 }
 
-.nav-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: inherit;
-}
-
-/* Overlay */
-.sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.35);
-  z-index: 199;
-}
-.overlay-fade-enter-active,
-.overlay-fade-leave-active { transition: opacity 0.28s ease; }
-.overlay-fade-enter-from,
-.overlay-fade-leave-to     { opacity: 0; }
-
-/* Fade-text transition */
-.fade-text-enter-active { transition: opacity 0.2s ease 0.1s, transform 0.2s ease 0.1s; }
-.fade-text-leave-active { transition: opacity 0.1s ease, transform 0.1s ease; }
-.fade-text-enter-from,
-.fade-text-leave-to     { opacity: 0; transform: translateX(-8px); }
-
-/* ═══════════════════════════════════
-   Topbar
-═══════════════════════════════════ */
-.topbar {
-  position: fixed;
-  top: 0;
-  right: 0;
-  height: 60px;
-  background: #28293D;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0 24px;
-  z-index: 100;
-  border-bottom: 1px solid #3a4a3b;
-  transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  color: #d0d0d0;
-}
-
-.lang-switcher {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 14px;
-}
-.lang-switcher span {
-  cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 4px;
-  color: #4b6791;
-  transition: color 0.2s;
-}
-.lang-switcher span.active { color: #000000; font-weight: 600; }
-.lang-switcher span:hover  { color: #CADEFC; }
-.lang-switcher .divider    { color: #555; cursor: default; }
-
-.bell-btn {
+/* ── Animated hamburger ─── */
+.hamburger {
   background: none;
   border: none;
-  color: #494949;
-  position: relative;
-  display: flex;
-  align-items: center;
   cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  transition: background 0.15s;
+  flex-shrink: 0;
 }
-.bell-badge {
-  position: absolute;
-  top: -2px; right: -2px;
-  width: 9px; height: 9px;
-  background: #ff0000;
-  border-radius: 50%;
-  border: 1.5px solid #ff0000;
+.hamburger:hover { background: #f1f5f9; }
+
+.hb-line {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #475569;
+  border-radius: 2px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity   0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              width     0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
 }
 
-.user-menu {
+/* Open state → animate to X */
+.hamburger.is-open .hb-line1 {
+  transform: translateY(7px) rotate(45deg);
+}
+.hamburger.is-open .hb-line2 {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.hamburger.is-open .hb-line3 {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.header-title  { font-weight: 600; color: #1e293b; font-size: 0.92rem; }
+.header-right  { margin-left: auto; }
+.header-user   { font-size: 0.82rem; color: #64748b; }
+
+/* ═══════════════════════════════════════
+   PAGE CONTENT
+═══════════════════════════════════════ */
+.page-content {
+  padding: 24px 28px;
+  flex: 1;
+}
+
+/* ── Summary Strip ───────────────────── */
+.summary-strip {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.strip-card {
+  flex: 1;
+  min-width: 110px;
+  background: #fff;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 8px rgba(29,78,216,0.07);
+  padding: 16px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+.strip-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(29,78,216,0.13);
+  border-color: #3b82f6;
+}
+.strip-card.strip-active { border-color: #1d4ed8; background: #eff6ff; }
+.strip-card.strip-NEED_REVISION { border-left: 4px solid var(--yellow); }
+.strip-card.strip-NEED_REVISION.strip-active { background: #fffbeb; border-color: var(--yellow); }
+
+.strip-icon  { font-size: 1.45rem; }
+.strip-count { font-size: 1.85rem; font-weight: 700; color: #1e3a8a; line-height: 1; }
+.strip-label { font-size: 0.7rem; color: #64748b; }
+
+/* ═══════════════════════════════════════
+   PANELS ROW (equal height)
+═══════════════════════════════════════ */
+.panels-row {
+  display: flex;
+  gap: 18px;
+  align-items: stretch; /* ← KEY for equal height */
+}
+
+/* ── Table Panel ─────────────────────── */
+.panel-table {
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(29,78,216,0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-card-header {
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 13px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.header-grid-icon  { font-size: 1rem; color: #3b82f6; }
+.table-card-title  { font-size: 0.88rem; color: #374151; }
+.table-card-title em { font-style: normal; color: #1d4ed8; font-weight: 600; }
+
+/* Quick buttons */
+.btn-quick {
+  border: none;
+  border-radius: 7px;
+  font-size: 0.76rem;
+  padding: 4px 11px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+.btn-quick:hover { opacity: 0.85; }
+.btn-success { background: #16a34a; color: #fff; }
+.btn-gray    { background: #64748b; color: #fff; }
+
+/* ── Filter Bar ──────────────────────── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  gap: 10px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+.filter-left, .filter-right {
   display: flex;
   align-items: center;
   gap: 8px;
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 8px;
-  transition: background 0.2s;
+  flex-wrap: wrap;
 }
-.user-menu:hover { background: rgba(255,255,255,0.08); }
+.filter-label { font-size: 0.8rem; color: #374151; white-space: nowrap; }
+.f-input {
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  outline: none;
+  background: #fff;
+  transition: border-color 0.15s;
+}
+.f-input:focus { border-color: #3b82f6; }
+.f-text    { width: 170px; }
+.f-select  { width: 130px; }
+.f-perpage { width: 62px; }
 
-.user-avatar {
+/* ── State boxes ─────────────────────── */
+.state-box  { text-align: center; padding: 48px 20px; }
+.state-text { font-size: 0.85rem; color: #94a3b8; margin-top: 8px; }
+.spinner {
   width: 34px; height: 34px;
+  border: 3px solid #dbeafe;
+  border-top-color: #3b82f6;
   border-radius: 50%;
-  background: #DEFCF9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
+  animation: spin 0.75s linear infinite;
+  margin: 0 auto;
 }
-.caret { font-size: 12px; color: #474646; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* ═══════════════════════════════════
-   Page content (ของเดิม)
-═══════════════════════════════════ */
-.page-wrapper {
-  margin-top: 60px;
-  background: linear-gradient(0deg, #fee9ce, #B2A6BE);
-  padding: 40px;
-  min-height: calc(100vh - 60px);
+/* ── Table ───────────────────────────── */
+.table-wrapper { overflow-x: auto; flex: 1; }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.845rem;
 }
 
-.clickable-row { cursor: pointer; }
-
-.table-card {
-  border-radius: 18px;
-  box-shadow: 0 15px 35px rgba(13, 110, 253, 0.08);
-  overflow: hidden;
+.thead-row th {
+  background: #fff;
+  color: #374151;
+  font-weight: 600;
+  padding: 10px 13px;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+  text-align: left;
 }
+.th-sort { cursor: pointer; }
+.th-sort:hover { background: #eff6ff; color: #1d4ed8; }
+.sort-ic { font-size: 0.7rem; color: #94a3b8; margin-left: 3px; }
 
-.table-card table { font-size: 0.9rem; }
+.thead-sub th {
+  background: #f8fafc;
+  padding: 5px 13px 6px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.col-fi {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 0.77rem;
+  height: 24px;
+  background: #fff;
+  outline: none;
+}
+.col-fi:focus { border-color: #3b82f6; }
 
-.table-card table th,
-.table-card table td {
-  padding: 1.3rem 1.5rem;
+.tbody-row td {
+  padding: 10px 13px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #fff;
   vertical-align: middle;
 }
+.tbody-row:hover td { background: #f0f7ff; }
 
-thead tr {  
-  background: #ffffff;
-  border-bottom: 2px solid #e5e7eb; 
+.td-title    { font-weight: 600; color: #1e293b; font-size: 0.86rem; line-height: 1.3; }
+.td-sub      { font-size: 0.74rem; color: #64748b; margin-top: 2px; }
+.td-date     { font-size: 0.8rem; color: #475569; white-space: nowrap; }
+.td-next     { font-size: 0.77rem; color: #475569; }
+.td-act-msg  { font-size: 0.79rem; font-weight: 500; color: #1e293b; }
+.td-act-meta { font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.td-right    { text-align: right; }
+
+/* Badge */
+.badge {
+  display: inline-block;
+  font-size: 0.73rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  color: #fff;
 }
-thead th { color: #111827;
-  border: none;
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.02em;
+.badge-secondary { background: #64748b; }
+.badge-info      { background: #0ea5e9; }
+.badge-warning   { background: #f59e0b; color: #1a1a2e; }
+.badge-primary   { background: #2563eb; }
+.badge-success   { background: #16a34a; }
+.badge-dark      { background: #1e293b; }
+
+/* Show button */
+.btn-show {
+  border: 1px solid #3b82f6;
+  background: transparent;
+  color: #3b82f6;
+  border-radius: 5px;
+  font-size: 0.76rem;
+  padding: 3px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
 }
+.btn-show:hover { background: #3b82f6; color: #fff; }
 
-.table-card tbody tr {
-  border-bottom: 1px solid #f1f3f9;
-  transition: all 0.2s ease;
-}
-.table-card tbody tr:hover {
-  background-color: #f4f8ff;
-  transform: scale(1.002);
-}
-
-.project-title  { font-size: 1rem; font-weight: 600; color: #111827; }
-.project-leader { font-size: 0.8rem; color: #6b7280; }
-.activity-text  { font-size: 0.95rem; color: #1f2d3d; }
-
-:deep(.progress)     { border-radius: 12px; background-color: #edf2ff; }
-:deep(.progress-bar) { border-radius: 12px; transition: width 0.6s ease; }
-
-.floating-buttons {
-  position: fixed;
-  bottom: 30px; right: 30px;
+/* ── Pagination ──────────────────────── */
+.pagi-bar {
   display: flex;
-  gap: 12px;
-  z-index: 999;
-}
-
-.fab-btn {
-  width: 50px; height: 50px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 25px rgba(13, 110, 253, 0.25);
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+.pg-btn {
+  min-width: 30px; height: 30px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #3b82f6;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.14s;
+  padding: 0 6px;
+}
+.pg-btn:hover:not(:disabled) { background: #eff6ff; border-color: #3b82f6; }
+.pg-btn:disabled { color: #cbd5e1; cursor: default; }
+.pg-active {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+  color: #fff !important;
+  font-weight: 700;
+}
+
+/* ── FAB ─────────────────────────────── */
+.fab {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  width: 52px; height: 52px;
+  background: #1d4ed8;
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  font-size: 1.7rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(29,78,216,0.38);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
   transition: all 0.2s ease;
 }
-.fab-btn:hover { transform: translateY(-3px); }
-
-/* ══ Notification Dropdown ══ */
-.notif-dropdown-wrap { position: relative; }
-
-.bell-btn {
-  background: none; border: none;
-  color: #c8e6c9; position: relative;
-  display: flex; align-items: center;
-  cursor: pointer; padding: 4px;
-  border-radius: 8px;
-  transition: background 0.2s;
+.fab:hover {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 12px 28px rgba(29,78,216,0.48);
 }
-.bell-btn:hover { background: rgba(255,255,255,0.1); }
-
-.bell-badge {
-  position: absolute; top: 2px; right: 2px;
-  width: 9px; height: 9px;
-  background: #ef5350; border-radius: 50%;
-  border: 1.5px solid #2d3a2e;
-}
-
-.dp-backdrop {
-  position: fixed; inset: 0; z-index: 149;
-}
-
-.dropdown-panel {
-  position: absolute;
-  top: calc(100% + 14px);
-  right: 0;
-  width: 360px;
-  background: #1e1e1e;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.45);
-  z-index: 150;
-  overflow: hidden;
-  border: 1px solid #2a2a2a;
-}
-
-.dropdown-panel::before {
-  content: '';
-  position: absolute;
-  top: -8px; right: 18px;
-  width: 16px; height: 16px;
-  background: #1e1e1e;
-  border-left: 1px solid #2a2a2a;
-  border-top: 1px solid #2a2a2a;
-  transform: rotate(45deg);
-  border-radius: 2px;
-}
-
-.dp-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 20px 12px;
-  border-bottom: 1px solid #2a2a2a;
-}
-.dp-title { font-size: 16px; font-weight: 700; color: #e0e0e0; }
-.dp-unread {
-  font-size: 12px; font-weight: 600; color: #fff;
-  background: #ef5350; padding: 2px 10px; border-radius: 99px;
-}
-
-.dp-list {
-  max-height: 320px; overflow-y: auto;
-  scrollbar-width: thin; scrollbar-color: #333 transparent;
-}
-.dp-list::-webkit-scrollbar { width: 4px; }
-.dp-list::-webkit-scrollbar-thumb { background: #333; border-radius: 99px; }
-
-.dp-item {
-  display: flex; align-items: flex-start; gap: 12px;
-  padding: 14px 20px;
-  border-bottom: 1px solid #2a2a2a;
-  cursor: pointer; transition: background 0.15s;
-  position: relative;
-}
-.dp-item:last-child { border-bottom: none; }
-.dp-item:hover { background: #252525; }
-.dp-item.unread { background: #1a2820; }
-.dp-item.unread:hover { background: #1e3025; }
-
-.dp-icon {
-  flex-shrink: 0; width: 36px; height: 36px;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  margin-top: 2px;
-}
-.icon-blue   { background: #1e3a5f; color: #60a5fa; }
-.icon-orange { background: #3d2408; color: #fb923c; }
-.icon-green  { background: #14301e; color: #4ade80; }
-.icon-gray   { background: #2a2a2a; color: #9ca3af; }
-
-.dp-content { flex: 1; min-width: 0; }
-.dp-item-title {
-  font-size: 13px; font-weight: 600; color: #e0e0e0;
-  line-height: 1.4; margin-bottom: 3px;
-  display: -webkit-box;  line-clamp: 1;   -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical; overflow: hidden;
-}
-.dp-item-desc {
-  font-size: 12px; color: #777; line-height: 1.4; margin-bottom: 5px;
-  display: -webkit-box;   line-clamp: 1;  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical; overflow: hidden;
-}
-.dp-item-time { font-size: 11px; color: #555; }
-
-.dp-dot {
-  flex-shrink: 0; width: 8px; height: 8px;
-  border-radius: 50%; background: #ef5350; margin-top: 6px;
-}
-
-.dp-footer {
-  padding: 12px 20px;
-  border-top: 1px solid #2a2a2a;
-}
-.dp-view-all {
-  width: 100%; padding: 10px;
-  background: #2a2a2a; border: none; border-radius: 10px;
-  color: #c8e6c9; font-size: 13px; font-weight: 600;
-  cursor: pointer; font-family: 'Sarabun', sans-serif;
-  transition: background 0.2s;
-}
-.dp-view-all:hover { background: #333; }
-
-.dropdown-enter-active { transition: opacity 0.18s ease, transform 0.18s ease; }
-.dropdown-leave-active { transition: opacity 0.12s ease, transform 0.12s ease; }
-.dropdown-enter-from,
-.dropdown-leave-to { opacity: 0; transform: translateY(-8px) scale(0.97); }
 </style>
