@@ -367,8 +367,8 @@ async submit() {
       fd.append("animalFile", this.form.animalDetail.file);
     }
 
-    // ✅ 3) ส่ง actor (ตอนนี้ยังไม่มี login ใช้ชื่อหัวหน้าโครงการแทน)
-    const actorName = this.form?.researchers?.mainResearcher?.name || "Unknown";
+    // // ✅ 3) ส่ง actor (ตอนนี้ยังไม่มี login ใช้ชื่อหัวหน้าโครงการแทน)
+    // const actorName = this.form?.researchers?.mainResearcher?.name || "Unknown";
 
     Swal.fire({
       title: "กำลังบันทึก...",
