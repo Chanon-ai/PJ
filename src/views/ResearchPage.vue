@@ -16,68 +16,68 @@
 
       <CCard class="shadow-sm w-100 mb-4 border-0">
         <GeneralInfoSection v-model:form="form" :budget-types="budgetTypes"
-        :research-type-options="researchTypeOptions" />
+          :research-type-options="researchTypeOptions" />
 
-      <ResearchDetailsSection v-model:form="form" :text-fields="textFields" :editor-option="editorOption" />
+        <ResearchDetailsSection v-model:form="form" :text-fields="textFields" :editor-option="editorOption" />
 
-      <CCard class="shadow-sm w-100 mb-4 border-0">
-        <CCardBody class="p-4 bg-white">
-          <ResearchSection12 v-model="form.activities" />
-        </CCardBody>
+        <CCard class="shadow-sm w-100 mb-4 border-0">
+          <CCardBody class="p-4 bg-white">
+            <ResearchSection12 v-model="form.activities" />
+          </CCardBody>
+        </CCard>
+
+        <BudgetOutcomesSection v-model:form="form" :outcomes="outcomes" :editor-option="editorOption" />
+
+        <EthicsSection v-model:form="form" :editor-option="editorOption" @file-upload="handleFileUpload" />
+        <SignatureSection v-model:form="form" />
+        <FileManagement v-model:files="files" @upload="handleFileUpload2" @remove="removeFile" @open="openFile"
+          @replace="triggerReplace" />
+        <CCard class="shadow-sm w-100 mb-4 border-0 last-activity-card">
+          <CCardBody class="p-3 bg-white">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+
+              <!-- Left -->
+              <div class="d-flex align-items-start gap-3">
+                <div class="activity-icon">
+                  <CIcon name="cil-history" size="lg" />
+                </div>
+
+                <div>
+                  <div class="small text-muted mb-1">บันทึกล่าสุด</div>
+
+                  <div v-if="lastActivity" class="fw-bold text-dark">
+                    {{ lastActivity.message }}
+                    <span class="text-muted fw-normal">โดย</span>
+                    <span class="text-primary">{{ lastActivity.by }}</span>
+                    <span class="text-muted fw-normal">({{ lastActivity.role }})</span>
+                  </div>
+
+                  <div v-else class="text-muted">ยังไม่มีการบันทึก</div>
+
+                  <div v-if="lastActivity" class="mt-2 d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge rounded-pill" :class="badgeClass(lastActivity.action)">
+                      {{ badgeText(lastActivity.action) }}
+                    </span>
+                    <span class="text-muted small">
+                      <CIcon name="cil-clock" class="me-1" />
+                      {{ formatTimeAgo(lastActivity.at) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right -->
+              <div class="text-end ms-auto" v-if="lastActivity">
+                <div class="small text-muted">เวลา</div>
+                <div class="fw-bold text-dark">{{ formatDateTime(lastActivity.at) }}</div>
+              </div>
+
+            </div>
+          </CCardBody>
+        </CCard>
+
       </CCard>
 
-      <BudgetOutcomesSection v-model:form="form" :outcomes="outcomes" :editor-option="editorOption" />
-       
-      <EthicsSection v-model:form="form" :editor-option="editorOption" @file-upload="handleFileUpload" />
-      <SignatureSection v-model:form="form" />
-      <FileManagement v-model:files="files" @upload="handleFileUpload2" @remove="removeFile" @open="openFile"
-        @replace="triggerReplace" />
-          <CCard class="shadow-sm w-100 mb-4 border-0 last-activity-card">
-  <CCardBody class="p-3 bg-white">
-    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-
-      <!-- Left -->
-      <div class="d-flex align-items-start gap-3">
-        <div class="activity-icon">
-          <CIcon name="cil-history" size="lg" />
-        </div>
-
-        <div>
-          <div class="small text-muted mb-1">บันทึกล่าสุด</div>
-
-          <div v-if="lastActivity" class="fw-bold text-dark">
-            {{ lastActivity.message }}
-            <span class="text-muted fw-normal">โดย</span>
-            <span class="text-primary">{{ lastActivity.by }}</span>
-            <span class="text-muted fw-normal">({{ lastActivity.role }})</span>
-          </div>
-
-          <div v-else class="text-muted">ยังไม่มีการบันทึก</div>
-
-          <div v-if="lastActivity" class="mt-2 d-flex align-items-center gap-2 flex-wrap">
-            <span class="badge rounded-pill" :class="badgeClass(lastActivity.action)">
-              {{ badgeText(lastActivity.action) }}
-            </span>
-            <span class="text-muted small">
-              <CIcon name="cil-clock" class="me-1" />
-              {{ formatTimeAgo(lastActivity.at) }}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right -->
-      <div class="text-end ms-auto" v-if="lastActivity">
-        <div class="small text-muted">เวลา</div>
-        <div class="fw-bold text-dark">{{ formatDateTime(lastActivity.at) }}</div>
-      </div>
-
-    </div>
-  </CCardBody>
-</CCard>
-         
-      </CCard>
-      
       <footer class="bg-white p-4 border-top d-flex justify-content-end shadow-lg sticky-footer">
         <CButton color="danger" variant="outline" class="px-5 font-weight-bold me-3" @click="resetForm">
           <CIcon name="cil-brush" class="me-2" /> ล้างข้อมูล
@@ -93,6 +93,11 @@
     </div>
 
     <input type="file" ref="replaceInput" style="display:none" @change="replaceFile" />
+
+    <!-- ซ่อนหน้า Report สำหรับ export -->
+    <div style="position:absolute; left:-9999px; top:0;">
+      <Report ref="reportComponent" :form="form" />
+    </div>
   </div>
 </template>
 
@@ -107,12 +112,14 @@ import FileManagement from "@/components/FileManagement.vue";
 import ResearchSection12 from "@/components/Section12.vue";
 import SignatureSection from "@/components/SignatureSection.vue";
 import Swal from 'sweetalert2'
-
+import Report from "@/views/Report.vue";
+import html2pdf from "html2pdf.js";
 
 export default {
   props: ['id'],
   name: "ResearchForm",
   components: {
+    Report,
     GeneralInfoSection,
     ResearchersSection,
     ResearchDetailsSection,
@@ -123,11 +130,11 @@ export default {
     SignatureSection
   },
   data() {
-    
+
     return {
       lastActivity: null,
       updateBar: { show: false, text: "", at: null },
-updateBarTimer: null,
+      updateBarTimer: null,
       editorOption: {
         placeholder: 'พิมพ์เนื้อหาที่นี่...',
         modules: {
@@ -260,7 +267,7 @@ updateBarTimer: null,
         integration: "",
         remark: ""
       }
-       
+
     };
   },
   watch: {
@@ -325,106 +332,106 @@ updateBarTimer: null,
     //       confirmButton: 'btn btn-primary'
     //     }
     //   });
-async submit() {
-  try {
-    console.log("SUBMIT CLICKED");
+    async submit() {
+      try {
+        console.log("SUBMIT CLICKED");
 
-    // ✅ 0) กำหนด url/method ให้ชัวร์ (นี่แหละที่มึงพังอยู่)
-    const id = this.$route.params.id;
-    const url = id ? `/api/research/${id}` : `/api/research`;
-    const method = id ? "PUT" : "POST";
+        // ✅ 0) กำหนด url/method ให้ชัวร์ (นี่แหละที่มึงพังอยู่)
+        const id = this.$route.params.id;
+        const url = id ? `/api/research/${id}` : `/api/research`;
+        const method = id ? "PUT" : "POST";
 
-    // ✅ 1) ทำสำเนา form แบบตัด File ออก (กัน JSON stringify พัง/ใหญ่เกิน)
-    const cleanForm = JSON.parse(JSON.stringify(this.form));
-    if (cleanForm.humanDetail) cleanForm.humanDetail.file = null;
-    if (cleanForm.animalDetail) cleanForm.animalDetail.file = null;
+        // ✅ 1) ทำสำเนา form แบบตัด File ออก (กัน JSON stringify พัง/ใหญ่เกิน)
+        const cleanForm = JSON.parse(JSON.stringify(this.form));
+        if (cleanForm.humanDetail) cleanForm.humanDetail.file = null;
+        if (cleanForm.animalDetail) cleanForm.animalDetail.file = null;
 
-    // (แนะนำ) ไม่ต้องเก็บ blob url ลง DB
-    if (cleanForm?.budgetData?.categories) {
-      cleanForm.budgetData.categories.forEach(cat => {
-        (cat.rows || []).forEach(r => {
-          r.fileUrl = null;
+        // (แนะนำ) ไม่ต้องเก็บ blob url ลง DB
+        if (cleanForm?.budgetData?.categories) {
+          cleanForm.budgetData.categories.forEach(cat => {
+            (cat.rows || []).forEach(r => {
+              r.fileUrl = null;
+            });
+          });
+        }
+
+        // ✅ 2) สร้าง FormData ให้ตรงกับ backend
+        const fd = new FormData();
+        fd.append("form", JSON.stringify(cleanForm));
+
+        // attachments (จาก FileManagement)
+        if (Array.isArray(this.files) && this.files.length) {
+          this.files.forEach((f) => {
+            if (f?.raw) fd.append("attachments", f.raw);
+          });
+        }
+
+        // humanFile / animalFile (จาก EthicsSection)
+        if (this.form?.humanDetail?.file) {
+          fd.append("humanFile", this.form.humanDetail.file);
+        }
+        if (this.form?.animalDetail?.file) {
+          fd.append("animalFile", this.form.animalDetail.file);
+        }
+
+        // // ✅ 3) ส่ง actor (ตอนนี้ยังไม่มี login ใช้ชื่อหัวหน้าโครงการแทน)
+        // const actorName = this.form?.researchers?.mainResearcher?.name || "Unknown";
+
+        Swal.fire({
+          title: "กำลังบันทึก...",
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading(),
         });
-      });
+
+        const res = await fetch(url, {
+          method,
+          body: fd,
+        });
+
+        const data = await res.json().catch(() => ({}));
+        console.log("SAVE RESPONSE JSON:", JSON.stringify(data, null, 2));
+        if (!res.ok) {
+          throw new Error(data?.error || `Save failed (${res.status})`);
+        }
+        // ✅ ตั้ง lastActivity ให้หน้าฟอร์ม + toast ใช้ได้
+        this.lastActivity = data?.lastActivity || {
+          message: "บันทึกข้อเสนอโครงการ",
+          by: this.form?.researchers?.mainResearcher?.name || "Unknown",
+          role: "หัวหน้าโครงการ",
+          at: new Date().toISOString(),
+        };
+
+        // ✅ เด้ง update bar
+        this.showUpdateBar(this.lastActivity);
+        // ✅ 5) ถ้า create ใหม่ แล้ว backend ส่ง id มา -> เปลี่ยน URL เป็นหน้าแก้ไขทันที
+        // เพื่อให้กดบันทึกรอบถัดไปเป็น PUT ไม่สร้างซ้ำ
+        if (!id && data?.id) {
+          this.$router.replace({ name: "Research", params: { id: data.id } });
+        }
+
+
+        Swal.fire({
+          icon: "success",
+          title: "บันทึกสำเร็จ",
+          text: data?.message || "บันทึกข้อมูลสำเร็จ",
+          confirmButtonText: "ตกลง",
+          buttonsStyling: false,
+          customClass: { confirmButton: "btn btn-primary" },
+        });
+
+      } catch (err) {
+        console.error(err);
+        Swal.fire({
+          icon: "error",
+          title: "บันทึกไม่สำเร็จ",
+          text: err?.message || "มีบางอย่างพัง",
+          confirmButtonText: "ปิด",
+          buttonsStyling: false,
+          customClass: { confirmButton: "btn btn-danger" },
+        });
+      }
     }
 
-    // ✅ 2) สร้าง FormData ให้ตรงกับ backend
-    const fd = new FormData();
-    fd.append("form", JSON.stringify(cleanForm));
-
-    // attachments (จาก FileManagement)
-    if (Array.isArray(this.files) && this.files.length) {
-      this.files.forEach((f) => {
-        if (f?.raw) fd.append("attachments", f.raw);
-      });
-    }
-
-    // humanFile / animalFile (จาก EthicsSection)
-    if (this.form?.humanDetail?.file) {
-      fd.append("humanFile", this.form.humanDetail.file);
-    }
-    if (this.form?.animalDetail?.file) {
-      fd.append("animalFile", this.form.animalDetail.file);
-    }
-
-    // // ✅ 3) ส่ง actor (ตอนนี้ยังไม่มี login ใช้ชื่อหัวหน้าโครงการแทน)
-    // const actorName = this.form?.researchers?.mainResearcher?.name || "Unknown";
-
-    Swal.fire({
-      title: "กำลังบันทึก...",
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading(),
-    });
-
-  const res = await fetch(url, {
-  method,
-  body: fd,
-});
-
-    const data = await res.json().catch(() => ({}));
-    console.log("SAVE RESPONSE JSON:", JSON.stringify(data, null, 2));
-    if (!res.ok) {
-      throw new Error(data?.error || `Save failed (${res.status})`);
-    }
-    // ✅ ตั้ง lastActivity ให้หน้าฟอร์ม + toast ใช้ได้
-this.lastActivity = data?.lastActivity || {
-  message: "บันทึกข้อเสนอโครงการ",
-  by: this.form?.researchers?.mainResearcher?.name || "Unknown",
-  role: "หัวหน้าโครงการ",
-  at: new Date().toISOString(),
-};
-
-// ✅ เด้ง update bar
-this.showUpdateBar(this.lastActivity);
-    // ✅ 5) ถ้า create ใหม่ แล้ว backend ส่ง id มา -> เปลี่ยน URL เป็นหน้าแก้ไขทันที
-    // เพื่อให้กดบันทึกรอบถัดไปเป็น PUT ไม่สร้างซ้ำ
-    if (!id && data?.id) {
-      this.$router.replace({ name: "Research", params: { id: data.id } });
-    }
-
-
-    Swal.fire({
-      icon: "success",
-      title: "บันทึกสำเร็จ",
-      text: data?.message || "บันทึกข้อมูลสำเร็จ",
-      confirmButtonText: "ตกลง",
-      buttonsStyling: false,
-      customClass: { confirmButton: "btn btn-primary" },
-    });
-
-  } catch (err) {
-    console.error(err);
-    Swal.fire({
-      icon: "error",
-      title: "บันทึกไม่สำเร็จ",
-      text: err?.message || "มีบางอย่างพัง",
-      confirmButtonText: "ปิด",
-      buttonsStyling: false,
-      customClass: { confirmButton: "btn btn-danger" },
-    });
-  }
-}
-     
     ,
     resetForm() {
       Swal.fire({
@@ -448,16 +455,27 @@ this.showUpdateBar(this.lastActivity);
     ,
     exportPDF() {
       this.$nextTick(() => {
-        localStorage.setItem("reportData", JSON.stringify(this.form))
-        this.$router.push("/report")
-      })
-      
+        const element =
+          this.$refs.reportComponent.$el;
+
+        const opt = {
+          margin: 0.5,
+          filename: "Research_RS1.pdf",
+          html2canvas: { scale: 2 },
+          jsPDF: { format: "a4", orientation: "portrait" }
+        };
+
+        html2pdf()
+          .set(opt)
+          .from(element)
+          .save();
+      });
     },
     async fetchResearchById(id) {
       try {
         const res = await fetch(`http://localhost:5000/api/research/${id}`)
         const data = await res.json()
-        
+
         this.form = {
           ...this.form,
           ...data,
@@ -466,49 +484,49 @@ this.showUpdateBar(this.lastActivity);
           standards: data.standards || [],
           researchStandard: data.researchStandard || []
         }
-      this.lastActivity = data?.lastActivity || null;
+        this.lastActivity = data?.lastActivity || null;
       } catch (err) {
         console.error(err)
       }
     }
     ,
     formatTimeAgo(date) {
-  if (!date) return "-";
-  const diff = Date.now() - new Date(date);
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
+      if (!date) return "-";
+      const diff = Date.now() - new Date(date);
+      const minutes = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
 
-  if (minutes < 1) return "เมื่อสักครู่";
-  if (minutes < 60) return `${minutes} นาทีที่แล้ว`;
-  if (hours < 24) return `${hours} ชั่วโมงที่แล้ว`;
-  return `${days} วันที่แล้ว`;
-},
-formatDateTime(date) {
-  if (!date) return "-";
-  return new Date(date).toLocaleString("th-TH");
-},
-showUpdateBar(act) {
-  if (!act) return;
-  this.updateBar.text = `${act.message} โดย ${act.by}`;
-  this.updateBar.at = act.at;
-  this.updateBar.show = true;
+      if (minutes < 1) return "เมื่อสักครู่";
+      if (minutes < 60) return `${minutes} นาทีที่แล้ว`;
+      if (hours < 24) return `${hours} ชั่วโมงที่แล้ว`;
+      return `${days} วันที่แล้ว`;
+    },
+    formatDateTime(date) {
+      if (!date) return "-";
+      return new Date(date).toLocaleString("th-TH");
+    },
+    showUpdateBar(act) {
+      if (!act) return;
+      this.updateBar.text = `${act.message} โดย ${act.by}`;
+      this.updateBar.at = act.at;
+      this.updateBar.show = true;
 
-  clearTimeout(this.updateBarTimer);
-  this.updateBarTimer = setTimeout(() => {
-    this.updateBar.show = false;
-  }, 4000);
-},
-badgeClass(action) {
-  if (action === "CREATE") return "bg-success";
-  if (action === "UPDATE") return "bg-primary";
-  return "bg-secondary";
-},
-badgeText(action) {
-  if (action === "CREATE") return "สร้างใหม่";
-  if (action === "UPDATE") return "อัปเดต";
-  return action || "กิจกรรม";
-},
+      clearTimeout(this.updateBarTimer);
+      this.updateBarTimer = setTimeout(() => {
+        this.updateBar.show = false;
+      }, 4000);
+    },
+    badgeClass(action) {
+      if (action === "CREATE") return "bg-success";
+      if (action === "UPDATE") return "bg-primary";
+      return "bg-secondary";
+    },
+    badgeText(action) {
+      if (action === "CREATE") return "สร้างใหม่";
+      if (action === "UPDATE") return "อัปเดต";
+      return action || "กิจกรรม";
+    },
   }
 };
 </script>
@@ -526,6 +544,7 @@ badgeText(action) {
   z-index: 1000;
   box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
 }
+
 .last-activity-card {
   border-left: 5px solid #321fdb;
 }
