@@ -1,65 +1,5 @@
 <template>
   <div class="app-layout">
-
-    <!-- ───────────── SIDEBAR ───────────── -->
-    <aside class="sidebar" :class="{ expanded: sidebarExpanded }">
-      <div class="sidebar-header">
-        <div class="sidebar-logo">
-          <span class="logo-text">LOGO</span>
-        </div>
-        <button class="hamburger-btn" @click="sidebarExpanded = !sidebarExpanded">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="6"  x2="21" y2="6"/>
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
-      </div>
-
-      <div class="sidebar-subtitle">
-        <Transition name="fade-text">
-          <span v-if="sidebarExpanded">ระบบพิจารณาข้อเสนอโครงการ</span>
-        </Transition>
-      </div>
-
-      <nav class="sidebar-nav">
-        <a v-for="item in navItems" :key="item.route" href="#"
-          class="nav-item"
-          :class="{ active: currentRoute === item.route }"
-          :title="!sidebarExpanded ? item.label : ''"
-          @click.prevent="currentRoute = item.route"
-        >
-          <span class="nav-icon-wrap">
-            <svg v-if="item.icon === 'grid'" width="22" height="22" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-              <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
-            </svg>
-            <svg v-else-if="item.icon === 'bell'" width="22" height="22" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-            <svg v-else-if="item.icon === 'file'" width="22" height="22" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14,2 14,8 20,8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-            </svg>
-            <svg v-else-if="item.icon === 'user'" width="22" height="22" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-          </span>
-          <Transition name="fade-text">
-            <span v-if="sidebarExpanded" class="nav-label">{{ item.label }}</span>
-          </Transition>
-        </a>
-      </nav>
-    </aside>
-
     <!-- Overlay -->
     <Transition name="overlay-fade">
       <div v-if="sidebarExpanded" class="sidebar-overlay" @click="sidebarExpanded = false" />
@@ -68,112 +8,7 @@
     <!-- ───────────── MAIN BODY ───────────── -->
     <div class="app-body" :class="{ 'sidebar-open': sidebarExpanded }">
 
-      <!-- TOPBAR -->
-      <header class="topbar" :style="{ left: sidebarExpanded ? '240px' : '72px' }">
-        <div class="topbar-right">
-          <div class="lang-switcher">
-            <span v-for="l in ['TH', 'EN']" :key="l"
-              :class="{ active: lang === l }" @click="lang = l">{{ l }}</span>
-            <span class="divider">|</span>
-          </div>
-           <div class="notif-dropdown-wrap">
-            <button class="bell-btn" @click="notifOpen = !notifOpen">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                </svg>
-                <span class="bell-badge" v-if="unreadCount > 0"></span>
-            </button>
-
-            <Transition name="dropdown">
-                <div v-if="notifOpen" class="dropdown-panel">
-
-                <div class="dp-header">
-                    <span class="dp-title">การแจ้งเตือน</span>
-                    <span class="dp-unread" v-if="unreadCount > 0">{{ unreadCount }} ใหม่</span>
-                </div>
-
-                <div class="dp-list">
-                    <div
-                    v-for="item in notifications.slice(0, 5)"
-                    :key="item.id"
-                    class="dp-item"
-                    :class="{ unread: !item.read }"
-                    @click="item.read = true; notifOpen = false; $router.push({ name: 'Notifications' })"
-                    >
-                    <div class="dp-icon" :class="item.iconClass">
-                        <svg v-if="item.icon === 'person'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                        </svg>
-                        <svg v-else-if="item.icon === 'edit'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                        <svg v-else-if="item.icon === 'check'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <svg v-else-if="item.icon === 'info'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="16" x2="12" y2="12"/>
-                        <line x1="12" y1="8" x2="12.01" y2="8"/>
-                        </svg>
-                        <svg v-else-if="item.icon === 'alert'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                        <line x1="12" y1="9" x2="12" y2="13"/>
-                        <line x1="12" y1="17" x2="12.01" y2="17"/>
-                        </svg>
-                    </div>
-
-                    <div class="dp-content">
-                        <div class="dp-item-title">{{ item.title }}</div>
-                        <div class="dp-item-desc">{{ item.desc }}</div>
-                        <div class="dp-item-time">{{ item.time }}</div>
-                    </div>
-
-                    <span v-if="!item.read" class="dp-dot"></span>
-                    </div>
-                </div>
-                    <div class="dp-footer">
-                        <button class="dp-view-all" @click="notifOpen = false; $router.push({ name: 'Notifications' })">
-                        ดูทั้งหมด
-                        </button>
-                    </div>
-                 </div>
-                </Transition>
-
-  <div v-if="notifOpen" class="dp-backdrop" @click="notifOpen = false" />
-</div>
-          <div class="user-menu">
-            <div class="user-avatar">👤</div>
-            <span class="caret">▾</span>
-          </div>
-        </div>
-      </header>
-
-      <!-- ───────────── NOTIFICATION PAGE ───────────── -->
-      <div class="page-wrapper">
-        <div class="notif-card">
-
-          <!-- Page Title + Filter tabs -->
-          <div class="notif-header">
-            <h1 class="page-title">การแจ้งเตือน</h1>
-            <div class="filter-tabs">
-              <button
-                v-for="tab in filterTabs" :key="tab.key"
-                class="filter-tab"
-                :class="{ active: activeFilter === tab.key }"
-                @click="activeFilter = tab.key"
-              >{{ tab.label }}</button>
-            </div>
-          </div>
-
+     
           <!-- Mark all read -->
           <div class="notif-toolbar" v-if="unreadCount > 0">
             <span class="unread-count">{{ unreadCount }} รายการยังไม่ได้อ่าน</span>
@@ -266,8 +101,6 @@
 
         </div>
       </div>
-    </div>
-  </div>
 </template>
 
 <script>

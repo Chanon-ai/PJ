@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import 'bootstrap-icons/font/bootstrap-icons.css'
@@ -12,7 +13,7 @@ import CIcon from '@coreui/icons-vue'
 import { iconsSet as icons } from './assets/icons/icons.js'
 
 const app = createApp(App)
-
+app.use(createPinia())
 app.use(router)
 app.use(CoreuiVue)
 app.provide('icons', icons)
