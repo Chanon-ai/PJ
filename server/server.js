@@ -58,6 +58,8 @@ const researchSchema = new mongoose.Schema(
     titleTH: String,
     titleEN: String,
 
+    stage: { type: String, default: 'DRAFT' },
+
     budgetType: String,
     researchType: String,
     selectedStrategy: String,
@@ -167,12 +169,17 @@ app.post(
       // ✅ lastActivity (CREATE)
       const actor = getActor(req, form);
       const now = new Date();
+      // ตรวจสอบสถานะ stage ที่ส่งมาจากหน้าเว็บ
+      const isSubmitted = form.stage === 'SUBMITTED';
+
       form.lastActivity = {
         by: actor.name,
         role: actor.role,
-        action: "CREATE",
+        // ถ้า stage เป็น SUBMITTED ให้ action เป็น SUBMIT ถ้าไม่ใช่มันคือการ UPDATE (บันทึกร่าง)
+        action: isSubmitted ? "SUBMIT" : "UPDATE",
         at: now,
-        message: "บันทึกข้อเสนอโครงการ",
+        // ✅ เปลี่ยนข้อความตามสถานะที่ผู้ใช้กด
+        message: isSubmitted ? "ยื่นข้อเสนอโครงการ" : "บันทึกร่างข้อเสนอโครงการ",
       };
 
       const doc = await Research.create(form);
@@ -227,12 +234,17 @@ app.put(
       // ✅ lastActivity (UPDATE)
       const actor = getActor(req, form);
       const now = new Date();
+      // ตรวจสอบสถานะ stage ที่ส่งมาจากหน้าเว็บ
+      const isSubmitted = form.stage === 'SUBMITTED';
+
       form.lastActivity = {
         by: actor.name,
         role: actor.role,
-        action: "UPDATE",
+        // ถ้า stage เป็น SUBMITTED ให้ action เป็น SUBMIT ถ้าไม่ใช่มันคือการ UPDATE (บันทึกร่าง)
+        action: isSubmitted ? "SUBMIT" : "UPDATE",
         at: now,
-        message: "บันทึกข้อเสนอโครงการ",
+        // ✅ เปลี่ยนข้อความตามสถานะที่ผู้ใช้กด
+        message: isSubmitted ? "ยื่นข้อเสนอโครงการ" : "บันทึกร่างข้อเสนอโครงการ",
       };
 
       // ✅ ต้องเก็บ updated doc แล้วส่ง lastActivity กลับ

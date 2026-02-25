@@ -10,27 +10,27 @@
       <div class="d-flex align-items-center mb-4">
         <h1 class="font-weight-bold text-gray mb-0">แบบเสนอโครงการวิจัย (RS1)</h1>
       </div>
-      <ResearchersSection v-model:form="form" @add-co="addCoResearcher" @remove-co="removeCoResearcher"
+      <ResearchersSection v-model:form="form" :disabled="isReadOnly" @add-co="addCoResearcher" @remove-co="removeCoResearcher"
         @add-adv="addAdvisor" @remove-adv="removeAdvisor" />
 
 
       <CCard class="shadow-sm w-100 mb-4 border-0">
-        <GeneralInfoSection v-model:form="form" :budget-types="budgetTypes"
+        <GeneralInfoSection v-model:form="form" :disabled="isReadOnly" :budget-types="budgetTypes"
           :research-type-options="researchTypeOptions" />
 
-        <ResearchDetailsSection v-model:form="form" :text-fields="textFields" :editor-option="editorOption" />
+        <ResearchDetailsSection v-model:form="form" :disabled="isReadOnly" :text-fields="textFields" :editor-option="editorOption" />
 
         <CCard class="shadow-sm w-100 mb-4 border-0">
           <CCardBody class="p-4 bg-white">
-            <ResearchSection12 v-model="form.activities" />
+            <ResearchSection12 v-model="form.activities" :disabled="isReadOnly" />
           </CCardBody>
         </CCard>
 
-        <BudgetOutcomesSection v-model:form="form" :outcomes="outcomes" :editor-option="editorOption" />
+        <BudgetOutcomesSection v-model:form="form" :disabled="isReadOnly" :outcomes="outcomes" :editor-option="editorOption" />
 
-        <EthicsSection v-model:form="form" :editor-option="editorOption" @file-upload="handleFileUpload" />
+        <EthicsSection v-model:form="form" :disabled="isReadOnly" :editor-option="editorOption" @file-upload="handleFileUpload" />
         <SignatureSection v-model:form="form" />
-        <FileManagement v-model:files="files" @upload="handleFileUpload2" @remove="removeFile" @open="openFile"
+        <FileManagement v-model:files="files" :disabled="isReadOnly" @upload="handleFileUpload2" @remove="removeFile" @open="openFile"
           @replace="triggerReplace" />
         <CCard class="shadow-sm w-100 mb-4 border-0 last-activity-card">
           <CCardBody class="p-3 bg-white">
@@ -78,16 +78,26 @@
 
       </CCard>
 
-      <footer class="bg-white p-4 border-top d-flex justify-content-end shadow-lg sticky-footer">
-        <CButton color="danger" variant="outline" class="px-5 font-weight-bold me-3" @click="resetForm">
-          <CIcon name="cil-brush" class="me-2" /> ล้างข้อมูล
+      <footer class="bg-white p-4 border-top d-flex justify-content-end shadow-lg sticky-footer flex-wrap gap-2">
+        <CButton v-if="!isReadOnly" color="danger" variant="outline" @click="resetForm">
+          ล้างข้อมูล
         </CButton>
-        <CButton color="primary" class="px-5 font-weight-bold shadow me-3" @click="submit">
-          <CIcon name="cil-save" class="me-2" /> บันทึกแบบเสนอโครงการ
+
+        <CButton v-if="!isReadOnly" color="primary" @click="submit">
+          บันทึกฉบับร่าง
         </CButton>
-        <CButton color="info" class="px-4 font-weight-bold text-white" @click="exportPDF">
-          <CIcon name="cil-print" class="me-2" /> Export PDF
+
+        <CButton color="info" class="text-white" @click="handleExport">
+          Export PDF
         </CButton>
+
+        <CButton v-if="!isReadOnly" color="success" class="text-white" @click="submitProject">
+          ยื่นโครงการ
+        </CButton>
+
+        <div v-else class="alert alert-info mb-0 py-2">
+          <CIcon name="cil-lock-locked" class="me-2" /> เอกสารนี้ถูกยื่นแล้ว ไม่สามารถแก้ไขได้
+        </div>
       </footer>
 
     </div>
@@ -128,6 +138,13 @@ export default {
     FileManagement,
     ResearchSection12,
     SignatureSection
+  },
+  computed: {
+    isReadOnly() {
+      // ถ้าสถานะเป็น ยื่นแล้ว, กำลังพิจารณา หรือ อนุมัติ จะไม่สามารถแก้ได้
+      const lockedStages = ['SUBMITTED', 'IN_REVIEW', 'APPROVED'];
+      return lockedStages.includes(this.form.stage);
+    }
   },
   data() {
 
@@ -288,6 +305,144 @@ export default {
   }
   ,
   methods: {
+    // 1. ฟังก์ชันตรวจสอบความครบถ้วนของข้อมูล
+    validateForm() {
+      const f = this.form;
+      const errors = [];
+
+      // ตรวจสอบข้อมูลพื้นฐาน
+      if (!f.titleTH) errors.push("ชื่อโครงการ (ภาษาไทย)");
+      if (!f.titleEN) errors.push("ชื่อโครงการ (ภาษาอังกฤษ)");
+      if (!f.budgetType) errors.push("ประเภททุน");
+      if (!f.researchType) errors.push("ประเภทงานวิจัย");
+
+      // ตรวจสอบหัวหน้าโครงการ
+      const main = f.researchers.mainResearcher;
+      if (!main.name || !main.affiliation || !main.email) {
+        errors.push("ข้อมูลหัวหน้าโครงการ (ชื่อ, สังกัด, อีเมล)");
+      }
+
+      // ตรวจสอบเนื้อหาวิจัย (Rich Text)
+      if (!f.keywords) errors.push("คำสำคัญ (Keywords)");
+      if (!f.objective) errors.push("วัตถุประสงค์");
+      if (!f.methodology) errors.push("วิธีดำเนินการวิจัย");
+
+      // ตรวจสอบแผนงาน
+      if (!f.activities || f.activities.length === 0) {
+        errors.push("แผนการดำเนินงาน (ต้องมีอย่างน้อย 1 กิจกรรม)");
+      }
+
+      if (errors.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'ข้อมูลยังไม่ครบถ้วน',
+          html: `<div class="text-start small">กรุณากรอกข้อมูลดังต่อไปนี้:<br><ul class="mt-2">${errors.map(e => `<li>${e}</li>`).join('')}</ul></div>`,
+          confirmButtonText: 'ไปกรอกข้อมูล',
+          customClass: { confirmButton: 'btn btn-warning' }
+        });
+        return false;
+      }
+      return true;
+    },
+
+    async submitProject() {
+      // 1. ตรวจสอบความครบถ้วนของข้อมูลก่อน
+      if (!this.validateForm()) return;
+
+      // 2. แสดงการยืนยันการยื่นโครงการ
+      const result = await Swal.fire({
+        title: 'ยืนยันการยื่นโครงการ?',
+        text: "เมื่อยื่นแล้วจะไม่สามารถแก้ไขข้อมูลได้จนกว่าเจ้าหน้าที่จะส่งกลับ",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'ยืนยันการยื่น',
+        cancelButtonText: 'ยกเลิก',
+        customClass: {
+          confirmButton: 'btn btn-success me-2',
+          cancelButton: 'btn btn-secondary'
+        },
+        buttonsStyling: false
+      });
+
+      if (!result.isConfirmed) return;
+
+      // 3. เริ่มกระบวนการส่งข้อมูลแบบเดียวกับ submit()
+      try {
+        const id = this.$route.params.id;
+        const url = id ? `/api/research/${id}` : `/api/research`;
+        const method = id ? "PUT" : "POST";
+
+        // กำหนดสถานะเป็น ยื่นแล้ว
+        this.form.stage = 'SUBMITTED';
+
+        const cleanForm = JSON.parse(JSON.stringify(this.form));
+
+        // ล้างค่า file ใน JSON (เพราะต้องส่งแยกทาง FormData)
+        if (cleanForm.humanDetail) cleanForm.humanDetail.file = null;
+        if (cleanForm.animalDetail) cleanForm.animalDetail.file = null;
+        if (cleanForm.plantDetail) cleanForm.plantDetail.file = null;
+
+        const fd = new FormData();
+        fd.append("form", JSON.stringify(cleanForm));
+
+        // แนบไฟล์หลัก
+        if (Array.isArray(this.files) && this.files.length) {
+          this.files.forEach((f) => {
+            if (f?.raw) fd.append("attachments", f.raw);
+          });
+        }
+
+        // แนบไฟล์จริยธรรมวิจัย
+        if (this.form?.humanDetail?.file) fd.append("humanFile", this.form.humanDetail.file);
+        if (this.form?.animalDetail?.file) fd.append("animalFile", this.form.animalDetail.file);
+        if (this.form?.plantDetail?.file) fd.append("plantFile", this.form.plantDetail.file);
+
+        Swal.fire({
+          title: "กำลังยื่นโครงการ...",
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading(),
+        });
+
+        const res = await fetch(url, { method, body: fd });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) throw new Error(data?.error || `Submission failed (${res.status})`);
+
+        // อัปเดตกิจกรรมล่าสุด
+        this.lastActivity = data?.lastActivity || {
+          message: "ยื่นข้อเสนอโครงการ",
+          by: this.form?.researchers?.mainResearcher?.name || "Unknown",
+          role: "หัวหน้าโครงการ",
+          at: new Date().toISOString(),
+        };
+
+        Swal.fire({
+          icon: "success",
+          title: "ยื่นโครงการสำเร็จ",
+          text: "ระบบได้รับการเสนอโครงการวิจัยเรียบร้อยแล้ว",
+          confirmButtonText: "กลับสู่หน้าหลัก",
+          customClass: { confirmButton: "btn btn-primary" },
+        }).then(() => {
+          // เมื่อยื่นสำเร็จ ให้กลับไปหน้า Dashboard
+          this.$router.push({ name: "Dashboard" });
+        });
+
+      } catch (err) {
+        console.error(err);
+        Swal.fire({
+          icon: "error",
+          title: "ยื่นโครงการไม่สำเร็จ",
+          text: err?.message || "เกิดข้อผิดพลาดในการส่งข้อมูล",
+          customClass: { confirmButton: "btn btn-danger" },
+        });
+      }
+    },
+
+    async handleExport() {
+      if (this.validateForm()) {
+        this.exportPDF();
+      }
+    },
     addCoResearcher() { this.form.researchers.coResearchers.push({ name: "", affiliation: "", phone: "", email: "", code: "", signature: "" }); },
     removeCoResearcher(index) { this.form.researchers.coResearchers.splice(index, 1); },
     addAdvisor() { this.form.researchers.advisors.push({ name: "", affiliation: "", phone: "", email: "", signature: "" }); },
@@ -477,6 +632,7 @@ export default {
         this.form = {
           ...this.form,
           ...data,
+          stage: data.stage || 'DRAFT',
           budgetData: hasCategories
             ? data.budgetData
             : {
@@ -542,6 +698,7 @@ export default {
       this.files = [];
 
       this.form = {
+        stage: 'DRAFT',
         titleTH: "",
         titleEN: "",
         budgetType: "",

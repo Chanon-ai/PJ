@@ -289,7 +289,7 @@ export default {
         if (Math.abs(new Date(item.updatedAt) - new Date(item.createdAt)) < 60000)
           return "DRAFT";
       }
-      if (la?.action === "UPDATE") return "SUBMITTED";
+      // if (la?.action === "UPDATE") return "SUBMITTED";
       return "DRAFT";
     },
 
