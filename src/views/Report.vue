@@ -301,25 +301,25 @@
           <!-- 14.1 -->
           <div class="group-title">14.1 ทุนนักวิจัยรุ่นใหม่</div>
           <div class="option">
-            <span>{{ check(form.selectedOutcomes.includes('14_1_fullpaper')) }}</span>
+            <span>{{ check(form.selectedOutcomes?.includes('14_1_fullpaper')) }}</span>
             นำเสนอในการประชุมวิชาการระดับนานาชาติ โดยต้องเป็นบทความฉบับสมบูรณ์ (Full paper)
             ที่ได้รับการตีพิมพ์ในรายงานสืบเนื่องจากการประชุม (Proceedings) หรือ
           </div>
 
           <div class="option">
-            <span>{{ check(form.selectedOutcomes.includes('14_1_tci')) }}</span>
+            <span>{{ check(form.selectedOutcomes?.includes('14_1_tci')) }}</span>
             ตีพิมพ์ในวารสารทางวิชาการที่มีรายชื่ออยู่ในฐานข้อมูล ตามประกาศ ก.พ.อ.
             เรื่องหลักเกณฑ์การพิจารณาวารสารทางวิชาการ สำหรับการเผยแพร่ผลงานทางวิชาการ พ.ศ.2562 หรือ
           </div>
 
           <div class="option">
-            <span>{{ check(form.selectedOutcomes.includes('14_1_international')) }}</span>
+            <span>{{ check(form.selectedOutcomes?.includes('14_1_international')) }}</span>
             ตีพิมพ์วารสารทางวิชาการระดับชาติ ต้องเป็นวารสารทางวิชาการที่ปรากฏในฐานข้อมูล
             TCI กลุ่มที่ 1 หรือ กลุ่มที่ 2 หรือ
           </div>
 
           <div class="option">
-            <span>{{ check(form.selectedOutcomes.includes('14_1_patent')) }}</span>
+            <span>{{ check(form.selectedOutcomes?.includes('14_1_patent')) }}</span>
             อนุสิทธิบัตร/สิทธิบัตร (มีเลขคำขอ)
           </div>
 
@@ -328,20 +328,20 @@
           <div class="group-title">14.2 ทุนพัฒนานักวิจัย</div>
 
           <div class="option">
-            <span>{{ check(form.selectedOutcomes.includes('14_2_international')) }}</span>
+            <span>{{ check(form.selectedOutcomes?.includes('14_2_international')) }}</span>
             ตีพิมพ์ในวารสารทางวิชาการระดับนานาชาติที่มีรายชื่ออยู่ในฐานข้อมูล
             ตามประกาศ ก.พ.อ. เรื่องหลักเกณฑ์การพิจารณาวารสารทางวิชาการ
             สำหรับการเผยแพร่ผลงานทางวิชาการ พ.ศ.2562 หรือ
           </div>
 
           <div class="option">
-            <span>{{ check(form.selectedOutcomes.includes('14_2_tci1')) }}</span>
+            <span>{{ check(form.selectedOutcomes?.includes('14_2_tci1')) }}</span>
             ตีพิมพ์วารสารทางวิชาการระดับชาติ ต้องเป็นวารสารทางวิชาการที่ปรากฏในฐานข้อมูล
             TCI กลุ่มที่ 1 เท่านั้น หรือ
           </div>
 
           <div class="option">
-            <span>{{ check(form.selectedOutcomes.includes('14_2_patent')) }}</span>
+            <span>{{ check(form.selectedOutcomes?.includes('14_2_patent')) }}</span>
             อนุสิทธิบัตร/สิทธิบัตร (มีเลขคำขอ)
           </div>
 
@@ -350,20 +350,20 @@
           <div class="group-title">14.3 ทุนวิจัยที่สอดคล้องกับยุทธศาสตร์</div>
 
           <div class="option">
-            <span>{{ check(form.selectedOutcomes.includes('14_3_international')) }}</span>
+            <span>{{ check(form.selectedOutcomes?.includes('14_3_international')) }}</span>
             ตีพิมพ์ในวารสารทางวิชาการระดับนานาชาติที่มีรายชื่ออยู่ในฐานข้อมูล
             ตามประกาศ ก.พ.อ. เรื่องหลักเกณฑ์การพิจารณาวารสารทางวิชาการ
             สำหรับการเผยแพร่ผลงานทางวิชาการ พ.ศ.2562 หรือ
           </div>
 
           <div class="option">
-            <span>{{ check(form.selectedOutcomes.includes('14_3_tci1')) }}</span>
+            <span>{{ check(form.selectedOutcomes?.includes('14_3_tci1')) }}</span>
             ตีพิมพ์วารสารทางวิชาการระดับชาติ ต้องเป็นวารสารทางวิชาการที่ปรากฏในฐานข้อมูล
             TCI กลุ่มที่ 1 เท่านั้น หรือ
           </div>
 
           <div class="option">
-            <span>{{ check(form.selectedOutcomes.includes('14_3_patent')) }}</span>
+            <span>{{ check(form.selectedOutcomes?.includes('14_3_patent')) }}</span>
             อนุสิทธิบัตร/สิทธิบัตร (มีเลขคำขอ)
           </div>
 
@@ -372,7 +372,7 @@
           <div class="group-title">14.4 ทุนต่อยอดสู่ภาคอุตสาหกรรม</div>
 
           <div class="option">
-            <span>{{ check(form.selectedOutcomes.includes('14_4_ip')) }}</span>
+            <span>{{ check(form.selectedOutcomes?.includes('14_4_ip')) }}</span>
             การยื่นจดทะเบียนทรัพย์สินทางปัญญา (มีเลขคำขอ)
           </div>
         </div>
@@ -462,62 +462,62 @@
 
           <!-- ไม่มีการวิจัยในมนุษย์ -->
           <div class="option">
-            <span>{{ check(form.researchStandard && form.researchStandard.includes('18_none')) }}</span>
+            <span>{{ check((form.researchStandard || []).includes('none')) }}</span>
             ไม่มีการทำวิจัยในมนุษย์ / ไม่มีการใช้สัตว์ทดลอง / การวิจัยที่เกี่ยวข้องกับงานด้านเทคโนโลยีชีวภาพสมัยใหม่
           </div>
 
           <!-- มีการทำวิจัยในมนุษย์ -->
           <div class="option">
-            <span>{{ check(form.researchStandard.includes('18_human')) }}</span>
+            <span>{{ check((form.researchStandard || []).includes('human')) }}</span>
             มีการทำวิจัยในมนุษย์
           </div>
 
           <div class="sub-option">
-            <span>{{ check(form.researchStandard.includes('18_human_certified')) }}</span>
+            <span>{{ check(form.humanDetail?.hasCert) }}</span>
             มีหนังสือรับรองจริยธรรมการวิจัยในมนุษย์ (แนบสำเนา 1 ชุด)
           </div>
 
           <div class="sub-option">
-            <span>{{ check(form.researchStandard.includes('18_human_pending')) }}</span>
+            <span>{{ check(form.humanDetail?.isPending) }}</span>
             ไม่มีหนังสือรับรองจริยธรรมการวิจัยในมนุษย์ อยู่ระหว่างเสนอคณะกรรมการจริยธรรมการวิจัยในมนุษย์พิจารณา
-            วันที่ยื่นโครงการ {{ form.humanDetail.applyDate }}
+            วันที่ยื่นโครงการ {{ form.humanDetail?.applyDate || '-' }}
           </div>
 
           <!-- มีการใช้สัตว์ทดลอง -->
           <div class="option">
-            <span>{{ check(form.researchStandard.includes('18_animal')) }}</span>
+            <span>{{ check((form.researchStandard || []).includes('animal')) }}</span>
             มีการใช้สัตว์ทดลอง
           </div>
 
           <div class="sub-option">
-            <span>{{ check(form.researchStandard.includes('18_animal_certified')) }}</span>
+            <span>{{ check(form.animalDetail?.hasCert) }}</span>
             มีหนังสือรับรองจรรยาบรรณสัตว์เพื่องานทางวิทยาศาสตร์ (แนบสำเนา 1 ชุด)
           </div>
 
           <div class="sub-option">
-            <span>{{ check(form.researchStandard.includes('18_animal_pending')) }}</span>
+            <span>{{ check(form.animalDetail?.isPending) }}</span>
             ไม่มีหนังสือรับรองจรรยาบรรณสัตว์เพื่องานทางวิทยาศาสตร์
             อยู่ระหว่างเสนอคณะกรรมการจรรยาบรรณสัตว์เพื่องานทางวิทยาศาสตร์
-            วันที่ยื่นโครงการ {{ form.animalDetail.applyDate }}
+            วันที่ยื่นโครงการ {{ form.animalDetail?.applyDate || '-' }}
           </div>
 
           <!-- พันธุ์พืช -->
           <div class="option">
-            <span>{{ check(form.researchStandard.includes('18_plant')) }}</span>
+            <span>{{ check((form.researchStandard || []).includes('plant')) }}</span>
             มีการเก็บ จัดหา หรือรวบรวมพันธุ์พืชพื้นเมืองทั่วไปและพันธุ์พืชป่าหรือส่วนหนึ่งส่วนใดของพันธุ์พืช เห็ด รา
             เพื่อการศึกษา ทดลอง หรือวิจัย ตามมาตรา 53 แห่งพระราชบัญญัติคุ้มครองพันธุ์พืช พ.ศ. 2542
           </div>
 
           <div class="sub-option">
-            <span>{{ check(form.researchStandard.includes('18_plant_certified')) }}</span>
+            <span>{{ check(form.plantDetail?.hasCert) }}</span>
             มีหนังสือแจ้งการเก็บ จัดหา หรือรวบรวมพันธุ์พืชฯ ตามมาตรา 53 แห่งพระราชบัญญัติคุ้มครองพันธุ์พืช พ.ศ. 2542
             (แนบสำเนา 1 ชุด)
           </div>
 
           <div class="sub-option">
-            <span>{{ check(form.researchStandard.includes('18_plant_pending')) }}</span>
+            <span>{{ check(form.plantDetail?.isPending) }}</span>
             ไม่มีหนังสือแจ้งการเก็บ จัดหา หรือรวบรวมพันธุ์พืชฯ อยู่ระหว่างดำเนินการ
-            วันที่ยื่นโครงการ {{ form.plantDetail.applyDate }}
+            วันที่ยื่นโครงการ {{ form.plantDetail?.applyDate || '-' }}
           </div>
 
 

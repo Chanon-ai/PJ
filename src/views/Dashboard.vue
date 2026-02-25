@@ -1,141 +1,141 @@
 <template>
-    <div class="page-content">
-      <div class="summary-strip mb-4">
-        <div v-for="s in stageSummary" :key="s.key" class="strip-card"
-          :class="[`strip-${s.key}`, { 'strip-active': activeFilter === s.key }]" @click="toggleFilter(s.key)">
-          <span class="strip-icon">{{ s.icon }}</span>
-          <span class="strip-count">{{ s.count }}</span>
-          <span class="strip-label">{{ s.label }}</span>
-        </div>
+  <div class="page-content">
+    <div class="summary-strip mb-4">
+      <div v-for="s in stageSummary" :key="s.key" class="strip-card"
+        :class="[`strip-${s.key}`, { 'strip-active': activeFilter === s.key }]" @click="toggleFilter(s.key)">
+        <span class="strip-icon">{{ s.icon }}</span>
+        <span class="strip-count">{{ s.count }}</span>
+        <span class="strip-label">{{ s.label }}</span>
       </div>
+    </div>
 
-      <!-- Table -->
-      <div class="panels-row">
+    <!-- Table -->
+    <div class="panels-row">
 
-        <!-- Main Table Card -->
-        <div class="panel-table">
-          <div class="table-card-header">
-            <div class="d-flex align-items-center gap-2">
-              <span class="header-grid-icon">⊞</span>
-              <span class="table-card-title">Advanced <em>CDataTable</em> application</span>
-            </div>
-            <div class="d-flex gap-2">
-              <button class="btn-quick btn-success" @click="continueDraft">📝 ร่างล่าสุด</button>
-              <button class="btn-quick btn-gray" @click="exportPDF">📄 Export PDF</button>
-            </div>
+      <!-- Main Table Card -->
+      <div class="panel-table">
+        <div class="table-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <span class="header-grid-icon">⊞</span>
+            <span class="table-card-title">Advanced <em>CDataTable</em> application</span>
           </div>
+          <div class="d-flex gap-2">
+            <button class="btn-quick btn-success" @click="continueDraft">📝 ร่างล่าสุด</button>
+            <button class="btn-quick btn-gray" @click="exportPDF">📄 Export PDF</button>
+          </div>
+        </div>
 
-          <!-- Filter bar (Image 1 style) -->
-          <div class="filter-bar">
-            <div class="filter-left">
-              <label class="filter-label">Filter:</label>
-              <input v-model="searchText" type="text" placeholder="type string…" class="f-input f-text" />
-              <select v-model="stageFilter" class="f-input f-select">
-                <option value="">ทุกสถานะ</option>
-                <option value="DRAFT">ร่าง</option>
-                <option value="SUBMITTED">ยื่นแล้ว</option>
-                <option value="NEED_REVISION">ต้องแก้ไข</option>
-                <option value="IN_REVIEW">กำลังพิจารณา</option>
-                <option value="APPROVED">อนุมัติ</option>
-              </select>
-            </div>
-            <div class="filter-right">
-              <label class="filter-label">Items per page:</label>
-              <select v-model="perPage" class="f-input f-perpage">
-                <option :value="5">5</option>
-                <option :value="10">10</option>
-                <option :value="25">25</option>
-              </select>
-            </div>
+        <!-- Filter bar (Image 1 style) -->
+        <div class="filter-bar">
+          <div class="filter-left">
+            <label class="filter-label">Filter:</label>
+            <input v-model="searchText" type="text" placeholder="type string…" class="f-input f-text" />
+            <select v-model="stageFilter" class="f-input f-select">
+              <option value="">ทุกสถานะ</option>
+              <option value="DRAFT">ร่าง</option>
+              <option value="SUBMITTED">ยื่นแล้ว</option>
+              <option value="NEED_REVISION">ต้องแก้ไข</option>
+              <option value="IN_REVIEW">กำลังพิจารณา</option>
+              <option value="APPROVED">อนุมัติ</option>
+            </select>
           </div>
+          <div class="filter-right">
+            <label class="filter-label">Items per page:</label>
+            <select v-model="perPage" class="f-input f-perpage">
+              <option :value="5">5</option>
+              <option :value="10">10</option>
+              <option :value="25">25</option>
+            </select>
+          </div>
+        </div>
 
-          <!-- Loading -->
-          <div v-if="loading" class="state-box">
-            <div class="spinner"></div>
-            <div class="state-text">กำลังโหลดข้อมูล…</div>
-          </div>
+        <!-- Loading -->
+        <div v-if="loading" class="state-box">
+          <div class="spinner"></div>
+          <div class="state-text">กำลังโหลดข้อมูล…</div>
+        </div>
 
-          <!-- Empty -->
-          <div v-else-if="filteredItems.length === 0" class="state-box">
-            <div style="font-size:2.2rem">📭</div>
-            <div class="state-text">ไม่พบโครงการวิจัย</div>
-          </div>
+        <!-- Empty -->
+        <div v-else-if="filteredItems.length === 0" class="state-box">
+          <div style="font-size:2.2rem">📭</div>
+          <div class="state-text">ไม่พบโครงการวิจัย</div>
+        </div>
 
-          <!-- Table -->
-          <div v-else class="table-wrapper">
-            <table class="data-table">
-              <thead>
-                <!-- Sortable headers -->
-                <tr class="thead-row">
-                  <th class="th-sort" @click="sortBy('projectName')">
-                    ชื่อโครงการวิจัย / หัวหน้าโครงการ
-                    <span class="sort-ic">{{ sortIcon('projectName') }}</span>
-                  </th>
-                  <th class="th-sort" @click="sortBy('submitDate')">
-                    วันที่ยื่น
-                    <span class="sort-ic">{{ sortIcon('submitDate') }}</span>
-                  </th>
-                  <th class="th-sort" @click="sortBy('stageLabel')">
-                    สถานะ
-                    <span class="sort-ic">{{ sortIcon('stageLabel') }}</span>
-                  </th>
-                  <th>ขั้นตอนถัดไป</th>
-                  <th class="th-sort" @click="sortBy('activityMeta')">
-                    Activity
-                    <span class="sort-ic">{{ sortIcon('activityMeta') }}</span>
-                  </th>
-                  <th class="th-right">Action</th>
-                </tr>
-                <!-- Sub-filter row -->
-                <tr class="thead-sub">
-                  <th><input v-model="colFilter.projectName" class="col-fi" /></th>
-                  <th><input v-model="colFilter.submitDate" class="col-fi" /></th>
-                  <th><input v-model="colFilter.stage" class="col-fi" /></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(item, i) in paginatedItems" :key="item.id || i" class="tbody-row">
-                  <td>
-                    <div class="td-title">{{ item.projectName }}</div>
-                    <div class="td-sub">{{ item.projectLeader }}</div>
-                  </td>
-                  <td><span class="td-date">{{ item.submitDate }}</span></td>
-                  <td>
-                    <span class="badge" :class="`badge-${item.stageBadgeColor}`">
-                      {{ item.stageLabel }}
-                    </span>
-                  </td>
-                  <td><span class="td-next">{{ item.nextAction }}</span></td>
-                  <td>
-                    <div class="td-act-msg">{{ item.activityMessage }}</div>
-                    <div class="td-act-meta">{{ item.activityMeta }}</div>
-                  </td>
-                  <td class="td-right">
-                    <button class="btn-show" @click.stop="goToDetail(item.id)">Show</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <!-- Pagination -->
-          <div v-if="totalPages > 1" class="pagi-bar">
-            <button class="pg-btn" :disabled="currentPage === 1" @click="currentPage = 1">«</button>
-            <button class="pg-btn" :disabled="currentPage === 1" @click="currentPage--">‹</button>
-            <button v-for="p in visiblePages" :key="p" class="pg-btn" :class="{ 'pg-active': p === currentPage }"
-              @click="currentPage = p">{{ p }}</button>
-            <button class="pg-btn" :disabled="currentPage === totalPages" @click="currentPage++">›</button>
-            <button class="pg-btn" :disabled="currentPage === totalPages" @click="currentPage = totalPages">»</button>
-          </div>
+        <!-- Table -->
+        <div v-else class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <!-- Sortable headers -->
+              <tr class="thead-row">
+                <th class="th-sort" @click="sortBy('projectName')">
+                  ชื่อโครงการวิจัย / หัวหน้าโครงการ
+                  <span class="sort-ic">{{ sortIcon('projectName') }}</span>
+                </th>
+                <th class="th-sort" @click="sortBy('submitDate')">
+                  วันที่ยื่น
+                  <span class="sort-ic">{{ sortIcon('submitDate') }}</span>
+                </th>
+                <th class="th-sort" @click="sortBy('stageLabel')">
+                  สถานะ
+                  <span class="sort-ic">{{ sortIcon('stageLabel') }}</span>
+                </th>
+                <th>ขั้นตอนถัดไป</th>
+                <th class="th-sort" @click="sortBy('activityMeta')">
+                  Activity
+                  <span class="sort-ic">{{ sortIcon('activityMeta') }}</span>
+                </th>
+                <th class="th-right">Action</th>
+              </tr>
+              <!-- Sub-filter row -->
+              <tr class="thead-sub">
+                <th><input v-model="colFilter.projectName" class="col-fi" /></th>
+                <th><input v-model="colFilter.submitDate" class="col-fi" /></th>
+                <th><input v-model="colFilter.stage" class="col-fi" /></th>
+                <th></th>
+                <th></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, i) in paginatedItems" :key="item.id || i" class="tbody-row">
+                <td>
+                  <div class="td-title">{{ item.projectName }}</div>
+                  <div class="td-sub">{{ item.projectLeader }}</div>
+                </td>
+                <td><span class="td-date">{{ item.submitDate }}</span></td>
+                <td>
+                  <span class="badge" :class="`badge-${item.stageBadgeColor}`">
+                    {{ item.stageLabel }}
+                  </span>
+                </td>
+                <td><span class="td-next">{{ item.nextAction }}</span></td>
+                <td>
+                  <div class="td-act-msg">{{ item.activityMessage }}</div>
+                  <div class="td-act-meta">{{ item.activityMeta }}</div>
+                </td>
+                <td class="td-right">
+                  <button class="btn-show" @click.stop="goToDetail(item.id)">Show</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="pagi-bar">
+          <button class="pg-btn" :disabled="currentPage === 1" @click="currentPage = 1">«</button>
+          <button class="pg-btn" :disabled="currentPage === 1" @click="currentPage--">‹</button>
+          <button v-for="p in visiblePages" :key="p" class="pg-btn" :class="{ 'pg-active': p === currentPage }"
+            @click="currentPage = p">{{ p }}</button>
+          <button class="pg-btn" :disabled="currentPage === totalPages" @click="currentPage++">›</button>
+          <button class="pg-btn" :disabled="currentPage === totalPages" @click="currentPage = totalPages">»</button>
         </div>
       </div>
     </div>
-    <button class="fab" title="สร้างโครงการใหม่" @click="onAdd">＋</button>
+  </div>
+  <button class="fab" title="สร้างโครงการใหม่" @click="onAdd">＋</button>
 </template>
 
-<script>  
+<script>
 export default {
   name: "Dashboard",
   data() {
@@ -368,21 +368,23 @@ export default {
       this.stageFilter = "";
     },
 
-    goToDetail(id) { this.$router.push({ name: "Research", params: { id } }); },
-    goToEdit(id) { this.$router.push({ name: "Research", params: { id } }); },
-    onAdd() { this.$router.push({ name: "Research" }); },
+    goToDetail(id) { this.$router.push({ name: "ResearchEdit", params: { id } }); },
+    goToEdit(id) { this.$router.push({ name: "ResearchEdit", params: { id } }); },
+    onAdd() { this.$router.push({ name: "ResearchCreate" }); },
 
     continueDraft() {
       const draft = this.allProjects.find(p => p.stage === "DRAFT");
-      draft
-        ? this.$router.push({ name: "Research", params: { id: draft.id } })
-        : this.$router.push({ name: "Research" });
+
+      if (draft) {
+        this.$router.push({ name: "ResearchEdit", params: { id: draft.id } });
+      } else {
+        this.$router.push({ name: "ResearchCreate" });
+      }
     },
 
     exportPDF() { this.$router.push("/report"); },
 
     onLogout() {
-      // Clear session/token if needed, then redirect to login
       this.$router.push({ name: "Login" });
     },
   },
