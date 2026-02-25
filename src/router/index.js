@@ -11,7 +11,7 @@ const routes = [
   {
     path: '/',
     component: AppLayout,
-    children: [ 
+    children: [
       {
         path: '',
         redirect: 'dashboard'
@@ -23,9 +23,14 @@ const routes = [
       },
       {
         path: 'research/:id?',
-        name: 'Research',
+        name: 'ResearchEdit',
         component: Research,
         props: true
+      },
+      {
+        path: '/research',
+        name: 'ResearchCreate',
+        component: Research
       },
       {
         path: 'report',

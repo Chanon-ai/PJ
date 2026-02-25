@@ -10,89 +10,104 @@
       <div class="d-flex align-items-center mb-4">
         <h1 class="font-weight-bold text-gray mb-0">แบบเสนอโครงการวิจัย (RS1)</h1>
       </div>
-      <ResearchersSection v-model:form="form" @add-co="addCoResearcher" @remove-co="removeCoResearcher"
+      <ResearchersSection v-model:form="form" :disabled="isReadOnly" @add-co="addCoResearcher" @remove-co="removeCoResearcher"
         @add-adv="addAdvisor" @remove-adv="removeAdvisor" />
 
 
       <CCard class="shadow-sm w-100 mb-4 border-0">
-        <GeneralInfoSection v-model:form="form" :budget-types="budgetTypes"
-        :research-type-options="researchTypeOptions" />
+        <GeneralInfoSection v-model:form="form" :disabled="isReadOnly" :budget-types="budgetTypes"
+          :research-type-options="researchTypeOptions" />
 
-      <ResearchDetailsSection v-model:form="form" :text-fields="textFields" :editor-option="editorOption" />
+        <ResearchDetailsSection v-model:form="form" :disabled="isReadOnly" :text-fields="textFields" :editor-option="editorOption" />
 
-      <CCard class="shadow-sm w-100 mb-4 border-0">
-        <CCardBody class="p-4 bg-white">
-          <ResearchSection12 v-model="form.activities" />
-        </CCardBody>
+        <CCard class="shadow-sm w-100 mb-4 border-0">
+          <CCardBody class="p-4 bg-white">
+            <ResearchSection12 v-model="form.activities" :disabled="isReadOnly" />
+          </CCardBody>
+        </CCard>
+
+        <BudgetOutcomesSection v-model:form="form" :disabled="isReadOnly" :outcomes="outcomes" :editor-option="editorOption" />
+
+        <EthicsSection v-model:form="form" :disabled="isReadOnly" :editor-option="editorOption" @file-upload="handleFileUpload" />
+        <SignatureSection v-model:form="form" />
+        <FileManagement v-model:files="files" :disabled="isReadOnly" @upload="handleFileUpload2" @remove="removeFile" @open="openFile"
+          @replace="triggerReplace" />
+        <CCard class="shadow-sm w-100 mb-4 border-0 last-activity-card">
+          <CCardBody class="p-3 bg-white">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+
+              <!-- Left -->
+              <div class="d-flex align-items-start gap-3">
+                <div class="activity-icon">
+                  <CIcon name="cil-history" size="lg" />
+                </div>
+
+                <div>
+                  <div class="small text-muted mb-1">บันทึกล่าสุด</div>
+
+                  <div v-if="lastActivity" class="fw-bold text-dark">
+                    {{ lastActivity.message }}
+                    <span class="text-muted fw-normal">โดย</span>
+                    <span class="text-primary">{{ lastActivity.by }}</span>
+                    <span class="text-muted fw-normal">({{ lastActivity.role }})</span>
+                  </div>
+
+                  <div v-else class="text-muted">ยังไม่มีการบันทึก</div>
+
+                  <div v-if="lastActivity" class="mt-2 d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge rounded-pill" :class="badgeClass(lastActivity.action)">
+                      {{ badgeText(lastActivity.action) }}
+                    </span>
+                    <span class="text-muted small">
+                      <CIcon name="cil-clock" class="me-1" />
+                      {{ formatTimeAgo(lastActivity.at) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right -->
+              <div class="text-end ms-auto" v-if="lastActivity">
+                <div class="small text-muted">เวลา</div>
+                <div class="fw-bold text-dark">{{ formatDateTime(lastActivity.at) }}</div>
+              </div>
+
+            </div>
+          </CCardBody>
+        </CCard>
+
       </CCard>
 
-      <BudgetOutcomesSection v-model:form="form" :outcomes="outcomes" :editor-option="editorOption" />
-       
-      <EthicsSection v-model:form="form" :editor-option="editorOption" @file-upload="handleFileUpload" />
-      <SignatureSection v-model:form="form" />
-      <FileManagement v-model:files="files" @upload="handleFileUpload2" @remove="removeFile" @open="openFile"
-        @replace="triggerReplace" />
-          <CCard class="shadow-sm w-100 mb-4 border-0 last-activity-card">
-  <CCardBody class="p-3 bg-white">
-    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+      <footer class="bg-white p-4 border-top d-flex justify-content-end shadow-lg sticky-footer flex-wrap gap-2">
+        <CButton v-if="!isReadOnly" color="danger" variant="outline" @click="resetForm">
+          ล้างข้อมูล
+        </CButton>
 
-      <!-- Left -->
-      <div class="d-flex align-items-start gap-3">
-        <div class="activity-icon">
-          <CIcon name="cil-history" size="lg" />
+        <CButton v-if="!isReadOnly" color="primary" @click="submit">
+          บันทึกฉบับร่าง
+        </CButton>
+
+        <CButton color="info" class="text-white" @click="handleExport">
+          Export PDF
+        </CButton>
+
+        <CButton v-if="!isReadOnly" color="success" class="text-white" @click="submitProject">
+          ยื่นโครงการ
+        </CButton>
+
+        <div v-else class="alert alert-info mb-0 py-2">
+          <CIcon name="cil-lock-locked" class="me-2" /> เอกสารนี้ถูกยื่นแล้ว ไม่สามารถแก้ไขได้
         </div>
-
-        <div>
-          <div class="small text-muted mb-1">บันทึกล่าสุด</div>
-
-          <div v-if="lastActivity" class="fw-bold text-dark">
-            {{ lastActivity.message }}
-            <span class="text-muted fw-normal">โดย</span>
-            <span class="text-primary">{{ lastActivity.by }}</span>
-            <span class="text-muted fw-normal">({{ lastActivity.role }})</span>
-          </div>
-
-          <div v-else class="text-muted">ยังไม่มีการบันทึก</div>
-
-          <div v-if="lastActivity" class="mt-2 d-flex align-items-center gap-2 flex-wrap">
-            <span class="badge rounded-pill" :class="badgeClass(lastActivity.action)">
-              {{ badgeText(lastActivity.action) }}
-            </span>
-            <span class="text-muted small">
-              <CIcon name="cil-clock" class="me-1" />
-              {{ formatTimeAgo(lastActivity.at) }}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right -->
-      <div class="text-end ms-auto" v-if="lastActivity">
-        <div class="small text-muted">เวลา</div>
-        <div class="fw-bold text-dark">{{ formatDateTime(lastActivity.at) }}</div>
-      </div>
-
-    </div>
-  </CCardBody>
-</CCard>
-         
-      </CCard>
-      
-      <footer class="bg-white p-4 border-top d-flex justify-content-end shadow-lg sticky-footer">
-        <CButton color="danger" variant="outline" class="px-5 font-weight-bold me-3" @click="resetForm">
-          <CIcon name="cil-brush" class="me-2" /> ล้างข้อมูล
-        </CButton>
-        <CButton color="primary" class="px-5 font-weight-bold shadow me-3" @click="submit">
-          <CIcon name="cil-save" class="me-2" /> บันทึกแบบเสนอโครงการ
-        </CButton>
-        <CButton color="info" class="px-4 font-weight-bold text-white" @click="exportPDF">
-          <CIcon name="cil-print" class="me-2" /> Export PDF
-        </CButton>
       </footer>
 
     </div>
 
     <input type="file" ref="replaceInput" style="display:none" @change="replaceFile" />
+
+    <!-- ซ่อนหน้า Report สำหรับ export -->
+    <div style="position:absolute; left:-9999px; top:0;">
+      <Report ref="reportComponent" :form="form" />
+    </div>
   </div>
 </template>
 
@@ -107,12 +122,14 @@ import FileManagement from "@/components/FileManagement.vue";
 import ResearchSection12 from "@/components/Section12.vue";
 import SignatureSection from "@/components/SignatureSection.vue";
 import Swal from 'sweetalert2'
-
+import Report from "@/views/Report.vue";
+import html2pdf from "html2pdf.js";
 
 export default {
   props: ['id'],
   name: "ResearchForm",
   components: {
+    Report,
     GeneralInfoSection,
     ResearchersSection,
     ResearchDetailsSection,
@@ -122,12 +139,19 @@ export default {
     ResearchSection12,
     SignatureSection
   },
+  computed: {
+    isReadOnly() {
+      // ถ้าสถานะเป็น ยื่นแล้ว, กำลังพิจารณา หรือ อนุมัติ จะไม่สามารถแก้ได้
+      const lockedStages = ['SUBMITTED', 'IN_REVIEW', 'APPROVED'];
+      return lockedStages.includes(this.form.stage);
+    }
+  },
   data() {
-    
+
     return {
       lastActivity: null,
       updateBar: { show: false, text: "", at: null },
-updateBarTimer: null,
+      updateBarTimer: null,
       editorOption: {
         placeholder: 'พิมพ์เนื้อหาที่นี่...',
         modules: {
@@ -190,13 +214,13 @@ updateBarTimer: null,
         { value: 'ด้านสังคมศาสตร์และมนุษยศาสตร์', label: 'ด้านสังคมศาสตร์และมนุษยศาสตร์' }
       ],
       textFields: [
-        { label: "5) คำสำคัญ (Keywords)", model: "keywords" },
-        { label: "6) ความสำคัญของปัญหาและแนวคิด", model: "importance" },
-        { label: "7) วัตถุประสงค์", model: "objective" },
-        { label: "8) ทบทวนวรรณกรรม", model: "literature" },
-        { label: "9) เอกสารอ้างอิง", model: "reference" },
-        { label: "10) วิธีดำเนินการวิจัย", model: "methodology" },
-        { label: "11) ขอบเขตการวิจัย", model: "scope" }
+        { label: "5. คำสำคัญ (Keywords)", model: "keywords" },
+        { label: "6. ความสำคัญของปัญหาและแนวคิด", model: "importance" },
+        { label: "7. วัตถุประสงค์", model: "objective" },
+        { label: "8. ทบทวนวรรณกรรม", model: "literature" },
+        { label: "9. เอกสารอ้างอิง", model: "reference" },
+        { label: "10. วิธีดำเนินการวิจัย", model: "methodology" },
+        { label: "11. ขอบเขตการวิจัย", model: "scope" }
       ],
       outcomes: {
         newResearcher: [
@@ -234,15 +258,13 @@ updateBarTimer: null,
         researchType: "",
         budgetSubTypes: [],
         selectedOutcomes: [],
-        standards: [],
         researchStandard: [],
         socialTransfer: "",
         mainSignature: "",
         activities: [],
         humanDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
         animalDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
-        plantDetail: { applyDate: '' },
-
+        plantDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
         researchers: {
           mainResearcher: { name: "", affiliation: "", phone: "", email: "", code: "", signature: "" },
           coResearchers: [],
@@ -260,10 +282,21 @@ updateBarTimer: null,
         integration: "",
         remark: ""
       }
-       
+
     };
   },
   watch: {
+    '$route.params.id': {
+      immediate: true,
+      async handler(id) {
+        if (!id) {
+          this.initNewForm();
+        } else {
+          await this.fetchResearchById(id);
+        }
+      }
+    },
+
     'form.budgetType'(newVal, oldVal) {
       if (oldVal && newVal !== oldVal) {
         this.form.selectedOutcomes = []
@@ -271,21 +304,159 @@ updateBarTimer: null,
     }
   }
   ,
-  async mounted() {
-    const id = this.$route.params.id
-    if (id) {
-      await this.fetchResearchById(id)
-    }
-  },
-
   methods: {
+    // 1. ฟังก์ชันตรวจสอบความครบถ้วนของข้อมูล
+    validateForm() {
+      const f = this.form;
+      const errors = [];
+
+      // ตรวจสอบข้อมูลพื้นฐาน
+      if (!f.titleTH) errors.push("ชื่อโครงการ (ภาษาไทย)");
+      if (!f.titleEN) errors.push("ชื่อโครงการ (ภาษาอังกฤษ)");
+      if (!f.budgetType) errors.push("ประเภททุน");
+      if (!f.researchType) errors.push("ประเภทงานวิจัย");
+
+      // ตรวจสอบหัวหน้าโครงการ
+      const main = f.researchers.mainResearcher;
+      if (!main.name || !main.affiliation || !main.email) {
+        errors.push("ข้อมูลหัวหน้าโครงการ (ชื่อ, สังกัด, อีเมล)");
+      }
+
+      // ตรวจสอบเนื้อหาวิจัย (Rich Text)
+      if (!f.keywords) errors.push("คำสำคัญ (Keywords)");
+      if (!f.objective) errors.push("วัตถุประสงค์");
+      if (!f.methodology) errors.push("วิธีดำเนินการวิจัย");
+
+      // ตรวจสอบแผนงาน
+      if (!f.activities || f.activities.length === 0) {
+        errors.push("แผนการดำเนินงาน (ต้องมีอย่างน้อย 1 กิจกรรม)");
+      }
+
+      if (errors.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'ข้อมูลยังไม่ครบถ้วน',
+          html: `<div class="text-start small">กรุณากรอกข้อมูลดังต่อไปนี้:<br><ul class="mt-2">${errors.map(e => `<li>${e}</li>`).join('')}</ul></div>`,
+          confirmButtonText: 'ไปกรอกข้อมูล',
+          customClass: { confirmButton: 'btn btn-warning' }
+        });
+        return false;
+      }
+      return true;
+    },
+
+    async submitProject() {
+      // 1. ตรวจสอบความครบถ้วนของข้อมูลก่อน
+      if (!this.validateForm()) return;
+
+      // 2. แสดงการยืนยันการยื่นโครงการ
+      const result = await Swal.fire({
+        title: 'ยืนยันการยื่นโครงการ?',
+        text: "เมื่อยื่นแล้วจะไม่สามารถแก้ไขข้อมูลได้จนกว่าเจ้าหน้าที่จะส่งกลับ",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'ยืนยันการยื่น',
+        cancelButtonText: 'ยกเลิก',
+        customClass: {
+          confirmButton: 'btn btn-success me-2',
+          cancelButton: 'btn btn-secondary'
+        },
+        buttonsStyling: false
+      });
+
+      if (!result.isConfirmed) return;
+
+      // 3. เริ่มกระบวนการส่งข้อมูลแบบเดียวกับ submit()
+      try {
+        const id = this.$route.params.id;
+        const url = id ? `/api/research/${id}` : `/api/research`;
+        const method = id ? "PUT" : "POST";
+
+        // กำหนดสถานะเป็น ยื่นแล้ว
+        this.form.stage = 'SUBMITTED';
+
+        const cleanForm = JSON.parse(JSON.stringify(this.form));
+
+        // ล้างค่า file ใน JSON (เพราะต้องส่งแยกทาง FormData)
+        if (cleanForm.humanDetail) cleanForm.humanDetail.file = null;
+        if (cleanForm.animalDetail) cleanForm.animalDetail.file = null;
+        if (cleanForm.plantDetail) cleanForm.plantDetail.file = null;
+
+        const fd = new FormData();
+        fd.append("form", JSON.stringify(cleanForm));
+
+        // แนบไฟล์หลัก
+        if (Array.isArray(this.files) && this.files.length) {
+          this.files.forEach((f) => {
+            if (f?.raw) fd.append("attachments", f.raw);
+          });
+        }
+
+        // แนบไฟล์จริยธรรมวิจัย
+        if (this.form?.humanDetail?.file) fd.append("humanFile", this.form.humanDetail.file);
+        if (this.form?.animalDetail?.file) fd.append("animalFile", this.form.animalDetail.file);
+        if (this.form?.plantDetail?.file) fd.append("plantFile", this.form.plantDetail.file);
+
+        Swal.fire({
+          title: "กำลังยื่นโครงการ...",
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading(),
+        });
+
+        const res = await fetch(url, { method, body: fd });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) throw new Error(data?.error || `Submission failed (${res.status})`);
+
+        // อัปเดตกิจกรรมล่าสุด
+        this.lastActivity = data?.lastActivity || {
+          message: "ยื่นข้อเสนอโครงการ",
+          by: this.form?.researchers?.mainResearcher?.name || "Unknown",
+          role: "หัวหน้าโครงการ",
+          at: new Date().toISOString(),
+        };
+
+        Swal.fire({
+          icon: "success",
+          title: "ยื่นโครงการสำเร็จ",
+          text: "ระบบได้รับการเสนอโครงการวิจัยเรียบร้อยแล้ว",
+          confirmButtonText: "กลับสู่หน้าหลัก",
+          customClass: { confirmButton: "btn btn-primary" },
+        }).then(() => {
+          // เมื่อยื่นสำเร็จ ให้กลับไปหน้า Dashboard
+          this.$router.push({ name: "Dashboard" });
+        });
+
+      } catch (err) {
+        console.error(err);
+        Swal.fire({
+          icon: "error",
+          title: "ยื่นโครงการไม่สำเร็จ",
+          text: err?.message || "เกิดข้อผิดพลาดในการส่งข้อมูล",
+          customClass: { confirmButton: "btn btn-danger" },
+        });
+      }
+    },
+
+    async handleExport() {
+      if (this.validateForm()) {
+        this.exportPDF();
+      }
+    },
     addCoResearcher() { this.form.researchers.coResearchers.push({ name: "", affiliation: "", phone: "", email: "", code: "", signature: "" }); },
     removeCoResearcher(index) { this.form.researchers.coResearchers.splice(index, 1); },
     addAdvisor() { this.form.researchers.advisors.push({ name: "", affiliation: "", phone: "", email: "", signature: "" }); },
     removeAdvisor(index) { this.form.researchers.advisors.splice(index, 1); },
     handleFileUpload(event, type) {
       const file = event.target.files[0];
-      type === 'human' ? this.form.humanDetail.file = file : this.form.animalDetail.file = file;
+
+      if (type === 'human') {
+        this.form.humanDetail.file = file;
+      } else if (type === 'animal') {
+        this.form.animalDetail.file = file;
+      } else if (type === 'plant') {
+        this.form.plantDetail.file = file;
+      }
     },
     handleFileUpload2(event) {
       const selectedFiles = Array.from(event.target.files);
@@ -312,119 +483,95 @@ updateBarTimer: null,
       event.target.value = null;
     }
     ,
-    // submit() {
-    //   console.log("Final Form Data:", this.form);
+    async submit() {
+      try {
 
-    //   Swal.fire({
-    //     icon: 'success',
-    //     title: 'บันทึกสำเร็จ',
-    //     text: 'บันทึกข้อมูลสำเร็จ',
-    //     confirmButtonText: 'ตกลง',
-    //     buttonsStyling: false,
-    //     customClass: {
-    //       confirmButton: 'btn btn-primary'
-    //     }
-    //   });
-async submit() {
-  try {
-    console.log("SUBMIT CLICKED");
+        const id = this.$route.params.id;
+        const url = id ? `/api/research/${id}` : `/api/research`;
+        const method = id ? "PUT" : "POST";
 
-    // ✅ 0) กำหนด url/method ให้ชัวร์ (นี่แหละที่มึงพังอยู่)
-    const id = this.$route.params.id;
-    const url = id ? `/api/research/${id}` : `/api/research`;
-    const method = id ? "PUT" : "POST";
+        const cleanForm = JSON.parse(JSON.stringify(this.form));
+        if (cleanForm.humanDetail) cleanForm.humanDetail.file = null;
+        if (cleanForm.animalDetail) cleanForm.animalDetail.file = null;
 
-    // ✅ 1) ทำสำเนา form แบบตัด File ออก (กัน JSON stringify พัง/ใหญ่เกิน)
-    const cleanForm = JSON.parse(JSON.stringify(this.form));
-    if (cleanForm.humanDetail) cleanForm.humanDetail.file = null;
-    if (cleanForm.animalDetail) cleanForm.animalDetail.file = null;
+        if (cleanForm?.budgetData?.categories) {
+          cleanForm.budgetData.categories.forEach(cat => {
+            (cat.rows || []).forEach(r => {
+              r.fileUrl = null;
+            });
+          });
+        }
 
-    // (แนะนำ) ไม่ต้องเก็บ blob url ลง DB
-    if (cleanForm?.budgetData?.categories) {
-      cleanForm.budgetData.categories.forEach(cat => {
-        (cat.rows || []).forEach(r => {
-          r.fileUrl = null;
+        const fd = new FormData();
+        fd.append("form", JSON.stringify(cleanForm));
+
+        if (Array.isArray(this.files) && this.files.length) {
+          this.files.forEach((f) => {
+            if (f?.raw) fd.append("attachments", f.raw);
+          });
+        }
+
+        if (this.form?.humanDetail?.file) {
+          fd.append("humanFile", this.form.humanDetail.file);
+        }
+        if (this.form?.animalDetail?.file) {
+          fd.append("animalFile", this.form.animalDetail.file);
+        }
+        if (this.form?.plantDetail?.file) {
+          fd.append("plantFile", this.form.plantDetail.file);
+        }
+
+        Swal.fire({
+          title: "กำลังบันทึก...",
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading(),
         });
-      });
+
+        const res = await fetch(url, {
+          method,
+          body: fd,
+        });
+
+        const data = await res.json().catch(() => ({}));
+        console.log("SAVE RESPONSE JSON:", JSON.stringify(data, null, 2));
+        if (!res.ok) {
+          throw new Error(data?.error || `Save failed (${res.status})`);
+        }
+        this.lastActivity = data?.lastActivity || {
+          message: "บันทึกข้อเสนอโครงการ",
+          by: this.form?.researchers?.mainResearcher?.name || "Unknown",
+          role: "หัวหน้าโครงการ",
+          at: new Date().toISOString(),
+        };
+
+        this.showUpdateBar(this.lastActivity);
+        if (!id && data?.id) {
+          this.$router.replace({ name: "Research", params: { id: data.id } });
+        }
+
+
+        Swal.fire({
+          icon: "success",
+          title: "บันทึกสำเร็จ",
+          text: data?.message || "บันทึกข้อมูลสำเร็จ",
+          confirmButtonText: "ตกลง",
+          buttonsStyling: false,
+          customClass: { confirmButton: "btn btn-primary" },
+        });
+
+      } catch (err) {
+        console.error(err);
+        Swal.fire({
+          icon: "error",
+          title: "บันทึกไม่สำเร็จ",
+          text: err?.message || "มีบางอย่างพัง",
+          confirmButtonText: "ปิด",
+          buttonsStyling: false,
+          customClass: { confirmButton: "btn btn-danger" },
+        });
+      }
     }
 
-    // ✅ 2) สร้าง FormData ให้ตรงกับ backend
-    const fd = new FormData();
-    fd.append("form", JSON.stringify(cleanForm));
-
-    // attachments (จาก FileManagement)
-    if (Array.isArray(this.files) && this.files.length) {
-      this.files.forEach((f) => {
-        if (f?.raw) fd.append("attachments", f.raw);
-      });
-    }
-
-    // humanFile / animalFile (จาก EthicsSection)
-    if (this.form?.humanDetail?.file) {
-      fd.append("humanFile", this.form.humanDetail.file);
-    }
-    if (this.form?.animalDetail?.file) {
-      fd.append("animalFile", this.form.animalDetail.file);
-    }
-
-    // // ✅ 3) ส่ง actor (ตอนนี้ยังไม่มี login ใช้ชื่อหัวหน้าโครงการแทน)
-    // const actorName = this.form?.researchers?.mainResearcher?.name || "Unknown";
-
-    Swal.fire({
-      title: "กำลังบันทึก...",
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading(),
-    });
-
-  const res = await fetch(url, {
-  method,
-  body: fd,
-});
-
-    const data = await res.json().catch(() => ({}));
-    console.log("SAVE RESPONSE JSON:", JSON.stringify(data, null, 2));
-    if (!res.ok) {
-      throw new Error(data?.error || `Save failed (${res.status})`);
-    }
-    // ✅ ตั้ง lastActivity ให้หน้าฟอร์ม + toast ใช้ได้
-this.lastActivity = data?.lastActivity || {
-  message: "บันทึกข้อเสนอโครงการ",
-  by: this.form?.researchers?.mainResearcher?.name || "Unknown",
-  role: "หัวหน้าโครงการ",
-  at: new Date().toISOString(),
-};
-
-// ✅ เด้ง update bar
-this.showUpdateBar(this.lastActivity);
-    // ✅ 5) ถ้า create ใหม่ แล้ว backend ส่ง id มา -> เปลี่ยน URL เป็นหน้าแก้ไขทันที
-    // เพื่อให้กดบันทึกรอบถัดไปเป็น PUT ไม่สร้างซ้ำ
-    if (!id && data?.id) {
-      this.$router.replace({ name: "Research", params: { id: data.id } });
-    }
-
-
-    Swal.fire({
-      icon: "success",
-      title: "บันทึกสำเร็จ",
-      text: data?.message || "บันทึกข้อมูลสำเร็จ",
-      confirmButtonText: "ตกลง",
-      buttonsStyling: false,
-      customClass: { confirmButton: "btn btn-primary" },
-    });
-
-  } catch (err) {
-    console.error(err);
-    Swal.fire({
-      icon: "error",
-      title: "บันทึกไม่สำเร็จ",
-      text: err?.message || "มีบางอย่างพัง",
-      confirmButtonText: "ปิด",
-      buttonsStyling: false,
-      customClass: { confirmButton: "btn btn-danger" },
-    });
-  }
-}
-     
     ,
     resetForm() {
       Swal.fire({
@@ -441,74 +588,161 @@ this.showUpdateBar(this.lastActivity);
         }
       }).then((result) => {
         if (result.isConfirmed) {
-          location.reload();
+          this.initNewForm();
+          this.$router.replace({ name: "Research" });
         }
       });
     }
     ,
-    exportPDF() {
-      this.$nextTick(() => {
-        localStorage.setItem("reportData", JSON.stringify(this.form))
-        this.$router.push("/report")
-      })
-      
+    async exportPDF() {
+
+      await this.$nextTick();
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      const element = this.$refs.reportComponent.$el;
+
+      const opt = {
+        margin: 0,
+        filename: "Research_RS1.pdf",
+        html2canvas: {
+          scale: 2,
+          useCORS: true
+        },
+        jsPDF: {
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait"
+        }
+      };
+
+      html2pdf()
+        .set(opt)
+        .from(element)
+        .save();
     },
     async fetchResearchById(id) {
       try {
         const res = await fetch(`http://localhost:5000/api/research/${id}`)
         const data = await res.json()
-        
+        this.initNewForm()
+        const hasCategories =
+          data?.budgetData?.categories &&
+          data.budgetData.categories.length > 0
+
         this.form = {
           ...this.form,
           ...data,
+          stage: data.stage || 'DRAFT',
+          budgetData: hasCategories
+            ? data.budgetData
+            : {
+              categories: [
+                { name: "หมวดที่ 1", rows: [] },
+                { name: "หมวดที่ 2", rows: [] },
+                { name: "หมวดที่ 3", rows: [] }
+              ],
+              grandTotal: 0
+            },
           selectedOutcomes: data.selectedOutcomes || [],
           activities: data.activities || [],
-          standards: data.standards || [],
-          researchStandard: data.researchStandard || []
+          researchStandard: data.researchStandard || [],
+          progressReport: data.progressReport || "",
+          integration: data.integration || "",
+          remark: data.remark || ""
         }
-      this.lastActivity = data?.lastActivity || null;
+
+        this.lastActivity = data?.lastActivity || null
       } catch (err) {
         console.error(err)
       }
     }
     ,
     formatTimeAgo(date) {
-  if (!date) return "-";
-  const diff = Date.now() - new Date(date);
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
+      if (!date) return "-";
+      const diff = Date.now() - new Date(date);
+      const minutes = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
 
-  if (minutes < 1) return "เมื่อสักครู่";
-  if (minutes < 60) return `${minutes} นาทีที่แล้ว`;
-  if (hours < 24) return `${hours} ชั่วโมงที่แล้ว`;
-  return `${days} วันที่แล้ว`;
-},
-formatDateTime(date) {
-  if (!date) return "-";
-  return new Date(date).toLocaleString("th-TH");
-},
-showUpdateBar(act) {
-  if (!act) return;
-  this.updateBar.text = `${act.message} โดย ${act.by}`;
-  this.updateBar.at = act.at;
-  this.updateBar.show = true;
+      if (minutes < 1) return "เมื่อสักครู่";
+      if (minutes < 60) return `${minutes} นาทีที่แล้ว`;
+      if (hours < 24) return `${hours} ชั่วโมงที่แล้ว`;
+      return `${days} วันที่แล้ว`;
+    },
+    formatDateTime(date) {
+      if (!date) return "-";
+      return new Date(date).toLocaleString("th-TH");
+    },
+    showUpdateBar(act) {
+      if (!act) return;
+      this.updateBar.text = `${act.message} โดย ${act.by}`;
+      this.updateBar.at = act.at;
+      this.updateBar.show = true;
 
-  clearTimeout(this.updateBarTimer);
-  this.updateBarTimer = setTimeout(() => {
-    this.updateBar.show = false;
-  }, 4000);
-},
-badgeClass(action) {
-  if (action === "CREATE") return "bg-success";
-  if (action === "UPDATE") return "bg-primary";
-  return "bg-secondary";
-},
-badgeText(action) {
-  if (action === "CREATE") return "สร้างใหม่";
-  if (action === "UPDATE") return "อัปเดต";
-  return action || "กิจกรรม";
-},
+      clearTimeout(this.updateBarTimer);
+      this.updateBarTimer = setTimeout(() => {
+        this.updateBar.show = false;
+      }, 4000);
+    },
+    badgeClass(action) {
+      if (action === "CREATE") return "bg-success";
+      if (action === "UPDATE") return "bg-primary";
+      return "bg-secondary";
+    },
+    badgeText(action) {
+      if (action === "CREATE") return "สร้างใหม่";
+      if (action === "UPDATE") return "อัปเดต";
+      return action || "กิจกรรม";
+    }, initNewForm() {
+      this.lastActivity = null;
+      this.files = [];
+
+      this.form = {
+        stage: 'DRAFT',
+        titleTH: "",
+        titleEN: "",
+        budgetType: "",
+        selectedStrategy: "",
+        cooperation: "ไม่มี",
+        cooperationDetail: "",
+        researchType: "",
+        budgetSubTypes: [],
+        selectedOutcomes: [],
+        researchStandard: [],
+        socialTransfer: "",
+        mainSignature: "",
+        activities: [],
+        humanDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
+        animalDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
+        plantDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
+
+        researchers: {
+          mainResearcher: { name: "", affiliation: "", phone: "", email: "", code: "", signature: "" },
+          coResearchers: [],
+          advisors: []
+        },
+
+        budgetData: {
+          categories: [
+            { name: "หมวดที่ 1", rows: [] },
+            { name: "หมวดที่ 2", rows: [] },
+            { name: "หมวดที่ 3", rows: [] }
+          ],
+          grandTotal: 0
+        },
+
+        keywords: "",
+        importance: "",
+        objective: "",
+        literature: "",
+        reference: "",
+        methodology: "",
+        scope: "",
+        progressReport: "",
+        integration: "",
+        remark: ""
+      };
+    }
   }
 };
 </script>
@@ -526,6 +760,7 @@ badgeText(action) {
   z-index: 1000;
   box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
 }
+
 .last-activity-card {
   border-left: 5px solid #321fdb;
 }

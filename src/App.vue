@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <router-view />
+    <router-view :key="$route.fullPath" />
   </div>
 </template>
 
@@ -10,7 +10,6 @@ export default {
 }
 </script>
 <style>
-/* บังคับให้ Quill ใช้ icon font ของตัวเอง */
 .ql-snow .ql-toolbar button::before {
   font-family: "ql-icons" !important;
 }

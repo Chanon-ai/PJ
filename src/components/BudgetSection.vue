@@ -21,7 +21,7 @@
         </CCardHeader>
 
         <CCardBody class="p-3 bg-light">
-          <div v-if="cat.options.length > 0" class="mb-3" style="max-width: 500px;">
+          <div v-if="cat.options && cat.options.length > 0" class="mb-3">
             <CFormSelect :options="['', ...cat.options]" v-model="cat.selected" @change="addRow(ci)"
               placeholder="-- เลือกรายการย่อยเพื่อเพิ่มในตาราง --" custom class="shadow-sm border-primary" />
           </div>
@@ -40,10 +40,10 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-if="cat.rows.length === 0">
+                <tr v-if="!cat.rows || cat.rows.length === 0">
                   <td colspan="7" class="text-center py-4 text-muted">ยังไม่มีรายการในหมวดนี้</td>
                 </tr>
-                <tr v-for="(r, ri) in cat.rows" :key="r.id">
+                <tr v-for="(r, ri) in cat.rows || []" :key="r.id">
 
                   <td class="px-3 py-2">
                     <div class="d-flex align-items-center flex-wrap" style="gap: 5px;">
@@ -62,8 +62,10 @@
                       <div class="d-flex align-items-end" style="gap: 10px;">
                         <div class="flex-grow-1">
                           <label class="small font-weight-bold mb-1 d-block text-muted">เลือกหมวดหมู่เอกสาร:</label>
-                          <CFormSelect v-model="r.fileCategory" :options="['-- เลือกหมวดหมู่ --', ...fileCategories]"
-                            size="sm" custom class="mb-0 border-primary" style="font-size: 11px;" />
+                          <CFormSelect v-model="r.fileCategory" :options="[
+                            { label: '-- เลือกหมวดหมู่ --', value: '' },
+                            ...fileCategories
+                          ]" size="sm" custom class="mb-0 border-primary" style="font-size: 11px;" />
                         </div>
 
                         <div class="pb-0">
@@ -83,10 +85,11 @@
 
                   <td style="min-width: 300px;">
                     <div class="d-flex flex-wrap align-items-center" style="gap: 12px;">
-                      <div v-for="(m, mi) in r.multipliers" :key="mi" class="multiplier-group position-relative">
+                      <div v-for="(m, mi) in (r.multipliers || [])" :key="mi"
+                        class="multiplier-group position-relative">
 
-                        <CButton v-if="r.isManual && r.multipliers.length > 1" color="danger" variant="ghost" size="sm"
-                          class="p-0 position-absolute"
+                        <CButton v-if="r.isManual && r.multipliers && r.multipliers.length > 1" color="danger"
+                          variant="ghost" size="sm" class="p-0 position-absolute"
                           style="top: -8px; right: -8px; z-index: 10; background: white; border-radius: 50%;"
                           @click="removeMultiplier(r, mi)">
                           <CIcon name="cil-x-circle" size="sm" />
@@ -115,7 +118,7 @@
                   <td v-for="p in ['p1', 'p2', 'p3']" :key="p" class="py-2 align-middle">
                     <CFormInput type="number" v-model.number="r[p]"
                       :class="['mb-0 text-right shadow-none', r.errors[p] ? 'is-invalid-bg text-danger border-danger' : '']"
-                      @input="validateInstallments(r, p)" />
+                      @input="validateInstallments(r)" />
                     <label v-if="r.errors[p]" class="text-danger d-block mt-1 font-weight-bold text-center"
                       style="font-size: 13px;">{{ r.errors[p] }}</label>
                   </td>
@@ -176,75 +179,92 @@ export default {
   emits: ['update:modelValue'],
 
   data() {
-
     return {
       activeCategoryIndex: null,
-      categories: [
-        this.makeCat("หมวดค่าตอบแทน", ["ค่าตอบแทน – นักศึกษาช่วยงานด้านวิชาการ", "ค่าตอบแทน – นักศึกษาช่วยงานทั่วไป", "ค่าตอบแทน – อาสาสมัคร", "ค่าตอบแทน – ผู้ให้ข้อมูล"]),
-        this.makeCat("หมวดค่าใช้สอย", ["ค่าอาหารกลางวัน (120.-)", "ค่าอาหารว่าง (50.-)", "จ้างเหมาวิเคราะห์ทดสอบ (TOR)"]),
-        this.makeCat("หมวดค่าเดินทาง", ["ค่าเบี้ยเลี้ยง (350.-/วัน)", "ค่าที่พัก (เหมา 800.-)", "รถยนต์ส่วนบุคคล (4.-/กม.)"]),
-        this.makeCat("หมวดค่าวัสดุ", ["ค่าวัสดุสำนักงาน", "ค่าวัสดุคอมพิวเตอร์", "น้ำมันเชื้อเพลิงพาหนะเช่า"]),
-        this.makeCat("หมวดค่าสาธารณูปโภค", []),
-        this.makeCat("หมวดครุภัณฑ์", [])
-      ],
       fileCategories: [
         { label: "TOR (Term of References)", value: "TOR" },
         { label: "ใบเสนอราคา / Quotation", value: "Quotation" },
         { label: "Specification", value: "Specification" },
         { label: "CV", value: "CV" },
         { label: "อัตราค่าบริการต่าง ๆ / Service Rates", value: "Service Rates" }
-      ],
-    };
+      ]
+    }
   },
   computed: {
-    grandTotal() {
-      return this.categories.reduce((sum, c) =>
-        sum + c.rows.reduce((s, r) => s + Number(r.total || 0), 0), 0
-      );
-    }
-  },
-  watch: {
-    modelValue: {
-      deep: true,
-      immediate: true,
-      handler(val) {
-        if (!val || !val.categories || val.categories.length === 0) return;
-
-        const incoming = JSON.stringify(val.categories);
-        const current = JSON.stringify(this.categories);
-
-        if (incoming !== current) {
-          this.categories = JSON.parse(incoming);
+    budgetData: {
+      get() {
+        return this.modelValue || {
+          categories: [],
+          grandTotal: 0
         }
+      },
+      set(val) {
+        this.$emit("update:modelValue", val)
       }
-    }
-    ,
+    },
 
     categories: {
-      deep: true,
-      handler() {
-        this.$emit('update:modelValue', {
-          categories: this.categories,
-          grandTotal: this.grandTotal
-        });
+      get() {
+        return Array.isArray(this.budgetData?.categories)
+          ? this.budgetData.categories
+          : []
+      },
+      set(val) {
+        this.budgetData = {
+          ...this.budgetData,
+          categories: val
+        }
       }
+    },
+    grandTotal() {
+      if (!this.categories || !Array.isArray(this.categories)) return 0
+
+      return this.categories.reduce((sum, c) =>
+        sum + (c.rows || []).reduce((s, r) => s + Number(r.total || 0), 0)
+        , 0)
     }
-  }
-  ,
+  },
   mounted() {
-    const saved = localStorage.getItem("budgetData");
 
-    if (
-      saved &&
-      (!this.modelValue || !this.modelValue.categories?.length)
-    ) {
-      const parsed = JSON.parse(saved);
-      this.categories = parsed.categories || this.categories;
+    const defaultCats = [
+      this.makeCat("หมวดค่าตอบแทน", ["ค่าตอบแทน – นักศึกษาช่วยงานด้านวิชาการ", "ค่าตอบแทน – นักศึกษาช่วยงานทั่วไป", "ค่าตอบแทน – อาสาสมัคร", "ค่าตอบแทน – ผู้ให้ข้อมูล"]),
+      this.makeCat("หมวดค่าใช้สอย", ["ค่าอาหารกลางวัน (120.-)", "ค่าอาหารว่าง (50.-)", "จ้างเหมาวิเคราะห์ทดสอบ (TOR)"]),
+      this.makeCat("หมวดค่าเดินทาง", ["ค่าเบี้ยเลี้ยง (350.-/วัน)", "ค่าที่พัก (เหมา 800.-)", "รถยนต์ส่วนบุคคล (4.-/กม.)"]),
+      this.makeCat("หมวดค่าวัสดุ", ["ค่าวัสดุสำนักงาน", "ค่าวัสดุคอมพิวเตอร์", "น้ำมันเชื้อเพลิงพาหนะเช่า"]),
+      this.makeCat("หมวดค่าสาธารณูปโภค", []),
+      this.makeCat("หมวดครุภัณฑ์", [])
+    ]
+    const existing = this.modelValue?.categories || [];
+    const map = new Map(existing.map(c => [c.title, c]));
 
-      this.$emit('update:modelValue', {
-        categories: this.categories,
-        grandTotal: this.grandTotal
-      });
+    const finalCats = defaultCats.map(def => {
+      const existingCat = map.get(def.title);
+
+      if (existingCat) {
+        return {
+          ...def,
+          ...existingCat,
+          rows: existingCat.rows || []
+        };
+      }
+
+      return def;
+    });
+
+    this.$emit("update:modelValue", {
+      categories: finalCats,
+      grandTotal: this.grandTotal
+    });
+  },
+  watch: {
+    categories: {
+      deep: true,
+      handler(newVal) {
+        this.budgetData = {
+          ...this.budgetData,
+          categories: newVal
+        };
+      }
     }
   }
   ,
@@ -304,8 +324,7 @@ export default {
     },
 
     newRow(name, isManual, fileName = null, catTitle = "", fileUrl = null) {
-      let multipliers = null;
-      // อัตรา มฟล. 2569
+      let multipliers = [];
       if (name.includes("วิชาการ")) multipliers = [{ label: "ชม.", val: 0 }, { label: "คน", val: 0 }, { label: "บาท", val: 60 }];
       else if (name.includes("ทั่วไป")) multipliers = [{ label: "ชม.", val: 0 }, { label: "คน", val: 0 }, { label: "บาท", val: 30 }];
       else if (name.includes("อาหารกลางวัน")) multipliers = [{ label: "มื้อ", val: 0 }, { label: "คน", val: 0 }, { label: "บาท", val: 120 }];
@@ -353,6 +372,7 @@ export default {
 
       if (!/^[0-9+\-*/().\s]+$/.test(value)) return;
 
+
       try {
         const result = Function('"use strict";return (' + value + ')')();
         row.total = isFinite(result) ? result : 0;
@@ -362,39 +382,34 @@ export default {
     }
     ,
     calculateRowTotal(row) {
-      this.$nextTick(() => {
-        if (row.multipliers && row.multipliers.length > 0) {
-          row.total = row.multipliers.reduce((acc, m) => {
-            const val = (m.val === "" || m.val === null) ? 0 : Number(m.val);
-            return acc * val;
-          }, 1);
-        } else {
-          row.total = 0; // กรณีไม่มีตัวคูณให้เป็น 0
-        }
-        // ตรวจสอบ Error ของทุกงวดใหม่หลังจากยอดรวมเปลี่ยน
-        ['p1', 'p2', 'p3'].forEach(p => this.validateInstallments(row, p));
-      });
+      if (row.multipliers && row.multipliers.length > 0) {
+        row.total = row.multipliers.reduce((acc, m) => {
+          const val = (m.val === "" || m.val === null) ? 0 : Number(m.val);
+          return acc * val;
+        }, 1);
+      } else {
+        row.total = 0;
+      }
+
+      this.validateInstallments(row);
     }
     ,
-    validateInstallments(row, field) {
-      // ใช้ $nextTick เพื่อรอให้ v-model อัปเดตค่าล่าสุดให้เสร็จก่อน
-      this.$nextTick(() => {
-        const p1 = Number(row.p1 || 0);
-        const p2 = Number(row.p2 || 0);
-        const p3 = Number(row.p3 || 0);
+    validateInstallments(row) {
+      const p1 = Number(row.p1 || 0);
+      const p2 = Number(row.p2 || 0);
+      const p3 = Number(row.p3 || 0);
 
-        const sum = p1 + p2 + p3;
+      const sum = p1 + p2 + p3;
 
-        // ตรวจสอบกับยอดรวม (row.total) ที่คำนวณได้ล่าสุด
-        if (sum > row.total) {
-          row.errors[field] = "ยอดรวมเกินงบประมาณ";
-        } else {
-          // หากไม่เกิน ให้เคลียร์ Error ของทุกช่องในแถวนี้
-          row.errors.p1 = "";
-          row.errors.p2 = "";
-          row.errors.p3 = "";
-        }
-      });
+      if (sum > row.total) {
+        row.errors.p1 = "ยอดรวมเกินงบประมาณ";
+        row.errors.p2 = "ยอดรวมเกินงบประมาณ";
+        row.errors.p3 = "ยอดรวมเกินงบประมาณ";
+      } else {
+        row.errors.p1 = "";
+        row.errors.p2 = "";
+        row.errors.p3 = "";
+      }
     }
     ,
     triggerFileUpload(ci) { this.activeCategoryIndex = ci; this.$refs.fileInput.click(); },

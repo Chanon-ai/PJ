@@ -2,8 +2,8 @@
   <CCard class="w-100 border-0">
     <CCardBody class="px-4 bg-white">
       <h5 class="font-weight-bold text-dark mb-3">
-            <span class="text-primary me-2">|</span> 18) มาตรฐานการวิจัย <span class="required">*</span>
-          </h5>
+        <span class="text-primary me-2">|</span> 18. มาตรฐานการวิจัย <span class="required">*</span>
+      </h5>
       <div class="bg-light p-4 rounded border shadow-sm w-100 border-left-primary ">
         <div class="ms-3">
 
@@ -186,8 +186,8 @@ export default {
 
   computed: {
     safeStandards() {
-      return Array.isArray(this.form.standards)
-        ? this.form.standards
+      return Array.isArray(this.form.researchStandard)
+        ? this.form.researchStandard
         : [];
     }
   },
@@ -215,7 +215,48 @@ export default {
         }
       }
 
-      this.updateField('standards', list);
+      // 🔥 สร้าง form ใหม่
+      let updatedForm = {
+        ...this.form,
+        researchStandard: list
+      };
+
+      // 🔥 ถ้าไม่ได้เลือก human ให้ล้างค่า
+      if (!list.includes('human')) {
+        updatedForm.humanDetail = {
+          hasCert: false,
+          isPending: false,
+          applyDate: ''
+        };
+      }
+
+      if (!list.includes('animal')) {
+        updatedForm.animalDetail = {
+          hasCert: false,
+          isPending: false,
+          applyDate: ''
+        };
+      }
+
+      if (!list.includes('plant')) {
+        updatedForm.plantDetail = {
+          hasCert: false,
+          isPending: false,
+          applyDate: ''
+        };
+      }
+
+      if (list.includes('none')) {
+        updatedForm = {
+          ...updatedForm,
+          researchStandard: ['none'],
+          humanDetail: { hasCert: false, isPending: false, applyDate: '' },
+          animalDetail: { hasCert: false, isPending: false, applyDate: '' },
+          plantDetail: { hasCert: false, isPending: false, applyDate: '' }
+        };
+      }
+
+      this.$emit('update:form', updatedForm);
     },
 
     updateNested(parentKey, childKey, value) {

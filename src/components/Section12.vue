@@ -1,6 +1,6 @@
 <template>
   <h5 class="font-weight-bold text-dark mb-3">
-            <span class="text-primary me-2">|</span> 12) แผนการดำเนินงาน
+            <span class="text-primary me-2">|</span> 12. แผนการดำเนินงาน
           </h5>
   <div class="section-12-container w-100">
     <div class="mb-4">
@@ -197,7 +197,7 @@ export default {
   display: flex;
   border-bottom: 1px solid #ced4da;
   align-items: stretch;
-  min-height: 50px;
+  min-height: auto;
 }
 
 .header-row {
@@ -207,7 +207,7 @@ export default {
 }
 
 .cell {
-  padding: 10px;
+  padding: 5px 10px;
   display: flex;
   border-right: 1px solid #ced4da;
 }
@@ -250,7 +250,7 @@ export default {
 }
 
 .month-cell.header {
-  height: 50px;
+  height: auto;
   padding-top: 10px;
 }
 
@@ -265,8 +265,8 @@ export default {
   background: transparent;
   resize: none;
   font-size: 14px;
-  line-height: 1.5;
-  padding: 5px;
+  line-height: 1.2;
+  padding: 0;
   overflow: hidden;
   height: 100%;
   color: #4f5d73;
