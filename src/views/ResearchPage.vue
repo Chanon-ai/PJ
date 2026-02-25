@@ -197,13 +197,13 @@ export default {
         { value: 'ด้านสังคมศาสตร์และมนุษยศาสตร์', label: 'ด้านสังคมศาสตร์และมนุษยศาสตร์' }
       ],
       textFields: [
-        { label: "5) คำสำคัญ (Keywords)", model: "keywords" },
-        { label: "6) ความสำคัญของปัญหาและแนวคิด", model: "importance" },
-        { label: "7) วัตถุประสงค์", model: "objective" },
-        { label: "8) ทบทวนวรรณกรรม", model: "literature" },
-        { label: "9) เอกสารอ้างอิง", model: "reference" },
-        { label: "10) วิธีดำเนินการวิจัย", model: "methodology" },
-        { label: "11) ขอบเขตการวิจัย", model: "scope" }
+        { label: "5. คำสำคัญ (Keywords)", model: "keywords" },
+        { label: "6. ความสำคัญของปัญหาและแนวคิด", model: "importance" },
+        { label: "7. วัตถุประสงค์", model: "objective" },
+        { label: "8. ทบทวนวรรณกรรม", model: "literature" },
+        { label: "9. เอกสารอ้างอิง", model: "reference" },
+        { label: "10. วิธีดำเนินการวิจัย", model: "methodology" },
+        { label: "11. ขอบเขตการวิจัย", model: "scope" }
       ],
       outcomes: {
         newResearcher: [
@@ -334,19 +334,15 @@ export default {
     //   });
     async submit() {
       try {
-        console.log("SUBMIT CLICKED");
 
-        // ✅ 0) กำหนด url/method ให้ชัวร์ (นี่แหละที่มึงพังอยู่)
         const id = this.$route.params.id;
         const url = id ? `/api/research/${id}` : `/api/research`;
         const method = id ? "PUT" : "POST";
 
-        // ✅ 1) ทำสำเนา form แบบตัด File ออก (กัน JSON stringify พัง/ใหญ่เกิน)
         const cleanForm = JSON.parse(JSON.stringify(this.form));
         if (cleanForm.humanDetail) cleanForm.humanDetail.file = null;
         if (cleanForm.animalDetail) cleanForm.animalDetail.file = null;
 
-        // (แนะนำ) ไม่ต้องเก็บ blob url ลง DB
         if (cleanForm?.budgetData?.categories) {
           cleanForm.budgetData.categories.forEach(cat => {
             (cat.rows || []).forEach(r => {
@@ -355,27 +351,21 @@ export default {
           });
         }
 
-        // ✅ 2) สร้าง FormData ให้ตรงกับ backend
         const fd = new FormData();
         fd.append("form", JSON.stringify(cleanForm));
 
-        // attachments (จาก FileManagement)
         if (Array.isArray(this.files) && this.files.length) {
           this.files.forEach((f) => {
             if (f?.raw) fd.append("attachments", f.raw);
           });
         }
 
-        // humanFile / animalFile (จาก EthicsSection)
         if (this.form?.humanDetail?.file) {
           fd.append("humanFile", this.form.humanDetail.file);
         }
         if (this.form?.animalDetail?.file) {
           fd.append("animalFile", this.form.animalDetail.file);
         }
-
-        // // ✅ 3) ส่ง actor (ตอนนี้ยังไม่มี login ใช้ชื่อหัวหน้าโครงการแทน)
-        // const actorName = this.form?.researchers?.mainResearcher?.name || "Unknown";
 
         Swal.fire({
           title: "กำลังบันทึก...",
@@ -393,7 +383,6 @@ export default {
         if (!res.ok) {
           throw new Error(data?.error || `Save failed (${res.status})`);
         }
-        // ✅ ตั้ง lastActivity ให้หน้าฟอร์ม + toast ใช้ได้
         this.lastActivity = data?.lastActivity || {
           message: "บันทึกข้อเสนอโครงการ",
           by: this.form?.researchers?.mainResearcher?.name || "Unknown",
@@ -401,10 +390,7 @@ export default {
           at: new Date().toISOString(),
         };
 
-        // ✅ เด้ง update bar
         this.showUpdateBar(this.lastActivity);
-        // ✅ 5) ถ้า create ใหม่ แล้ว backend ส่ง id มา -> เปลี่ยน URL เป็นหน้าแก้ไขทันที
-        // เพื่อให้กดบันทึกรอบถัดไปเป็น PUT ไม่สร้างซ้ำ
         if (!id && data?.id) {
           this.$router.replace({ name: "Research", params: { id: data.id } });
         }
@@ -453,38 +439,61 @@ export default {
       });
     }
     ,
-    exportPDF() {
-      this.$nextTick(() => {
-        const element =
-          this.$refs.reportComponent.$el;
+    async exportPDF() {
 
-        const opt = {
-          margin: 0.5,
-          filename: "Research_RS1.pdf",
-          html2canvas: { scale: 2 },
-          jsPDF: { format: "a4", orientation: "portrait" }
-        };
+      await this.$nextTick();
+      await new Promise(resolve => setTimeout(resolve, 200));
 
-        html2pdf()
-          .set(opt)
-          .from(element)
-          .save();
-      });
+      const element = this.$refs.reportComponent.$el;
+
+      const opt = {
+        margin: 0,
+        filename: "Research_RS1.pdf",
+        html2canvas: {
+          scale: 2,
+          useCORS: true
+        },
+        jsPDF: {
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait"
+        }
+      };
+
+      html2pdf()
+        .set(opt)
+        .from(element)
+        .save();
     },
     async fetchResearchById(id) {
       try {
         const res = await fetch(`http://localhost:5000/api/research/${id}`)
         const data = await res.json()
 
+        const hasCategories =
+          data?.budgetData?.categories &&
+          data.budgetData.categories.length > 0
+
         this.form = {
           ...this.form,
           ...data,
+          budgetData: hasCategories
+            ? data.budgetData
+            : {
+              categories: [
+                { name: "หมวดที่ 1", rows: [] },
+                { name: "หมวดที่ 2", rows: [] },
+                { name: "หมวดที่ 3", rows: [] }
+              ],
+              grandTotal: 0
+            },
           selectedOutcomes: data.selectedOutcomes || [],
           activities: data.activities || [],
           standards: data.standards || [],
           researchStandard: data.researchStandard || []
         }
-        this.lastActivity = data?.lastActivity || null;
+
+        this.lastActivity = data?.lastActivity || null
       } catch (err) {
         console.error(err)
       }

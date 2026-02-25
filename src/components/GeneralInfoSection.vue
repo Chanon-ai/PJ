@@ -8,7 +8,7 @@
     <CCardBody class="p-4 bg-white">
       <CRow>
         <CCol md="12" class="mb-4">
-          <h5 class="font-weight-bold text-dark mb-3"><span class="text-primary me-2">|</span>1) ชื่อโครงการ <span class="required">*</span></h5>
+          <h5 class="font-weight-bold text-dark mb-3"><span class="text-primary me-2">|</span>1. ชื่อโครงการ <span class="required">*</span></h5>
           <div class="p-3 border rounded bg-light shadow-sm">
             <CFormInput label="ชื่อโครงการ (ภาษาไทย)" :model-value="form.titleTH"
               @update:modelValue="val => updateField('titleTH', val)" placeholder="กรุณาระบุชื่อโครงการภาษาไทย"
@@ -21,7 +21,7 @@
 
         <CCol md="12" class="mb-4">
           <h5 class="font-weight-bold text-dark mb-3">
-            <span class="text-primary me-2">|</span>2) ประเภททุน <span class="required">*</span>
+            <span class="text-primary me-2">|</span>2. ประเภททุน <span class="required">*</span>
           </h5>
 
           <div class="d-flex flex-column border rounded p-3 bg-white shadow-sm">
@@ -63,7 +63,7 @@
 
 
         <CCol lg="12" md="12" class="mb-4">
-          <h5 class="font-weight-bold text-dark mb-3"><span class="text-primary me-2">|</span>3) ความร่วมมือ <span class="required">*</span></h5>
+          <h5 class="font-weight-bold text-dark mb-3"><span class="text-primary me-2">|</span>3. ความร่วมมือ <span class="required">*</span></h5>
           <CFormSelect :options="['ไม่มี', 'มี']" :model-value="form.cooperation"
             @update:modelValue="val => updateField('cooperation', val)" class="shadow-sm" />
           <div v-if="form.cooperation === 'มี'" class="mt-3">
@@ -74,7 +74,7 @@
         </CCol>
 
         <CCol lg="12" md="12" class="">
-          <h5 class="font-weight-bold text-dark mb-3"><span class="text-primary me-2">|</span>4) ประเภทงานวิจัย <span class="required">*</span></h5>
+          <h5 class="font-weight-bold text-dark mb-3"><span class="text-primary me-2">|</span>4. ประเภทงานวิจัย <span class="required">*</span></h5>
           <CFormSelect :options="researchTypeOptions" v-model="researchTypeModel" class="shadow-sm" />
         </CCol>
       </CRow>

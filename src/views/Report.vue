@@ -5,7 +5,7 @@
     </button> -->
 
     <div id="report-area" class="report-container">
-      
+
       <div class="first-page">
         <!-- รหัสเอกสาร -->
         <div class="doc-code">RS-01</div>
@@ -414,7 +414,7 @@
           <div class="rotated-content">
             <div class="section">
               <div class="sub-title">17. งบประมาณ</div>
-              <div v-if="budgetData" class="budget-table-section mt-4">
+              <div v-if="form.budgetData && form.budgetData.categories?.length" class="budget-table-section mt-4">
                 <table class="budget-print-table landscape-table">
                   <thead>
                     <tr>
@@ -428,7 +428,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <template v-for="(cat, ci) in budgetData.categories" :key="ci">
+                    <template v-for="(cat, ci) in form.budgetData.categories" :key="ci">
                       <tr v-for="(row, ri) in cat.rows" :key="ri">
                         <td>{{ cat.title }}</td>
                         <td>{{ row.name }}</td>
@@ -446,7 +446,7 @@
                   </tbody>
                 </table>
                 <div class="budget-grand-total mt-3">
-                  รวมทั้งสิ้น {{ budgetData.grandTotal.toLocaleString() }} บาท
+                  รวมทั้งสิ้น {{ form.budgetData.grandTotal.toLocaleString() }} บาท
                 </div>
               </div>
             </div>
@@ -581,67 +581,14 @@ import html2pdf from "html2pdf.js";
 
 export default {
   name: "ResearchReport",
-
+  props: {
+    form: {
+      type: Object,
+      required: true
+    }
+  },
   data() {
     return {
-      form: {
-
-        selectedOutcomes: [],
-        titleTH: "",
-        titleEN: "",
-        budgetType: "",
-        budgetSubTypes: [],
-        cooperation: "",
-        cooperationDetail: "",
-        researchType: "",
-        researchStandard: [],
-        standards: [],
-        mainSignature: "",
-        activities: [],
-        humanDetail: {
-          hasCert: false,
-          isPending: false,
-          applyDate: "",
-          file: null
-        },
-        animalDetail: {
-          hasCert: false,
-          isPending: false,
-          applyDate: "",
-          file: null
-        },
-        researchers: {
-          mainResearcher: {
-            name: "",
-            affiliation: "",
-            phone: "",
-            email: "",
-            code: ""
-          },
-          coResearchers: [],
-          advisors: []
-        },
-        plantDetail: {
-          hasCert: false,
-          isPending: false,
-          applyDate: "",
-          file: null
-        },
-        budgetData: null,
-        keywords: "",
-        importance: "",
-        objective: "",
-        literature: "",
-        reference: "",
-        methodology: "",
-        scope: "",
-        progressReport: "",
-        integration: "",
-        socialTransfer: "",
-        remark: "",
-        selectedStrategy: ""
-      },
-
       contentSections: [
         { title: "5. คำสำคัญ (Keywords)", model: "keywords" },
         { title: "6. ความสำคัญของปัญหาและแนวคิด", model: "importance" },
@@ -654,60 +601,6 @@ export default {
     };
   }
   ,
-  mounted() {
-    const data = localStorage.getItem("reportData")
-
-    if (data) {
-      const parsed = JSON.parse(data)
-
-      let mapped = []
-
-      if (parsed.standards?.includes('none')) {
-        mapped.push('18_none')
-      }
-
-      if (parsed.standards?.includes('human')) {
-        mapped.push('18_human')
-
-        if (parsed.humanDetail?.hasCert) {
-          mapped.push('18_human_certified')
-        }
-
-        if (parsed.humanDetail?.isPending) {
-          mapped.push('18_human_pending')
-        }
-      }
-
-      if (parsed.standards?.includes('animal')) {
-        mapped.push('18_animal')
-
-        if (parsed.animalDetail?.hasCert) {
-          mapped.push('18_animal_certified')
-        }
-
-        if (parsed.animalDetail?.isPending) {
-          mapped.push('18_animal_pending')
-        }
-      }
-
-      this.form = {
-        ...this.form,
-        ...parsed,
-        mainSignature: parsed.mainSignature || "",
-        researchers: {
-          ...this.form.researchers,
-          ...parsed.researchers
-        },
-        researchStandard: mapped
-      }
-
-    }
-    const budget = localStorage.getItem("budgetData");
-    if (budget) {
-      this.budgetData = JSON.parse(budget);
-    }
-
-  },
   methods: {
     check(condition) {
       return condition ? '☑' : '☐'
@@ -896,6 +789,7 @@ export default {
   margin-right: 25px;
   margin-bottom: 8px;
 }
+
 .doc-code {
   position: absolute;
   top: 5mm;

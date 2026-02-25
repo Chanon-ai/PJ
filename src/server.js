@@ -55,6 +55,9 @@ const researchSchema = new mongoose.Schema({
   progressReport: String,
   integration: String,
   remark: String,
+
+  budgetData: Object,
+
   humanDetail: Object,
   animalDetail: Object,
   plantDetail: Object,
@@ -128,12 +131,11 @@ app.put(
         form.animalDetail.filePath = req.files.animalFile[0].path
       }
 
-      await Research.findByIdAndUpdate(
+      const updated = await Research.findByIdAndUpdate(
         req.params.id,
-        { $set: form },
-        { new: true, runValidators: true }
+        form,
+        { returnDocument: 'after', runValidators: true }
       )
-
       res.json({ message: "Updated successfully" })
 
     } catch (err) {

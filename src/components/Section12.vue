@@ -1,6 +1,6 @@
 <template>
   <h5 class="font-weight-bold text-dark mb-3">
-            <span class="text-primary me-2">|</span> 12) แผนการดำเนินงาน
+            <span class="text-primary me-2">|</span> 12. แผนการดำเนินงาน
           </h5>
   <div class="section-12-container w-100">
     <div class="mb-4">
