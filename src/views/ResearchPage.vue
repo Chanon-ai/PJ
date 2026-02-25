@@ -241,15 +241,13 @@ export default {
         researchType: "",
         budgetSubTypes: [],
         selectedOutcomes: [],
-        standards: [],
         researchStandard: [],
         socialTransfer: "",
         mainSignature: "",
         activities: [],
         humanDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
         animalDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
-        plantDetail: { applyDate: '' },
-
+        plantDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
         researchers: {
           mainResearcher: { name: "", affiliation: "", phone: "", email: "", code: "", signature: "" },
           coResearchers: [],
@@ -271,6 +269,17 @@ export default {
     };
   },
   watch: {
+    '$route.params.id': {
+      immediate: true,
+      async handler(id) {
+        if (!id) {
+          this.initNewForm();
+        } else {
+          await this.fetchResearchById(id);
+        }
+      }
+    },
+
     'form.budgetType'(newVal, oldVal) {
       if (oldVal && newVal !== oldVal) {
         this.form.selectedOutcomes = []
@@ -278,13 +287,6 @@ export default {
     }
   }
   ,
-  async mounted() {
-    const id = this.$route.params.id
-    if (id) {
-      await this.fetchResearchById(id)
-    }
-  },
-
   methods: {
     addCoResearcher() { this.form.researchers.coResearchers.push({ name: "", affiliation: "", phone: "", email: "", code: "", signature: "" }); },
     removeCoResearcher(index) { this.form.researchers.coResearchers.splice(index, 1); },
@@ -292,7 +294,14 @@ export default {
     removeAdvisor(index) { this.form.researchers.advisors.splice(index, 1); },
     handleFileUpload(event, type) {
       const file = event.target.files[0];
-      type === 'human' ? this.form.humanDetail.file = file : this.form.animalDetail.file = file;
+
+      if (type === 'human') {
+        this.form.humanDetail.file = file;
+      } else if (type === 'animal') {
+        this.form.animalDetail.file = file;
+      } else if (type === 'plant') {
+        this.form.plantDetail.file = file;
+      }
     },
     handleFileUpload2(event) {
       const selectedFiles = Array.from(event.target.files);
@@ -319,19 +328,6 @@ export default {
       event.target.value = null;
     }
     ,
-    // submit() {
-    //   console.log("Final Form Data:", this.form);
-
-    //   Swal.fire({
-    //     icon: 'success',
-    //     title: 'บันทึกสำเร็จ',
-    //     text: 'บันทึกข้อมูลสำเร็จ',
-    //     confirmButtonText: 'ตกลง',
-    //     buttonsStyling: false,
-    //     customClass: {
-    //       confirmButton: 'btn btn-primary'
-    //     }
-    //   });
     async submit() {
       try {
 
@@ -365,6 +361,9 @@ export default {
         }
         if (this.form?.animalDetail?.file) {
           fd.append("animalFile", this.form.animalDetail.file);
+        }
+        if (this.form?.plantDetail?.file) {
+          fd.append("plantFile", this.form.plantDetail.file);
         }
 
         Swal.fire({
@@ -434,7 +433,8 @@ export default {
         }
       }).then((result) => {
         if (result.isConfirmed) {
-          location.reload();
+          this.initNewForm();
+          this.$router.replace({ name: "Research" });
         }
       });
     }
@@ -469,7 +469,7 @@ export default {
       try {
         const res = await fetch(`http://localhost:5000/api/research/${id}`)
         const data = await res.json()
-
+        this.initNewForm()
         const hasCategories =
           data?.budgetData?.categories &&
           data.budgetData.categories.length > 0
@@ -489,8 +489,10 @@ export default {
             },
           selectedOutcomes: data.selectedOutcomes || [],
           activities: data.activities || [],
-          standards: data.standards || [],
-          researchStandard: data.researchStandard || []
+          researchStandard: data.researchStandard || [],
+          progressReport: data.progressReport || "",
+          integration: data.integration || "",
+          remark: data.remark || ""
         }
 
         this.lastActivity = data?.lastActivity || null
@@ -535,7 +537,55 @@ export default {
       if (action === "CREATE") return "สร้างใหม่";
       if (action === "UPDATE") return "อัปเดต";
       return action || "กิจกรรม";
-    },
+    }, initNewForm() {
+      this.lastActivity = null;
+      this.files = [];
+
+      this.form = {
+        titleTH: "",
+        titleEN: "",
+        budgetType: "",
+        selectedStrategy: "",
+        cooperation: "ไม่มี",
+        cooperationDetail: "",
+        researchType: "",
+        budgetSubTypes: [],
+        selectedOutcomes: [],
+        researchStandard: [],
+        socialTransfer: "",
+        mainSignature: "",
+        activities: [],
+        humanDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
+        animalDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
+        plantDetail: { hasCert: false, isPending: false, applyDate: '', file: null },
+
+        researchers: {
+          mainResearcher: { name: "", affiliation: "", phone: "", email: "", code: "", signature: "" },
+          coResearchers: [],
+          advisors: []
+        },
+
+        budgetData: {
+          categories: [
+            { name: "หมวดที่ 1", rows: [] },
+            { name: "หมวดที่ 2", rows: [] },
+            { name: "หมวดที่ 3", rows: [] }
+          ],
+          grandTotal: 0
+        },
+
+        keywords: "",
+        importance: "",
+        objective: "",
+        literature: "",
+        reference: "",
+        methodology: "",
+        scope: "",
+        progressReport: "",
+        integration: "",
+        remark: ""
+      };
+    }
   }
 };
 </script>
