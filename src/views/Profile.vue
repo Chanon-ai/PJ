@@ -1,166 +1,6 @@
 <template>
   <div class="app-layout">
 
-    <!-- ───────────── SIDEBAR ───────────── -->
-    <aside class="sidebar" :class="{ expanded: sidebarExpanded }">
-      <div class="sidebar-header">
-        <div class="sidebar-logo">
-          <span class="logo-text">LOGO</span>
-        </div>
-        <button class="hamburger-btn" @click="sidebarExpanded = !sidebarExpanded">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="6"  x2="21" y2="6"/>
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
-      </div>
-
-      <div class="sidebar-subtitle">
-        <Transition name="fade-text">
-          <span v-if="sidebarExpanded">ระบบพิจารณาข้อเสนอโครงการ</span>
-        </Transition>
-      </div>
-
-      <nav class="sidebar-nav">
-        <a v-for="item in navItems" :key="item.route" href="#"
-          class="nav-item"
-          :class="{ active: currentRoute === item.route }"
-          :title="!sidebarExpanded ? item.label : ''"
-          @click.prevent="currentRoute = item.route"
-        >
-          <span class="nav-icon-wrap">
-            <svg v-if="item.icon === 'grid'" width="22" height="22" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-              <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
-            </svg>
-            <svg v-else-if="item.icon === 'bell'" width="22" height="22" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-            <svg v-else-if="item.icon === 'file'" width="22" height="22" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14,2 14,8 20,8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-            </svg>
-            <svg v-else-if="item.icon === 'user'" width="22" height="22" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-          </span>
-          <Transition name="fade-text">
-            <span v-if="sidebarExpanded" class="nav-label">{{ item.label }}</span>
-          </Transition>
-        </a>
-      </nav>
-    </aside>
-
-    <!-- Overlay -->
-    <Transition name="overlay-fade">
-      <div v-if="sidebarExpanded" class="sidebar-overlay" @click="sidebarExpanded = false" />
-    </Transition>
-
-    <!-- ───────────── MAIN BODY ───────────── -->
-    <div class="app-body" :class="{ 'sidebar-open': sidebarExpanded }">
-
-      <!-- TOPBAR -->
-      <header class="topbar" :style="{ left: sidebarExpanded ? '240px' : '72px' }">
-        <div class="topbar-right">
-          <div class="lang-switcher">
-            <span v-for="l in ['TH', 'EN']" :key="l"
-              :class="{ active: lang === l }" @click="lang = l">{{ l }}</span>
-            <span class="divider">|</span>
-          </div>
-          
-          <div class="notif-dropdown-wrap">
-  <button class="bell-btn" @click="notifOpen = !notifOpen">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-      <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-    </svg>
-    <span class="bell-badge" v-if="unreadCount > 0"></span>
-  </button>
-
-  <Transition name="dropdown">
-    <div v-if="notifOpen" class="dropdown-panel">
-
-      <div class="dp-header">
-        <span class="dp-title">การแจ้งเตือน</span>
-        <span class="dp-unread" v-if="unreadCount > 0">{{ unreadCount }} ใหม่</span>
-      </div>
-
-      <div class="dp-list">
-        <div
-          v-for="item in notifications.slice(0, 5)"
-          :key="item.id"
-          class="dp-item"
-          :class="{ unread: !item.read }"
-          @click="item.read = true; notifOpen = false; $router.push({ name: 'Notifications' })"
-        >
-          <div class="dp-icon" :class="item.iconClass">
-            <svg v-if="item.icon === 'person'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-            <svg v-else-if="item.icon === 'edit'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-            <svg v-else-if="item.icon === 'check'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            <svg v-else-if="item.icon === 'info'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="16" x2="12" y2="12"/>
-              <line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
-            <svg v-else-if="item.icon === 'alert'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-              <line x1="12" y1="9" x2="12" y2="13"/>
-              <line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>
-          </div>
-
-          <div class="dp-content">
-            <div class="dp-item-title">{{ item.title }}</div>
-            <div class="dp-item-desc">{{ item.desc }}</div>
-            <div class="dp-item-time">{{ item.time }}</div>
-          </div>
-
-          <span v-if="!item.read" class="dp-dot"></span>
-        </div>
-      </div>
-
-      <div class="dp-footer">
-        <button class="dp-view-all" @click="notifOpen = false; $router.push({ name: 'Notifications' })">
-          ดูทั้งหมด
-        </button>
-      </div>
-
-    </div>
-  </Transition>
-
-  <div v-if="notifOpen" class="dp-backdrop" @click="notifOpen = false" />
-</div>
-
-          <div class="user-menu">
-            <div class="user-avatar">👤</div>
-            <span class="caret">▾</span>
-          </div>
-        </div>
-      </header>
-
       <!-- ───────────── PROFILE PAGE ───────────── -->
       <div class="page-wrapper">
         <div class="profile-container">
@@ -384,8 +224,6 @@
           {{ toast.msg }}
         </div>
       </Transition>
-
-    </div>
   </div>
 </template>
 
@@ -649,70 +487,13 @@ export default {
 .overlay-fade-leave-to     { opacity: 0; }
 
 /* ══════════════════════════════════
-   Topbar
-══════════════════════════════════ */
-.topbar {
-  position: fixed;
-  top: 0; right: 0;
-  height: 60px;
-  background: #2d3a2e;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0 24px;
-  z-index: 100;
-  border-bottom: 1px solid #3a4a3b;
-  transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  color: #d0d0d0;
-}
-
-.lang-switcher { display: flex; align-items: center; gap: 4px; font-size: 14px; }
-.lang-switcher span { cursor: pointer; padding: 2px 4px; border-radius: 4px; color: #aaa; transition: color 0.2s; }
-.lang-switcher span.active { color: #fff; font-weight: 600; }
-.lang-switcher span:hover  { color: #c8e6c9; }
-.lang-switcher .divider    { color: #555; cursor: default; }
-
-.bell-btn {
-  background: none; border: none;
-  color: #c8e6c9; position: relative;
-  display: flex; align-items: center; cursor: pointer;
-}
-.bell-badge {
-  position: absolute; top: -2px; right: -2px;
-  width: 9px; height: 9px;
-  background: #ef5350; border-radius: 50%;
-  border: 1.5px solid #2d3a2e;
-}
-
-.user-menu {
-  display: flex; align-items: center; gap: 8px;
-  cursor: pointer; padding: 6px 10px;
-  border-radius: 8px; transition: background 0.2s;
-}
-.user-menu:hover { background: rgba(255,255,255,0.08); }
-
-.user-avatar {
-  width: 34px; height: 34px; border-radius: 50%;
-  background: #4a7c59;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-}
-.caret { font-size: 12px; color: #aaa; }
-
-/* ══════════════════════════════════
    Page Wrapper
 ══════════════════════════════════ */
 .page-wrapper {
-  margin-top: 60px;
   background: linear-gradient(135deg, #eef4ff, #f8fbff);
-  padding: 36px 40px;
-  min-height: calc(100vh - 60px);
+  padding: 20px 24px;
+  min-height: 100%;
+  box-sizing: border-box;
 }
 
 /* ══════════════════════════════════
@@ -720,34 +501,37 @@ export default {
 ══════════════════════════════════ */
 .profile-container {
   display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 28px;
-  max-width: 1100px;
+  grid-template-columns: 240px 1fr;  /* ✅ 1fr จะ stretch เต็มพื้นที่ที่เหลือ */
+  gap: 20px;
+  width: 100%;                        /* ✅ เพิ่มนี้ */
+  max-width: 100%;                    /* ✅ เอา max-width: 1100px ออก */
+  box-sizing: border-box;
 }
 
 /* ── Left Card ── */
 .profile-left-card {
   background: #fff;
   border-radius: 20px;
-  padding: 36px 24px;
+  padding: 24px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   box-shadow: 0 4px 24px rgba(0,0,0,0.07);
   height: fit-content;
 }
-
-.avatar-ring {
-  width: 110px; height: 110px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #4a7c59, #81c784);
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 20px;
-  box-shadow: 0 6px 20px rgba(74,124,89,0.3);
+.profile-right {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 100%;      /* ✅ เพิ่มนี้ */
+  min-width: 0;     /* ✅ เพิ่มนี้ ป้องกัน grid overflow */
 }
 
 .avatar-circle {
-  width: 96px; height: 96px;
+  width: 78px; height: 78px;
   border-radius: 50%;
   background: #e8f5e9;
   display: flex; align-items: center; justify-content: center;
@@ -781,9 +565,9 @@ export default {
   align-items: center;
   background: #f9fafb;
   border-radius: 14px;
-  padding: 16px 20px;
+  padding: 12px 16px;
   width: 100%;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .stat-item {
@@ -863,7 +647,7 @@ export default {
 .tab-btn.active { color: #4a7c59; border-bottom-color: #4a7c59; font-weight: 600; }
 
 /* Tab content */
-.tab-content { padding: 28px 28px 32px; }
+.tab-content { padding: 20px 24px 24px; }
 
 .section-title {
   font-size: 16px;
@@ -878,8 +662,8 @@ export default {
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 28px;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
 .form-group { display: flex; flex-direction: column; gap: 7px; }
