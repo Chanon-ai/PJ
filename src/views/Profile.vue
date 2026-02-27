@@ -491,21 +491,28 @@ export default {
 ══════════════════════════════════ */
 .page-wrapper {
   background: linear-gradient(135deg, #eef4ff, #f8fbff);
-  padding: 20px 24px;
+  padding: 24px 28px;
   min-height: 100%;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.profile-container {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  width: 100%;
   box-sizing: border-box;
 }
 
-/* ══════════════════════════════════
-   Profile Layout
-══════════════════════════════════ */
-.profile-container {
-  display: grid;
-  grid-template-columns: 240px 1fr;  /* ✅ 1fr จะ stretch เต็มพื้นที่ที่เหลือ */
-  gap: 20px;
-  width: 100%;                        /* ✅ เพิ่มนี้ */
-  max-width: 100%;                    /* ✅ เอา max-width: 1100px ออก */
-  box-sizing: border-box;
+.profile-right {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 /* ── Left Card ── */
@@ -518,16 +525,6 @@ export default {
   align-items: center;
   box-shadow: 0 4px 24px rgba(0,0,0,0.07);
   height: fit-content;
-}
-.profile-right {
-  background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  width: 100%;      /* ✅ เพิ่มนี้ */
-  min-width: 0;     /* ✅ เพิ่มนี้ ป้องกัน grid overflow */
 }
 
 .avatar-circle {

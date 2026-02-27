@@ -155,8 +155,8 @@ export default {
             bellOpen: false,
             navItems: [
                 { key: "dashboard", label: "Dashboard", icon: "📊", route: "Dashboard" },
-                { key: "research",  label: "งานวิจัย",  icon: "📄", route: "Research" },
-                { key: "report",    label: "รายงาน",    icon: "📑", route: "Report" },
+                // { key: "research",  label: "งานวิจัย",  icon: "📄", route: "Research" },
+                // { key: "report",    label: "รายงาน",    icon: "📑", route: "Report" },
             ],
         };
     },
